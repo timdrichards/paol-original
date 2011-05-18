@@ -3,7 +3,7 @@
 void FrameLinkedList::push(cv::Mat frame)
 {
   boost::mutex::scoped_lock lock(list_lock);
-    
+  
   //Store image locally
   cv::Mat newFrame = frame;
   

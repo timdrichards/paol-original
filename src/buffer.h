@@ -19,12 +19,12 @@ class FrameLinkedList
   int size;
   void push(cv::Mat frame);
   cv::Mat pop();
-
+  
  FrameLinkedList() : size(0) {};
-
+  
  private:
   boost::mutex listLock;
-    
+  
 };
 
 class Buffer
@@ -37,5 +37,5 @@ class Buffer
  private:
   boost::mutex bufferLock;
   std::vector<FrameLinkedList> consumerLists;
-
+  
 };

@@ -25,7 +25,7 @@ using namespace  boost;
 
 
 //////Testing Code//////
-void readImageToLinkedList(FrameLinkedList* list);
+void readImageToLinkedList(FrameLinkedList *list);
 
 int main()
 {
@@ -42,7 +42,7 @@ int main()
 
 };
 
-void readImageToLinkedList(FrameLinkedList* list)
+void readImageToLinkedList(FrameLinkedList *list)
 {
   std::cout<<"Producer:: about to read image"<<std::endl;
   cv::Mat newImage;
