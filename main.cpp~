@@ -1,0 +1,15 @@
+#include "main.h"
+
+using namespace cv;
+using namespace boost;
+
+int main()
+{
+  std::cout<<"MAIN: Main launched"<<std::endl;
+
+
+  std::cout<<"MAIN: Main Ending"<<std::endl;
+
+  return 0;
+
+};
