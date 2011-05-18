@@ -24,22 +24,37 @@ using namespace cv;
 using namespace  boost;
 
 
+//////Testing Code//////
+void readImageToLinkedList(FrameLinkedList* list);
+
 int main()
 {
   std::cout<<"MAIN: Main launched"<<std::endl;
 
-  frameListItem testFrame;
-  std::cout<<"MAIN: Made a frame"<<std::endl;
+  FrameLinkedList* testList;
+  testList = new FrameLinkedList;
+  std::cout<<"MAIN: Created test list"<<std::endl;
 
-  FrameLinkedList testList;
-  std::cout<<"MAIN: Made a test list"<<std::endl;
+  readImageToLinkedList(testList);
 
-  Buffer testBuffer;
-  std::cout<<"MAIN: Made a test buffer"<<std::endl;
-
-
-  std::cout<<"MAIN: Main Ending"<<std::endl;
-
+  std::cout<<"MAIN: Main Closing"<<std::endl;
   return 0;
 
 };
+
+void readImageToLinkedList(FrameLinkedList* list)
+{
+  std::cout<<"Producer:: about to read image"<<std::endl;
+  cv::Mat newImage;
+  newImage = imread("test.jpg");
+  
+  if (newImage.data)
+    {
+      list->push(newImage);
+      std::cout<<"Producer:: Linked list has the image"<<std::endl;
+    }else
+    {
+      std::cout<<"Error Loading Image"<<std::endl;
+    };
+};
+

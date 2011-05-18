@@ -14,14 +14,17 @@ struct frameListItem
 class FrameLinkedList
 {
  public:
-  frameListItem* first;
-  frameListItem* last;
+  frameListItem* oldest;
+  frameListItem* newest;
   int size;
   void push(cv::Mat frame);
   cv::Mat pop();
+
+ FrameLinkedList() : size(0) {};
+
  private:
-  boost::mutex::scoped_lock listLock;
-  
+  boost::mutex listLock;
+    
 };
 
 class Buffer
@@ -32,7 +35,7 @@ class Buffer
   cv::Mat pop();
   void run();
  private:
-  boost::mutex::scoped_lock bufferLock;
+  boost::mutex bufferLock;
   std::vector<FrameLinkedList> consumerLists;
 
 };
