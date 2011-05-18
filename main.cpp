@@ -28,6 +28,15 @@ int main()
 {
   std::cout<<"MAIN: Main launched"<<std::endl;
 
+  frameListItem testFrame;
+  std::cout<<"MAIN: Made a frame"<<std::endl;
+
+  FrameLinkedList testList;
+  std::cout<<"MAIN: Made a test list"<<std::endl;
+
+  Buffer testBuffer;
+  std::cout<<"MAIN: Made a test buffer"<<std::endl;
+
 
   std::cout<<"MAIN: Main Ending"<<std::endl;
 
