@@ -28,6 +28,7 @@ FrameLinkedList::FrameLinkedList()
   size = 0;
 };
 
+
 void FrameLinkedList::push(cv::Mat frame)
 {
   boost::mutex::scoped_lock lock(listLock);

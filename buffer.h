@@ -24,7 +24,7 @@ class FrameLinkedList
   cv::Mat pop();
   
   FrameLinkedList();
-  
+    
   boost::mutex listLock;
   
 };

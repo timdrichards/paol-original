@@ -40,7 +40,7 @@ int main()
   //readImageToLinkedList(testList);
   cv::Mat img;
   img = imread("test.jpg");
-  testList->push(img);
+  testList.push(img);
   std::cout<<"MAIN: Main Closing"<<std::endl;
   return 0;
 
