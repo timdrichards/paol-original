@@ -16,32 +16,37 @@
 #include "opencv/highgui.h"
 
 //Our Libs
-#include "src/buffer.h"
-#include "src/producer.h"
-#include "src/consumer.h"
+
+#include "buffer.h"
+//#include "src/producer.h"
+//#include "src/consumer.h"
+
 
 using namespace cv;
-using namespace  boost;
-
+using namespace boost;
+using namespace std;
 
 //////Testing Code//////
-void readImageToLinkedList(FrameLinkedList *list);
+//void readImageToLinkedList(FrameLinkedList *list);
 
 int main()
 {
   std::cout<<"MAIN: Main launched"<<std::endl;
 
-  FrameLinkedList* testList;
-  testList = new FrameLinkedList;
+  FrameLinkedList testList;
+  //testList = new FrameLinkedList;
   std::cout<<"MAIN: Created test list"<<std::endl;
 
-  readImageToLinkedList(testList);
-
+  //readImageToLinkedList(testList);
+  cv::Mat img;
+  img = imread("test.jpg");
+  testList->push(img);
   std::cout<<"MAIN: Main Closing"<<std::endl;
   return 0;
 
 };
 
+/*
 void readImageToLinkedList(FrameLinkedList *list)
 {
   std::cout<<"Producer:: about to read image"<<std::endl;
@@ -58,3 +63,4 @@ void readImageToLinkedList(FrameLinkedList *list)
     };
 };
 
+*/

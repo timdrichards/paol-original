@@ -1,7 +1,10 @@
+#ifndef _buffer_h_
+#define _buffer_h_
+
 ///////BUFFER CLASS///////////
 
 using namespace cv;
-using namespace boost;
+
 
 //List Item for buffer linked list//
 struct frameListItem
@@ -20,9 +23,8 @@ class FrameLinkedList
   void push(cv::Mat frame);
   cv::Mat pop();
   
- FrameLinkedList() : size(0) {};
+  FrameLinkedList();
   
- private:
   boost::mutex listLock;
   
 };
@@ -39,3 +41,7 @@ class Buffer
   std::vector<FrameLinkedList> consumerLists;
   
 };
+
+
+
+#endif

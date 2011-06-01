@@ -1,8 +1,36 @@
+// Including Boost
+#include <boost/lambda/lambda.hpp>
+#include <boost/thread.hpp>
+#include <boost/date_time.hpp>
+#include <boost/interprocess/containers/vector.hpp>
+
+//Including C++ Libs
+#include <iostream>
+#include <iterator>
+#include <queue>
+//#include <algorithm>
+#include <cstdio>
+
+//Open CV
+#include "opencv/cv.h"
+#include "opencv/highgui.h"
+
+#include "buffer.h"
+
+using namespace cv;
+using namespace boost;
+
 
 //////////Frame Linked List /////////////////////////////////////
+
+FrameLinkedList::FrameLinkedList()
+{
+  size = 0;
+};
+
 void FrameLinkedList::push(cv::Mat frame)
 {
-  boost::mutex::scoped_lock lock(list_lock);
+  boost::mutex::scoped_lock lock(listLock);
   
   //Store image locally
   cv::Mat newFrame = frame;
@@ -25,6 +53,7 @@ void FrameLinkedList::push(cv::Mat frame)
   size++;
 };
 
+
 cv::Mat FrameLinkedList::pop()
 {
   bool moreThanTwo = false;
@@ -32,7 +61,7 @@ cv::Mat FrameLinkedList::pop()
   while(!moreThanTwo)
     {
       { //Scoped so that the mutex will be released while the thread sleeps
-	boost::mutex::scoped_lock lock(list_lock);
+	boost::mutex::scoped_lock lock(listLock);
 	boost::posix_time::seconds sleepTime(2);
 	if (size > 2)
 	  {
@@ -49,4 +78,7 @@ cv::Mat FrameLinkedList::pop()
 	  };
       };
     };
+  return toPop;
 };
+
+
