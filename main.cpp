@@ -27,26 +27,49 @@ using namespace boost;
 using namespace std;
 
 //////Testing Code//////
+
+void readImageToLinkedList(FrameLinkedList *list);
+void displayPopAndDisplay(FrameLinkedList *list);
+
 //void readImageToLinkedList(FrameLinkedList *list);
 
 int main()
 {
+
+  boost::posix_time::seconds globalSleepTime(2);
   std::cout<<"MAIN: Main launched"<<std::endl;
 
   FrameLinkedList testList;
-  //testList = new FrameLinkedList;
+  FrameLinkedList* listPointer;
+  listPointer = new FrameLinkedList;
   std::cout<<"MAIN: Created test list"<<std::endl;
+  
+  //Launch viewer thread//
+  boost::thread consumer1(displayPopAndDisplay, listPointer);
+  boost::this_thread::sleep(globalSleepTime);
 
-  //readImageToLinkedList(testList);
-  cv::Mat img;
-  img = imread("test.jpg");
-  testList.push(img);
+  //Load Images into the Buffer//
+  boost::thread producer1(readImageToLinkedList, listPointer);
+  boost::this_thread::sleep(globalSleepTime);
+  boost::thread producer2(readImageToLinkedList, listPointer);
+  boost::this_thread::sleep(globalSleepTime);
+  boost::thread producer3(readImageToLinkedList, listPointer);
+  boost::this_thread::sleep(globalSleepTime);
+  boost::thread producer4(readImageToLinkedList, listPointer);
+  boost::this_thread::sleep(globalSleepTime);
+  
+  producer1.join();
+  producer2.join();
+  producer3.join();
+  producer4.join();
+  consumer1.join();
+  
   std::cout<<"MAIN: Main Closing"<<std::endl;
   return 0;
 
 };
 
-/*
+
 void readImageToLinkedList(FrameLinkedList *list)
 {
   std::cout<<"Producer:: about to read image"<<std::endl;
@@ -56,11 +79,25 @@ void readImageToLinkedList(FrameLinkedList *list)
   if (newImage.data)
     {
       list->push(newImage);
-      std::cout<<"Producer:: Linked list has the image"<<std::endl;
+      std::cout<<"Producer:: Linked list has the image, list size is now: "<< list->size <<std::endl;
     }else
     {
       std::cout<<"Error Loading Image"<<std::endl;
     };
 };
 
-*/
+
+void displayPopAndDisplay(FrameLinkedList *list)
+{
+  for(int i=0; i<4; i++)
+    {
+      std::cout<<"Consumer:: About to attempt pop, alocating memory"<<std::endl;
+      cv::Mat outImage;
+      outImage = list->pop();
+      std::cout<<"Consumer:: I have the image!"<<std::endl;
+      namedWindow("Window");
+      imshow("Window", outImage);
+      waitKey(0);
+      std::cout<<"Consumer:: Done showing Image"<<std::endl;
+    }
+};

@@ -32,7 +32,7 @@ FrameLinkedList::FrameLinkedList()
 void FrameLinkedList::push(cv::Mat frame)
 {
   boost::mutex::scoped_lock lock(listLock);
-  
+  std::cout<<"FrameLinkedList:: I have the lock"<<std::endl;
   //Store image locally
   cv::Mat newFrame = frame;
   
@@ -40,17 +40,25 @@ void FrameLinkedList::push(cv::Mat frame)
   frameListItem* newItem;
   //Set the pointer to a new frameListItem (Making the new item above the scope of push
   newItem = new frameListItem;
+
+  std::cout<<"FrameLinkedList:: New list item allocated"<<std::endl;
   
   if (size == 0)
     {
+      std::cout<<"FrameLinkedList:: List size is zero, I must be the first!"<<std::endl;
       oldest = newItem;
       newest = newItem;
     }else
     {
+      std::cout<<"FrameLinkedList:: I'm not the first, setting next to newItem"<<std::endl;
       newest->next = newItem;
     };
+  
+  std::cout<<"FrameLinkedList:: Done with house keeping, copying image memory"<<std::endl;
+  
   newest = newItem;
   newItem->frame = newFrame;
+  std::cout<<"FrameLinkedList:: Read in new image, incrementing size"<<std::endl;
   size++;
 };
 
@@ -61,23 +69,30 @@ cv::Mat FrameLinkedList::pop()
   cv::Mat toPop;
   while(!moreThanTwo)
     {
-      { //Scoped so that the mutex will be released while the thread sleeps
+      int readSize;
+      //Scoped so that the mutex will be released while the thread sleeps
+      {
 	boost::mutex::scoped_lock lock(listLock);
-	boost::posix_time::seconds sleepTime(2);
-	if (size > 2)
-	  {
-	    moreThanTwo = true;
-	    toPop = oldest->frame;
-	    frameListItem* toDelete;
-	    toDelete = oldest;
-	    oldest = toDelete->next;
-	    delete toDelete;
-	    return toPop;
-	  }else
-	  {
-	    boost::this_thread::sleep(sleepTime);
-	  };
-      };
+	readSize = size;
+      }
+      boost::posix_time::seconds sleepTime(2);
+      if (readSize > 2)
+	{
+	  boost::mutex::scoped_lock lock(listLock);
+	  moreThanTwo = true;
+	  toPop = oldest->frame;
+	  frameListItem* toDelete;
+	  toDelete = oldest;
+	  oldest = toDelete->next;
+	  delete toDelete;
+	  return toPop;
+	}else
+	{
+	  std::cout<<"FrameLinkedList:: Waiting for more then 2 in list, sleeping, size is: "<<readSize<<std::endl;
+	  std::cout<<"FrameLinkedList:: Released the lock"<<std::endl;
+	  boost::this_thread::sleep(sleepTime);
+	};
+      
     };
   return toPop;
 };
