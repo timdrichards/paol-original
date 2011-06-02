@@ -34,11 +34,11 @@ class Buffer
  public:
   int registerConsumer();
   void push(cv::Mat frame);
-  cv::Mat pop();
-  void run();
+  cv::Mat pop(int consumerID);
+  Buffer();
  private:
   boost::mutex bufferLock;
-  std::vector<FrameLinkedList> consumerLists;
+  std::vector<FrameLinkedList*> consumerLists;
   
 };
 

@@ -98,3 +98,37 @@ cv::Mat FrameLinkedList::pop()
 };
 
 
+////////////////////////////////////////////////////////////////////////////////////////////
+//Buffer Class /////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+
+
+Buffer::Buffer()
+{
+  boost::mutex::scoped_lock lock(bufferLock);
+  consumerLists.clear();
+  std::cout<<"Buffer:: Buffer created"<<std::endl;
+};
+
+int Buffer::registerConsumer()
+{
+  boost::mutex::scoped_lock lock(bufferLock);
+  consumerLists.push_back(new FrameLinkedList);
+  return consumerLists.size()-1;
+
+};
+
+void Buffer::push(cv::Mat frame)
+{
+  boost::mutex::scoped_lock lock(bufferLock);
+  for(unsigned int i=0; i<consumerLists.size(); i++)
+    {
+      consumerLists[i]->push(frame);
+    };
+
+};
+
+cv::Mat Buffer::pop(int consumerID)
+{
+  return consumerLists[consumerID]->pop();
+};
