@@ -1,3 +1,4 @@
+// ; -*-C++-*-
 #ifndef _buffer_h_
 #define _buffer_h_
 

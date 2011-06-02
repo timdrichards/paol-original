@@ -27,12 +27,16 @@ using namespace boost;
 using namespace std;
 
 void testProducer(Buffer *myBuffer){
+
+  
+  /*  
   std::cout<<"TestProducer:: Starting"<<std::endl;
   cv::Mat img = imread("test.jpg");
   myBuffer->push(img);
   myBuffer->push(img);
   myBuffer->push(img);
   std::cout<<"TestProducer:: Pushed image to myBuffer!"<<std::endl;
+*/
 };
 
 void testConsumer(Buffer *myBuffer){
