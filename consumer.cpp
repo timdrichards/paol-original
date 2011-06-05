@@ -13,13 +13,15 @@
 
 //Open CV
 #include "opencv/cv.h"
+#include "opencv/highgui.h"
 
 
 #include "buffer.h"
 #include "consumer.h"
 
 using namespace cv;
-using namespace boost;
+using namespace std;
+//using namespace boost;
 
 cv::Mat Consumer::pop()
 {
@@ -44,13 +46,17 @@ void Consumer::start(Buffer *buffer)
   myID = myBuffer->registerConsumer();
 };
 
-void ReadFromDisk::run()
+void imWindow::run()
 {
   //Hop into a loop as long as your ID is set and you haven't recieved a stop()
   while(myID != -1 && keepRunning())
     {
-      cv::Mat img = imread("test.jpg");
-      myBuffer->push(img);
+      namedWindow("Window");
+      cv::Mat img;
+      img = pop();
+      imshow("Window", img);
+      waitKey(0);
+      destroyWindow("Window");
     };
   std::cout<<"ReadFromDisk:: I was told to stop, my ID was: "<<myID<<std::endl;
 };

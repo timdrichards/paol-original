@@ -24,8 +24,9 @@ private:
 
 //Demo read from disk class//
 
-class ReadFromDisk: public Consumer
+class imWindow: public Consumer
 {
+public:
   void run();
   
 };

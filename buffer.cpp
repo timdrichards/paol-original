@@ -94,6 +94,8 @@ cv::Mat FrameLinkedList::pop()
 	};
       
     };
+  boost::mutex::scoped_lock lock(listLock);
+  size--;
   return toPop;
 };
 
