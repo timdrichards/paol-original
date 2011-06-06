@@ -24,6 +24,7 @@ class readFromDisk: public Producer
 {
 public:
   void run();
+  void readDir();
 };
 
 #endif

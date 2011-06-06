@@ -11,12 +11,14 @@ all:
 	-lopencv_core -lopencv_highgui \
 	-L /usr/lib/ \
 	-lboost_thread
-	g++ -g -Wall -Wall -c producer.cpp -o producer.o \
+	g++ -g -Wall -c producer.cpp -o producer.o \
 	-I /usr/local/include/opencv/ \
 	-L/user/local/lib/ \
 	-lopencv_core -lopencv_highgui \
 	-L /usr/lib/ \
-	-lboost_thread
+	-lboost_thread \
+	-lboost_filesystem-mt \
+	-lboost_regex
 	g++ -g -Wall -W -c main.cpp -o main.o \
 	-I /usr/local/include/opencv/ \
 	-L/user/local/lib/ \
@@ -28,7 +30,9 @@ all:
 	-L/user/local/lib/ \
 	-lopencv_core -lopencv_highgui \
 	-L /usr/lib/ \
-	-lboost_thread
+	-lboost_thread \
+	-lboost_filesystem-mt \
+	-lboost_regex
 
 buffer:
 	g++ -g -Wall -Wall -c buffer.cpp -o buffer.o \
