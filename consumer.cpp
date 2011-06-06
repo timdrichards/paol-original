@@ -25,7 +25,7 @@ using namespace std;
 
 cv::Mat Consumer::pop()
 {
-  cv::Mat img = myBuffer->pop(myID);
+  cv::Mat img = conBuffer->pop(myID);
   if (img.data)
     {
       return img;
@@ -51,8 +51,8 @@ bool Consumer::keepRunning()
 
 void Consumer::start(Buffer *buffer)
 {
-  myBuffer = buffer;
-  myID = myBuffer->registerConsumer();
+  conBuffer = buffer;
+  myID = conBuffer->registerConsumer();
 };
 
 void imWindow::run()

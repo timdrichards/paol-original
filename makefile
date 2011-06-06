@@ -6,12 +6,12 @@ FLAGS=-I /usr/local/include/opencv/ \
 	-lboost_thread \
 	-lboost_filesystem-mt \
 	-lboost_regex
-OBJ1=main.o buffer.o consumer.o producer.o writeToDisk.o
+OBJ1=main.o buffer.o consumer.o producer.o writeToDisk.o process.o
 
 
 
 all: everything
-     
+
 everything: $(OBJ1)
 	      $(CXX) -g -Wall -W -o paol-threads $(OBJ1) $(FLAGS)
 

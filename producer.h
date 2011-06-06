@@ -4,9 +4,11 @@
 
 class Producer
 {
+
+
   
 public:
-  Buffer *myBuffer;
+  Buffer *proBuffer;
   void push(cv::Mat img);
   void start(Buffer *buffer);
   void stop();
@@ -20,12 +22,12 @@ private:
 
 };
 
-class readFromDisk: public Producer
+class ReadFromDisk: public Producer
 {
 public:
   void run();
   void readDir();
-  void readFromPattern(char* dir);
+  void readFromPattern(char *dir, char* firstImage);
 };
 
 #endif

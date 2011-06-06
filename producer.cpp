@@ -28,19 +28,19 @@ using namespace boost;
 
 void Producer::start(Buffer *buffer)
 {
-  myBuffer = buffer;
+  proBuffer = buffer;
 };
 
 void Producer::push(cv::Mat img)
 {
-  myBuffer->push(img);
+  proBuffer->push(img);
 };
 
 void Producer::stop()
 {
   boost::mutex::scoped_lock lock(stoplock);
   killMe = true;
-  myBuffer->stop();
+  proBuffer->stop();
 };
 
 bool Producer::keepRunning()
@@ -49,7 +49,7 @@ bool Producer::keepRunning()
   return (!killMe);
 };
 
-void readFromDisk::run()
+void ReadFromDisk::run()
 {
   
   /*while (keepRunning())
@@ -67,7 +67,7 @@ void readFromDisk::run()
 //Boost filesystem namespace for readDir
 using namespace boost::filesystem;
 
-void readFromDisk::readDir()
+void ReadFromDisk::readDir()
 {
 
   path currentDir("media/"); //Set dir to look in
@@ -95,9 +95,37 @@ void readFromDisk::readDir()
   stop();
 };
 
-void readFromDisk::readFromPattern(char* dir)
+void ReadFromDisk::readFromPattern(char *dir, char* firstImage)
 {
+  int count, seconds, lastLoaded;
+  char name[256];
+  FILE *fp;
+  cv::Mat img;
+ 
+  sscanf(firstImage,"image%06d-%10d.ppm",&count,&seconds);
+  lastLoaded=seconds;
 
+  sprintf(name,"%simage%06d-%10d.ppm",dir,count,seconds);
 
-
+  while((seconds-lastLoaded)<20){
+    //try opening a file of the given name
+    img = imread(name);
+    if (img.data){
+      push(img);
+      lastLoaded=seconds;
+      count++;
+    } else {
+      sprintf(name,"%simage%06d-%10d.ppm",dir,count+1,seconds);
+      img = imread(name);
+      if (img.data){
+	push(img);
+	lastLoaded=seconds;
+	count+=2;
+      } else {
+	seconds++;
+      }
+    }
+    sprintf(name,"%simage%06d-%10d.ppm",dir,count,seconds);
+  }
+  stop();
 };

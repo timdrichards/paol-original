@@ -21,6 +21,7 @@
 #include "producer.h"
 #include "consumer.h"
 #include "writeToDisk.h"
+#include "process.h"
 
 
 using namespace cv;
@@ -43,34 +44,51 @@ void testWriteToDisk(Buffer *myBuffer)
 
 };
 
+void testReadFromPattern(Buffer *myBuffer,char* dir, char* firstImage) 
+{
+  ReadFromDisk producer;
+  producer.start(myBuffer);
+  producer.readFromPattern(dir, firstImage);
+
+};
+
 void testProducer(Buffer *myBuffer)
 {
-  readFromDisk producer;
+  ReadFromDisk producer;
   producer.start(myBuffer);
   producer.run();
 };
 
 
-int main()
+void testProcess(Buffer *inBuffer, Buffer *outBuffer)
+{
+  
+
+int main(int argc, char** argv)
 {
 
   const boost::posix_time::seconds globalSleepTime(2);
   std::cout<<"MAIN: Main launched"<<std::endl;
 
-  Buffer* testBuffer;
-  testBuffer = new Buffer;
+  Buffer* proBuffer;
+  proBuffer = new Buffer;
+
+  Buffer* conBuffer;
+  conBuffer = new Buffer;
 
   //You need to start your consumers first otherwise the buffer will throw away pushed frames//
-  //boost::thread consumer1(testConsumer, testBuffer);
-  boost::thread consumer2(testWriteToDisk, testBuffer);
-  boost::thread producer1(testProducer, testBuffer);
+ 
+  boost::thread diskWrite(testWriteToDisk, conBuffer);
+  boost::thread process(testProcess, proBuffer, conBuffer);
+  boost::thread diskRead(testReadFromPattern, proBuffer, argv[1], argv[2]);
+  
   
 
   std::cout<<"MAIN:: Waiting for join"<<std::endl;
   //Boost .join waits for the thread to complete//
-  //consumer1.join();
-  consumer2.join();
-  producer1.join();
+  
+  diskWrite.join();
+  diskRead.join();
   
 
   std::cout<<"MAIN: Main Closing"<<std::endl;

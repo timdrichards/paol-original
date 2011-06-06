@@ -8,7 +8,7 @@ class Consumer
 {
 public:
 
-  Buffer *myBuffer;
+  Buffer *conBuffer;
   int myID;
   void start(Buffer *buffer);
   cv::Mat pop();
