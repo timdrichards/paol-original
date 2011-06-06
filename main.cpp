@@ -42,7 +42,7 @@ void testProducer(Buffer *myBuffer){
 int main()
 {
 
-  boost::posix_time::seconds globalSleepTime(2);
+  const boost::posix_time::seconds globalSleepTime(2);
   std::cout<<"MAIN: Main launched"<<std::endl;
 
   Buffer* testBuffer;

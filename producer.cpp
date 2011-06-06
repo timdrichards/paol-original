@@ -40,6 +40,7 @@ void Producer::stop()
 {
   boost::mutex::scoped_lock lock(stoplock);
   killMe = true;
+  myBuffer->stop();
 };
 
 bool Producer::keepRunning()

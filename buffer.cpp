@@ -26,6 +26,7 @@ using namespace boost;
 FrameLinkedList::FrameLinkedList()
 {
   size = 0;
+  producerRunning=true;
 };
 
 
@@ -63,11 +64,24 @@ void FrameLinkedList::push(cv::Mat frame)
 };
 
 
+/////////////////////////////////////
+//Method waits until pop conditions are met, and then pops and image to the consumer
+// Pop conditions are:
+//     If the producer is still running don't pop unless
+//       there are more then two list elements in order to
+//       preserve the linked list
+//     If the producer is NOT running specificly pop the 
+//       last two images destroying the list
+//     Else sleep for sleepTime
+////////////////////////////////////
 cv::Mat FrameLinkedList::pop()
 {
   bool moreThanTwo = false;
   cv::Mat toPop;
   int readSize;
+  boost::posix_time::seconds sleepTime(1);
+  //Enter loop for the first time no matter what
+  //Loop where you grab a frame from the linked list, or wait for a frame to be available
   while(!moreThanTwo)
     {
       
@@ -88,15 +102,36 @@ cv::Mat FrameLinkedList::pop()
 	  delete toDelete;
 	  size--;
 	  return toPop;
+	}else if ( (readSize == 2) && !producerRunning)
+	{
+	  boost::mutex::scoped_lock lock(listLock);
+	  toPop = oldest->frame;
+	  frameListItem* toDelete;
+	  toDelete = oldest;
+	  oldest = toDelete->next;
+	  delete toDelete;
+	  size--;
+	  return toPop;
+	}else if ((readSize == 1) && !producerRunning)
+	{
+	  boost::mutex::scoped_lock lock(listLock);
+	  toPop = oldest->frame;
+	  frameListItem* toDelete;
+	  delete oldest;
+	  size--;
+	  return toPop;
+	}else if ((readSize == 0) && !producerRunning)
+	{
+	  cv::Mat null;
+	  return null;
 	}else
 	{
 	  std::cout<<"FrameLinkedList:: Waiting for more then 2 in list, sleeping, size is: "<<readSize<<std::endl;
 	  std::cout<<"FrameLinkedList:: Released the lock"<<std::endl;
 	  boost::this_thread::sleep(sleepTime);
 	};
-      
     };
-  //return toPop;
+  
 };
 
 
@@ -109,6 +144,7 @@ Buffer::Buffer()
 {
   boost::mutex::scoped_lock lock(bufferLock);
   consumerLists.clear();
+  producerRunning=true;
   std::cout<<"Buffer:: Buffer created"<<std::endl;
 };
 
@@ -134,3 +170,16 @@ cv::Mat Buffer::pop(int consumerID)
 {
   return consumerLists[consumerID]->pop();
 };
+
+
+void Buffer::stop()
+{
+  producerRunning = false;
+  boost::mutex::scoped_lock lock(bufferLock);
+  for(unsigned int i=0; i<consumerLists.size(); i++)
+    {
+      consumerLists[i]->stop();
+    };
+
+
+}

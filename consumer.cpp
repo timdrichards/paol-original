@@ -25,8 +25,17 @@ using namespace std;
 
 cv::Mat Consumer::pop()
 {
-  return myBuffer->pop(myID);
+  cv::Mat img = myBuffer->pop(myID);
+  if (img.data)
+    {
+      return img;
+    }else
+    {
+      stop();
+      return img;
+    };
 };
+
 
 void Consumer::stop()
 {
@@ -54,9 +63,14 @@ void imWindow::run()
       namedWindow("Window");
       cv::Mat img;
       img = pop();
-      imshow("Window", img);
-      waitKey(0);
-      destroyWindow("Window");
+      if (img.data)
+	{
+	  imshow("Window", img);
+	  waitKey(0);
+	}else
+	{
+	  destroyWindow("Window");
+	};
     };
   std::cout<<"ReadFromDisk:: I was told to stop, my ID was: "<<myID<<std::endl;
 };
