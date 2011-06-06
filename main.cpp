@@ -48,13 +48,13 @@ int main()
   Buffer* testBuffer;
   testBuffer = new Buffer;
 
-  
+  //You need to start your consumers first otherwise the buffer will throw away pushed frames//
   boost::thread consumer1(testConsumer, testBuffer);
   boost::thread producer1(testProducer, testBuffer);
   
 
   std::cout<<"MAIN:: Waiting for join"<<std::endl;
-
+  //Boost .join waits for the thread to complete//
   consumer1.join();
   producer1.join();
   

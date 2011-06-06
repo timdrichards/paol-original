@@ -16,7 +16,4 @@ everything: $(OBJ1)
 	      $(CXX) -g -Wall -W -o paol-threads $(OBJ1) $(FLAGS)
 
 clean:
-	rm -f paol-threads *.o
-
-clean-all:
-	rm -f paol-threads *.o *~ *#	      
+	rm -f paol-threads *.o	      
