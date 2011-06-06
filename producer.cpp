@@ -90,7 +90,14 @@ void readFromDisk::readDir()
 	  boost::this_thread::sleep(restTime);
 	  std::cout << name << "\n";
 	};
-      stop();
+      
     };
-  
+  stop();
+};
+
+void readFromDisk::readFromPattern(char* dir)
+{
+
+
+
 };

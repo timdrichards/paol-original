@@ -89,6 +89,9 @@ cv::Mat FrameLinkedList::pop()
       {
 	boost::mutex::scoped_lock lock(listLock);
 	readSize = size;
+	std::cout<<"FrameLinkedList:: About to check IF statments, producerRunning: "<<producerRunning<<std::endl;
+	std::cout<<"FrameLinkedList:: readSize is: "<<readSize<<std::endl;
+
       }
       boost::posix_time::seconds sleepTime(1);
       if (readSize > 2)
@@ -100,7 +103,9 @@ cv::Mat FrameLinkedList::pop()
 	  toDelete = oldest;
 	  oldest = toDelete->next;
 	  delete toDelete;
+	  std::cout<<"LinkedList::More then two frames size is: "<<size<<std::endl;
 	  size--;
+	  
 	  return toPop;
 	}else if ( (readSize == 2) && !producerRunning)
 	{
@@ -110,6 +115,7 @@ cv::Mat FrameLinkedList::pop()
 	  toDelete = oldest;
 	  oldest = toDelete->next;
 	  delete toDelete;
+	  std::cout<<"LinkedList::two frames in list size is: "<<size<<std::endl;
 	  size--;
 	  return toPop;
 	}else if ((readSize == 1) && !producerRunning)
@@ -118,10 +124,13 @@ cv::Mat FrameLinkedList::pop()
 	  toPop = oldest->frame;
 	  frameListItem* toDelete;
 	  delete oldest;
+	  std::cout<<"LinkedList::One Frame in list, size is:: "<<size<<std::endl;
 	  size--;
 	  return toPop;
 	}else if ((readSize == 0) && !producerRunning)
 	{
+	  boost::mutex::scoped_lock lock(listLock);
+	  std::cout<<"No Frames in list size is: "<<size<<std::endl;
 	  cv::Mat null;
 	  return null;
 	}else

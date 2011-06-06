@@ -25,6 +25,7 @@ class readFromDisk: public Producer
 public:
   void run();
   void readDir();
+  void readFromPattern(char* dir);
 };
 
 #endif

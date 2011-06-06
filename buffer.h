@@ -26,7 +26,7 @@ private:
 public:
   void push(cv::Mat frame);
   cv::Mat pop();
-  void stop(){producerRunning=false;};
+  void stop(){producerRunning=false;std::cout<<"FrameLinkedList:: STOP CALLED STOP CALLED"<<std::endl;};
   
   FrameLinkedList();
   

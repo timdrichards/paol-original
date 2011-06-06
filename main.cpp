@@ -20,19 +20,31 @@
 #include "buffer.h"
 #include "producer.h"
 #include "consumer.h"
+#include "writeToDisk.h"
 
 
 using namespace cv;
 using namespace boost;
 //using namespace std;
 
-void testConsumer(Buffer *myBuffer){
+void testConsumer(Buffer *myBuffer)
+{
   imWindow consumer;
   consumer.start(myBuffer);
   consumer.run();
 };
 
-void testProducer(Buffer *myBuffer){
+void testWriteToDisk(Buffer *myBuffer)
+{
+  WriteToDisk consumer;
+  consumer.start(myBuffer);
+  consumer.setup("testImg", "outMedia/");
+  consumer.run();
+
+};
+
+void testProducer(Buffer *myBuffer)
+{
   readFromDisk producer;
   producer.start(myBuffer);
   producer.run();
@@ -49,13 +61,15 @@ int main()
   testBuffer = new Buffer;
 
   //You need to start your consumers first otherwise the buffer will throw away pushed frames//
-  boost::thread consumer1(testConsumer, testBuffer);
+  //boost::thread consumer1(testConsumer, testBuffer);
+  boost::thread consumer2(testWriteToDisk, testBuffer);
   boost::thread producer1(testProducer, testBuffer);
   
 
   std::cout<<"MAIN:: Waiting for join"<<std::endl;
   //Boost .join waits for the thread to complete//
-  consumer1.join();
+  //consumer1.join();
+  consumer2.join();
   producer1.join();
   
 
