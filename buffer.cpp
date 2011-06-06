@@ -67,15 +67,16 @@ cv::Mat FrameLinkedList::pop()
 {
   bool moreThanTwo = false;
   cv::Mat toPop;
+  int readSize;
   while(!moreThanTwo)
     {
-      int readSize;
+      
       //Scoped so that the mutex will be released while the thread sleeps
       {
 	boost::mutex::scoped_lock lock(listLock);
 	readSize = size;
       }
-      boost::posix_time::seconds sleepTime(2);
+      boost::posix_time::seconds sleepTime(1);
       if (readSize > 2)
 	{
 	  boost::mutex::scoped_lock lock(listLock);
@@ -85,6 +86,7 @@ cv::Mat FrameLinkedList::pop()
 	  toDelete = oldest;
 	  oldest = toDelete->next;
 	  delete toDelete;
+	  size--;
 	  return toPop;
 	}else
 	{
@@ -94,9 +96,7 @@ cv::Mat FrameLinkedList::pop()
 	};
       
     };
-  boost::mutex::scoped_lock lock(listLock);
-  size--;
-  return toPop;
+  //return toPop;
 };
 
 
