@@ -17,6 +17,8 @@
 
 #include "buffer.h"
 
+#define _debug_
+
 using namespace cv;
 using namespace boost;
 
@@ -33,7 +35,9 @@ FrameLinkedList::FrameLinkedList()
 void FrameLinkedList::push(cv::Mat frame)
 {
   boost::mutex::scoped_lock lock(listLock);
+  #ifndef _debug_
   std::cout<<"FrameLinkedList:: I have the lock"<<std::endl;
+  #endif
   //Store image locally
   cv::Mat newFrame = frame;
   
@@ -41,25 +45,33 @@ void FrameLinkedList::push(cv::Mat frame)
   frameListItem* newItem;
   //Set the pointer to a new frameListItem (Making the new item above the scope of push
   newItem = new frameListItem;
-
-  std::cout<<"FrameLinkedList:: New list item allocated"<<std::endl;
   
+  #ifndef _debug_
+  std::cout<<"FrameLinkedList:: New list item allocated"<<std::endl;
+  #endif
+
   if (size == 0)
     {
+      #ifndef _debug_
       std::cout<<"FrameLinkedList:: List size is zero, I must be the first!"<<std::endl;
+      #endif
       oldest = newItem;
       newest = newItem;
     }else
     {
+      #ifndef _debug_
       std::cout<<"FrameLinkedList:: I'm not the first, setting next to newItem"<<std::endl;
+      #endif
       newest->next = newItem;
     };
-  
+  #ifndef _debug_
   std::cout<<"FrameLinkedList:: Done with house keeping, copying image memory"<<std::endl;
-  
+  #endif
   newest = newItem;
   newItem->frame = newFrame;
+  #ifndef _debug_
   std::cout<<"FrameLinkedList:: Read in new image, incrementing size"<<std::endl;
+  #endif
   size++;
 };
 
@@ -89,8 +101,10 @@ cv::Mat FrameLinkedList::pop()
       {
 	boost::mutex::scoped_lock lock(listLock);
 	readSize = size;
+	#ifndef _debug_
 	std::cout<<"FrameLinkedList:: About to check IF statments, producerRunning: "<<producerRunning<<std::endl;
 	std::cout<<"FrameLinkedList:: readSize is: "<<readSize<<std::endl;
+	#endif
 
       }
       boost::posix_time::seconds sleepTime(1);
@@ -103,7 +117,9 @@ cv::Mat FrameLinkedList::pop()
 	  toDelete = oldest;
 	  oldest = toDelete->next;
 	  delete toDelete;
+	  #ifndef _debug_
 	  std::cout<<"LinkedList::More then two frames size is: "<<size<<std::endl;
+	  #endif
 	  size--;
 	  
 	  return toPop;
@@ -115,7 +131,9 @@ cv::Mat FrameLinkedList::pop()
 	  toDelete = oldest;
 	  oldest = toDelete->next;
 	  delete toDelete;
+	  #ifndef _debug_
 	  std::cout<<"LinkedList::two frames in list size is: "<<size<<std::endl;
+	  #endif
 	  size--;
 	  return toPop;
 	}else if ((readSize == 1) && !producerRunning)
@@ -124,19 +142,25 @@ cv::Mat FrameLinkedList::pop()
 	  toPop = oldest->frame;
 	  frameListItem* toDelete;
 	  delete oldest;
+	  #ifndef _debug_
 	  std::cout<<"LinkedList::One Frame in list, size is:: "<<size<<std::endl;
+	  #endif
 	  size--;
 	  return toPop;
 	}else if ((readSize == 0) && !producerRunning)
 	{
 	  boost::mutex::scoped_lock lock(listLock);
+	  #ifndef _debug_
 	  std::cout<<"No Frames in list size is: "<<size<<std::endl;
+	  #endif
 	  cv::Mat null;
 	  return null;
 	}else
 	{
+	  #ifndef _debug_
 	  std::cout<<"FrameLinkedList:: Waiting for more then 2 in list, sleeping, size is: "<<readSize<<std::endl;
 	  std::cout<<"FrameLinkedList:: Released the lock"<<std::endl;
+	  #endif
 	  boost::this_thread::sleep(sleepTime);
 	};
     };

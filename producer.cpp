@@ -79,16 +79,22 @@ void ReadFromDisk::readDir()
     {
       std::string name = iter->path().leaf();
       //Check if it is a png
+      #ifndef _debug_
       std::cout<<"readFromDisk:: "<<name<<std::endl;
+      #endif
       if (regex_search(name, pattern))
 	{
 	  std::string longPath = "media/";
 	  longPath.append(name);
+	  #ifndef _debug_
 	  std::cout<<longPath<<std::endl;
+	  #endif
 	  img = imread(longPath);
 	  push(img);
 	  boost::this_thread::sleep(restTime);
+	  #ifndef _debug_
 	  std::cout << name << "\n";
+	  #endif
 	};
       
     };
