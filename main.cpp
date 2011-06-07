@@ -22,6 +22,7 @@
 #include "consumer.h"
 #include "writeToDisk.h"
 #include "process.h"
+#include "gige.h"
 
 
 //Toggle Debug Text

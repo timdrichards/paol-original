@@ -6,17 +6,17 @@ FLAGS=-I /usr/local/include/opencv/ \
 	-lboost_thread \
 	-lboost_filesystem-mt \
 	-lboost_regex
-OBJ1=main.o buffer.o consumer.o producer.o writeToDisk.o process.o gige.o
+OBJ1=Snape.o
 
 
 
 all: everything
 
 everything: $(OBJ1)
-	      $(CXX) -g -Wall -W -o paol-threads $(OBJ1) $(FLAGS)
+	      $(CXX) -g -Wall -W -o snap $(OBJ1) $(FLAGS)
 
 clean:
-	rm -f paol-threads *.o
+	rm -f snape *.o
 
 clean-all:
-	rm -f paol-threads *.o *~ *#	      
+	rm -f snap *.o *~ *#	      
