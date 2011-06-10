@@ -16,16 +16,19 @@ class WhiteBoardProcess : public Processor
   cv::Mat improvedInputImg;
   cv::Mat improvedInputImgNoProf;
   cv::Mat improvedInputImgNoProfContrast;
+  cv::Mat improvedInputImgNoProfContrastSharp;
   cv::vector<cv::Mat> inputPlanes;
   cv::vector<cv::Mat> backgroundPlanes;
   cv::vector<cv::Mat> improvedPlanes;
   cv::vector<cv::Mat> improvedPlanesNoProf;
   cv::vector<cv::Mat> improvedPlanesNoProfContrast;
+  cv::vector<cv::Mat> improvedPlanesNoProfContrastSharp;
 
   void createBackgroundImg(int kernalSize);
   void createImprovedInputImg();
   void removeProf();
   void createContrastImprovedInputImg();
+  void sharpenContrastImprovedInputImg();
 };
 
 

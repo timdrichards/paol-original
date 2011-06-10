@@ -24,7 +24,7 @@
 using namespace cv;
 using namespace boost;
 
-#define _debug_
+//#define _debug_
 
 void WhiteBoardProcess::run()
 {
@@ -52,12 +52,13 @@ void WhiteBoardProcess::run()
 #ifndef _debug_
       std::cout<<"Processor:: Created contrast img"<<std::endl;
 #endif
-      //      output->push(improvedInputImg);
+      output->push(improvedInputImgNoProfContrast);
 #ifndef _debug_
       std::cout<<"Processor:: Pushed improved img"<<std::endl;
 #endif
 
-      output->push(improvedInputImgNoProfContrast);
+      sharpenContrastImprovedInputImg();
+      output->push(improvedInputImgNoProfContrastSharp);
 #ifndef _debug_
       std::cout<<"Processor:: pushed contrast improved img"<<std::endl;
 #endif
@@ -138,28 +139,86 @@ void WhiteBoardProcess::createContrastImprovedInputImg()
 		
 	for (int x = 0; x < inputImg.cols; x++)
 	  {
-	    ave = (RInPtr[x] + BInPtr[x] + GInPtr[x]) /255;
-	    if(ave <230 || ((RInPtr[x] < 220) || (BInPtr[x] < 220) || (GInPtr[x] < 220)))
+	    ave = (RInPtr[x] + BInPtr[x] + GInPtr[x]) /3;
+	    if(ave <240 || ((RInPtr[x] < 220) || (BInPtr[x] < 220) || (GInPtr[x] < 220)))
 	      {
 		temp = RInPtr[x]-(255-RInPtr[x]);
 		if (temp < 0)
 		  temp = 0;
+		//else if (temp > 188)
+		//  temp = 255;
 		RContrastPtr[x] = temp;
 
 		temp = BInPtr[x]-(255-BInPtr[x]);
 		if (temp < 0)
 		  temp = 0;
+		//else if (temp > 188)
+		//  temp = 255;
 		BContrastPtr[x] = temp;
 
 		temp = GInPtr[x]-(255-GInPtr[x]);
 		if (temp < 0)
 		  temp = 0;
+		//else if (temp > 188)
+		//  temp = 255;
 		GContrastPtr[x] = temp;
 	       
+	      }else
+	      {
+		RContrastPtr[x] = 255;
+		GContrastPtr[x] = 255;
+		BContrastPtr[x] = 255;
+
+
 	      };
 	    
 	  };
 
       };
   cv::merge(improvedPlanesNoProfContrast, improvedInputImgNoProfContrast);
+};
+
+
+void WhiteBoardProcess::sharpenContrastImprovedInputImg()
+{
+  
+  improvedInputImgNoProfContrast.copyTo(improvedInputImgNoProfContrastSharp);
+  split(improvedInputImgNoProfContrastSharp, improvedPlanesNoProfContrastSharp);
+
+  cv::vector<cv::Mat> oldPlane;
+  cv::vector<cv::Mat> newPlane;
+  cv::Mat img;
+  int v, temp;
+  double kSharp;
+  kSharp = 0.75;
+  v =2;
+  img = improvedInputImgNoProfContrast;
+
+  oldPlane = improvedPlanesNoProfContrast;
+  newPlane = improvedPlanesNoProfContrastSharp;
+
+  for (int channel = 0; channel <3; channel++)
+    for (int y = v; y < (img.rows -v); y++)
+      {
+	uchar* topOldPtr = oldPlane[channel].ptr<uchar>(y-v);
+	uchar* middleOldPtr = oldPlane[channel].ptr<uchar>(y);
+	uchar* bottomOldPtr = oldPlane[channel].ptr<uchar>(y+v);
+	uchar* newPtr = newPlane[channel].ptr<uchar>(y);
+	
+	for (int x = v; x < (inputImg.cols -v); x++)
+	  {
+	    temp = (int)(((double)middleOldPtr[x] - ( (kSharp/4) * (double)(topOldPtr[x]+middleOldPtr[x-v]+middleOldPtr[x+v]+bottomOldPtr[x])))/(1.0-kSharp));
+	    if(temp > 255)
+	      newPtr[x] = 255;
+	    else if(temp < 0)
+	      newPtr[x] = 0;
+	    else
+	      newPtr[x] = temp;	    
+	  };
+
+      };
+
+
+  merge(newPlane, improvedInputImgNoProfContrastSharp);
+
 };
