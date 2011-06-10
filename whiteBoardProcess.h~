@@ -1,0 +1,18 @@
+#ifndef _whiteBoardProcess_h_
+#define _whiteBoardProcess_h_
+
+using namespace cv;
+using namespace boost;
+
+
+class WhiteBoardProcess : public Processor
+{
+
+
+
+
+};
+
+
+
+#endif

@@ -6,7 +6,8 @@ FLAGS=-I /usr/local/include/opencv/ \
 	-lboost_thread \
 	-lboost_filesystem-mt \
 	-lboost_regex
-OBJ1=main.o buffer.o consumer.o producer.o writeToDisk.o process.o gige.o
+OBJ1=main.o buffer.o consumer.o producer.o writeToDisk.o \
+	process.o whiteBoardProcess.o gige.o
 
 
 

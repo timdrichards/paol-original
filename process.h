@@ -9,13 +9,13 @@ class Processor : public Producer, public Consumer
  private:
   bool killMe;
   boost::mutex proLock;
+ 
+  public:
   bool keepRunning();
   Buffer* input;
   Buffer* output;
   int myID;
   cv::Mat pop();
-
- public:
   Processor(Buffer* in, Buffer* out);
   void run();
   void stop();

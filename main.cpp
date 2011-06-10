@@ -22,6 +22,7 @@
 #include "consumer.h"
 #include "writeToDisk.h"
 #include "process.h"
+#include "whiteBoardProcess.h"
 #include "gige.h"
 
 
@@ -70,11 +71,14 @@ void testProducer(Buffer *myBuffer)
 
 void testProcess(Buffer *inBuffer, Buffer *outBuffer)
 {
-  Processor passOn(inBuffer, outBuffer);
+
+  WhiteBoardProcess debug(inBuffer, outBuffer);
+  debug.run();
+  /*Processor passOn(inBuffer, outBuffer);
   passOn.run();
   #ifndef _debug_
   std::cout<<"MAIN:: testProcessDone"<<std::endl;
-  #endif
+  #endif */
 };
 
 int main(int argc, char** argv)
@@ -91,6 +95,7 @@ int main(int argc, char** argv)
 
   //You need to start your consumers first otherwise the buffer will throw away pushed frames//
  
+  boost::thread display(testConsumer, diskWriteBuffer);
   boost::thread diskWrite(testWriteToDisk, diskWriteBuffer);
   boost::thread process(testProcess, diskReadBuffer, diskWriteBuffer);
   boost::thread diskRead(testReadFromPattern, diskReadBuffer, argv[1], argv[2]);
@@ -112,6 +117,7 @@ int main(int argc, char** argv)
 #ifndef _debug_
   std::cout<<"MAIN:: DiskWrite Joined"<<std::endl;
 #endif
+  display.join();
   
   
   std::cout<<"MAIN: Main Closing"<<std::endl;
