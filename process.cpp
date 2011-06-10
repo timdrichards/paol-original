@@ -23,6 +23,8 @@
 using namespace cv;
 using namespace boost;
 
+#define _debug_
+
 
 Processor::Processor(Buffer* in, Buffer* out)
 {

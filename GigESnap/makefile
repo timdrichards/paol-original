@@ -24,6 +24,9 @@ EXE	= Snap
 $(OBJ_DIR)/%.o : %.cpp
 	$(CC) $(CFLAGS) $(VERSION) -c $< -o $@
 
+all:
+	sample
+
 clean: 
 	rm $(EXE)
 

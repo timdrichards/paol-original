@@ -30,7 +30,8 @@
 
 #include <stdio.h>
 #include <string.h>
-
+#include <cstdio>
+#include <iostream>
 
 #include <unistd.h>
 #include <time.h>
@@ -226,10 +227,17 @@ void CameraUnsetup(tCamera* Camera)
 void CameraDisplay(tCamera* Camera)
 {
 	printf("Note that bit depth and number of planes should match camera setup\n");
-	IplImage* img = cvCreateImage( cvSize(Camera->Frame.Width, Camera->Frame.Height), IPL_DEPTH_8U, 1);
-
-	memcpy(img->imageData, Camera->Frame.ImageBuffer, FrameSize);		// dest, source, #
-
+	cv::Mat img;//(Camera->Frame.Width, Camera->Frame.Height, IPL_DEPTH_8U, 1);
+	//img = cv::cvarrToMat(Camera->Frame.ImageBuffer).clone();
+	//img = Camera->Frame.ImageBuffer;
+	//memcpy(img.data, Camera->Frame.ImageBuffer, FrameSize);		// dest, source, #
+	char* frameChar[FrameSize];
+	
+	
+	frameChar = Camera->Frame.ImageBuffer;
+	//char frame = Camera->Frame.ImageBuffer;
+	//std::cout<< Camera->Frame.ImageBuffer&  << std::endl;
+	/*
 	// display main window
 	cvNamedWindow( "Example1", 0 ); //CV_WINDOW_AUTOSIZE );
 	cvShowImage( "Example1", img);
@@ -255,8 +263,10 @@ void CameraDisplay(tCamera* Camera)
 		cvDestroyWindow( "Example2" );    
 
 	cvReleaseImage( &img );
-	cvDestroyWindow( "Example1" );    
+	cvDestroyWindow( "Example1" ); 
+	*/
 }
+
 
 bool CameraSetupAndStart(tCamera* Camera)
 {
@@ -318,7 +328,7 @@ int main(int argc, char* argv[])
 						    printf("frame saved\n");
 
 						// display image in OpenCV in two ways
-						CameraDisplay(&Camera);
+						//	CameraDisplay(&Camera);
 					}
 					else
 						printf("unable to snap image\n");

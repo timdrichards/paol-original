@@ -107,6 +107,7 @@ void ReadFromDisk::readFromPattern(char *dir, char* firstImage)
   char name[256];
   FILE *fp;
   cv::Mat img;
+  boost::posix_time::millisec sleepTime(50);
  
   sscanf(firstImage,"image%06d-%10d.ppm",&count,&seconds);
   lastLoaded=seconds;
@@ -114,6 +115,7 @@ void ReadFromDisk::readFromPattern(char *dir, char* firstImage)
   sprintf(name,"%simage%06d-%10d.ppm",dir,count,seconds);
 
   while((seconds-lastLoaded)<20){
+    boost::this_thread::sleep(sleepTime);
     //try opening a file of the given name
     img = imread(name);
     if (img.data){
