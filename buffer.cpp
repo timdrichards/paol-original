@@ -15,7 +15,9 @@
 #include "opencv/cv.h"
 #include "opencv/highgui.h"
 
+#include "paolMat.h"
 #include "buffer.h"
+
 
 #define _debug_
 

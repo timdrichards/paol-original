@@ -17,6 +17,8 @@
 
 //Our Libs
 
+
+#include "poalMat.h"
 #include "buffer.h"
 #include "producer.h"
 #include "consumer.h"
@@ -24,6 +26,7 @@
 #include "process.h"
 #include "whiteBoardProcess.h"
 #include "gige.h"
+
 
 
 //Toggle Debug Text
@@ -81,6 +84,12 @@ void testProcess(Buffer *inBuffer, Buffer *outBuffer)
   #endif */
 };
 
+void nullProcess(Buffer *inBuffer, Buffer *outBuffer)
+{
+  Processor nullPros(inBuffer, outBuffer);
+  nullPros.passOn();
+
+};
 int main(int argc, char** argv)
 {
 
@@ -90,6 +99,9 @@ int main(int argc, char** argv)
   Buffer* diskWriteBuffer;
   diskWriteBuffer = new Buffer;
 
+  Buffer* preProcessBuffer;
+  preProcessBuffer = new Buffer;
+
   Buffer* diskReadBuffer;
   diskReadBuffer = new Buffer;
 
@@ -97,9 +109,9 @@ int main(int argc, char** argv)
  
   boost::thread display(testConsumer, diskWriteBuffer);
   boost::thread diskWrite(testWriteToDisk, diskWriteBuffer);
-  boost::thread process(testProcess, diskReadBuffer, diskWriteBuffer);
+  boost::thread debugProcess(testProcess, diskReadBuffer, diskWriteBuffer);
+  //boost::thread process(nullProcess, diskReadBuffer, preProcessBuffer);
   boost::thread diskRead(testReadFromPattern, diskReadBuffer, argv[1], argv[2]);
-  
   
 
   std::cout<<"MAIN:: Waiting for join"<<std::endl;
@@ -109,7 +121,8 @@ int main(int argc, char** argv)
 #ifndef _debug_
   std::cout<<"MAIN:: DiskRead Joined"<<std::endl;
 #endif
-  process.join();
+  //  process.join();
+  debugProcess.join();
 #ifndef _debug_
   std::cout<<"MAIN:: Process Joined"<<std::endl;
 #endif

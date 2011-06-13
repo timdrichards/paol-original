@@ -15,6 +15,8 @@
 #include "opencv/cv.h"
 #include "opencv/highgui.h"
 
+#include "paolMat.h"
+
 #include "buffer.h"
 #include "producer.h"
 #include "consumer.h"
@@ -55,9 +57,9 @@ void Processor::run()
 {
   cv::Mat inputImg;
   cv::Mat backgroundImg;
-  inputImg = pop();
-  backgroundImg = inputImg;
-  cv::Point centerPoint(-1,-1);
+  inputImg = pop(); 
+    backgroundImg = inputImg;
+    cv::Point centerPoint(-1,-1);
   while(inputImg.data)
     {
 #ifndef _debug_
@@ -76,4 +78,7 @@ void Processor::run()
 #ifndef _debug_
   std::cout<<"Processor:: Null image passed"<<std::endl;
 #endif
+
+
+
 };

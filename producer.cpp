@@ -19,6 +19,8 @@
 #include "opencv/cv.h"
 #include "opencv/highgui.h"
 
+#include "paolMat.h"
+
 #include "buffer.h"
 #include "producer.h"
 
@@ -90,6 +92,7 @@ void ReadFromDisk::readDir()
 	  std::cout<<longPath<<std::endl;
 	  #endif
 	  img = imread(longPath);
+	  img.name = append(name);
 	  push(img);
 	  boost::this_thread::sleep(restTime);
 	  #ifndef _debug_
@@ -117,8 +120,11 @@ void ReadFromDisk::readFromPattern(char *dir, char* firstImage)
   while((seconds-lastLoaded)<20){
     boost::this_thread::sleep(sleepTime);
     //try opening a file of the given name
+    img.release();
+    std::cout<<"Producer:: Image data is null: "<<img.empty()<<std::endl;
     img = imread(name);
     if (img.data){
+      std::cout<<"Producer:: Read1 image named: "<<name<<std::endl;
       push(img);
       lastLoaded=seconds;
       count++;
@@ -126,6 +132,7 @@ void ReadFromDisk::readFromPattern(char *dir, char* firstImage)
       sprintf(name,"%simage%06d-%10d.ppm",dir,count+1,seconds);
       img = imread(name);
       if (img.data){
+	std::cout<<"Producer:: Read2 image named: "<<name<<std::endl;
 	push(img);
 	lastLoaded=seconds;
 	count+=2;

@@ -19,6 +19,20 @@ class Processor : public Producer, public Consumer
   Processor(Buffer* in, Buffer* out);
   void run();
   void stop();
+  void passOn()
+  {
+    cv::Mat img;
+    img = pop();
+    while (img.data)
+      {
+	output->push(img);
+	img = pop();
+      };
+    cv::Mat nullImg;
+    output->push(nullImg);
+    output->stop();
+  };
+
 };
 
 

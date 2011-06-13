@@ -15,6 +15,8 @@
 #include "opencv/cv.h"
 #include "opencv/highgui.h"
 
+#include "paolMat.h"
+
 #include "buffer.h"
 #include "producer.h"
 #include "consumer.h"
@@ -29,35 +31,39 @@ using namespace boost;
 void WhiteBoardProcess::run()
 {
   inputImg = pop();
-  backgroundImg = inputImg;
+  inputImg.copyTo(backgroundImg);
+  
   while(inputImg.data)
     {
+
 #ifndef _debug_
-      std::cout<<"Processor:: loop head"<<std::endl;
+      std::cout<<"Processor::1 loop head"<<std::endl;
 #endif
       createBackgroundImg(25);
 #ifndef _debug_
-      std::cout<<"Processor:: Background done"<<std::endl;
+      std::cout<<"Processor::2 Background done"<<std::endl;
 #endif
       createImprovedInputImg();
 #ifndef _debug_
-      std::cout<<"Processor:: Created Improved Input Img"<<std::endl;
+      std::cout<<"Processor::3 Created Improved Input Img"<<std::endl;
 #endif
+      
       removeProf();
 #ifndef _debug_
-      std::cout<<"Processor:: Removed Prof"<<std::endl;
+      std::cout<<"Processor::4 Removed Prof"<<std::endl;
 #endif
       //Remove from stream one we detirmine if we are keeping the image or not
       createContrastImprovedInputImg();
 #ifndef _debug_
-      std::cout<<"Processor:: Created contrast img"<<std::endl;
+      std::cout<<"Processor::5 Created contrast img"<<std::endl;
 #endif
       output->push(improvedInputImgNoProfContrast);
 #ifndef _debug_
-      std::cout<<"Processor:: Pushed improved img"<<std::endl;
+      std::cout<<"Processor::6 Pushed improved img"<<std::endl;
 #endif
 
       sharpenContrastImprovedInputImg();
+      output->push(improvedInputImg);
       output->push(improvedInputImgNoProfContrastSharp);
 #ifndef _debug_
       std::cout<<"Processor:: pushed contrast improved img"<<std::endl;
