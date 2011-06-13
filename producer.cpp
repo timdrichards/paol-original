@@ -33,7 +33,7 @@ void Producer::start(Buffer *buffer)
   proBuffer = buffer;
 };
 
-void Producer::push(cv::Mat img)
+void Producer::push(paolMat img)
 {
   proBuffer->push(img);
 };
@@ -74,7 +74,7 @@ void ReadFromDisk::readDir()
 
   path currentDir("media/"); //Set dir to look in
   boost::regex pattern("rtBoard"); //All jpg files
-  cv::Mat img;
+  paolMat img;
   boost::posix_time::seconds restTime(1);
 
   for (directory_iterator iter(currentDir), end; iter != end; ++iter)
@@ -91,8 +91,8 @@ void ReadFromDisk::readDir()
 	  #ifndef _debug_
 	  std::cout<<longPath<<std::endl;
 	  #endif
-	  img = imread(longPath);
-	  img.name = append(name);
+	  img.src = imread(longPath);
+	  img.name = name;
 	  push(img);
 	  boost::this_thread::sleep(restTime);
 	  #ifndef _debug_
@@ -109,7 +109,7 @@ void ReadFromDisk::readFromPattern(char *dir, char* firstImage)
   int count, seconds, lastLoaded;
   char name[256];
   FILE *fp;
-  cv::Mat img;
+  paolMat img;
   boost::posix_time::millisec sleepTime(50);
  
   sscanf(firstImage,"image%06d-%10d.ppm",&count,&seconds);
@@ -120,18 +120,21 @@ void ReadFromDisk::readFromPattern(char *dir, char* firstImage)
   while((seconds-lastLoaded)<20){
     boost::this_thread::sleep(sleepTime);
     //try opening a file of the given name
-    img.release();
-    std::cout<<"Producer:: Image data is null: "<<img.empty()<<std::endl;
-    img = imread(name);
-    if (img.data){
+    img.src.release();
+    std::cout<<"Producer:: Image data is null: "<<img.src.empty()<<std::endl;
+    img.src = imread(name);
+    img.name = name;
+    if (img.src.data){
       std::cout<<"Producer:: Read1 image named: "<<name<<std::endl;
       push(img);
+      std::cout<<"Producer:: Read1.1 image pushed: "<<name<<std::endl;
       lastLoaded=seconds;
       count++;
     } else {
       sprintf(name,"%simage%06d-%10d.ppm",dir,count+1,seconds);
-      img = imread(name);
-      if (img.data){
+      img.src = imread(name);
+      img.name = name;
+      if (img.src.data){
 	std::cout<<"Producer:: Read2 image named: "<<name<<std::endl;
 	push(img);
 	lastLoaded=seconds;

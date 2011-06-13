@@ -24,10 +24,10 @@ using namespace cv;
 using namespace std;
 //using namespace boost;
 
-cv::Mat Consumer::pop()
+paolMat Consumer::pop()
 {
-  cv::Mat img = conBuffer->pop(myID);
-  if (img.data)
+  paolMat img = conBuffer->pop(myID);
+  if (img.src.data)
     {
       return img;
     }else
@@ -62,11 +62,11 @@ void imWindow::run()
   while(myID != -1 && keepRunning())
     {
       namedWindow("Window");
-      cv::Mat img;
+      paolMat img;
       img = pop();
-      if (img.data)
+      if (img.src.data)
 	{
-	  imshow("Window", img);
+	  imshow("Window", img.src);
 	  waitKey(0);
 	}else
 	{

@@ -14,7 +14,7 @@ OBJ1=main.o buffer.o consumer.o producer.o writeToDisk.o \
 all: everything
 
 everything: $(OBJ1)
-	      $(CXX) -g -Wall -W -o paol-threads $(OBJ1) $(FLAGS)
+	      $(CXX) -g -ggdb -Wall -W -o paol-threads $(OBJ1) $(FLAGS)
 
 clean:
 	rm -f paol-threads *.o

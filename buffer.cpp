@@ -19,11 +19,52 @@
 #include "buffer.h"
 
 
-#define _debug_
+//#define _debug_
 
 using namespace cv;
 using namespace boost;
 
+//////////paolMat////////////////////////
+
+paolMat::paolMat()
+{
+  cv::Mat null;
+  src = null;
+  count = -1;
+  time = -1;
+  name = "No Name";
+};
+
+void paolMat::print()
+{
+  /*
+  std::string longName = "media/";
+  longName.append(name);
+  longName.append("-");
+  longName.append(count);
+  longName.append("-");
+  longName.append(time);
+  longName.append(".png");
+  cv::imwrite(src, longName);
+  */
+};
+
+paolMat paolMat::operator = (const paolMat& m)
+{
+  std::cout<<"PaolMat:: = operator called"<<std::endl;
+  m.src.copyTo(src);
+  std::cout<<"PaolMat:: 1 image "<<(src.data)<<std::endl;
+  imwrite("media/copiedImage.png", src);
+  std::cout<<"PaolMat:: 1.2 image had data? "<<(m.src.data)<<std::endl;
+  imwrite("media/copiedImage2.png", m.src);
+  std::cout<<"PaolMat:: 1.3 m image had data? "<<(m.src.data)<<std::endl;
+  count = m.count;
+  std::cout<<"PaolMat:: 2  count: "<<count<<"m.count "<<m.count<<std::endl;
+  time = m.time;
+  std::cout<<"PaolMat:: 3  time: "<<time<<" m.time "<<m.time<<std::endl;
+  name = "bob";
+  std::cout<<"PaolMat:: = operator complete name:"<<name<<std::endl;
+};
 
 //////////Frame Linked List /////////////////////////////////////
 
@@ -34,14 +75,15 @@ FrameLinkedList::FrameLinkedList()
 };
 
 
-void FrameLinkedList::push(cv::Mat frame)
+void FrameLinkedList::push(paolMat frame)
 {
   boost::mutex::scoped_lock lock(listLock);
   #ifndef _debug_
   std::cout<<"FrameLinkedList:: I have the lock"<<std::endl;
   #endif
   //Store image locally
-  cv::Mat newFrame = frame;
+  //paolMat newFrame;
+  //newFrame = frame;
   
   //Create a pointer object to a frameListItem
   frameListItem* newItem;
@@ -70,7 +112,8 @@ void FrameLinkedList::push(cv::Mat frame)
   std::cout<<"FrameLinkedList:: Done with house keeping, copying image memory"<<std::endl;
   #endif
   newest = newItem;
-  newItem->frame = newFrame;
+  std::cout<<"FrameLinkedList:: Newest is new item"<<std::endl;
+  newItem->frame = frame;
   #ifndef _debug_
   std::cout<<"FrameLinkedList:: Read in new image, incrementing size"<<std::endl;
   #endif
@@ -88,10 +131,10 @@ void FrameLinkedList::push(cv::Mat frame)
 //       last two images destroying the list
 //     Else sleep for sleepTime
 ////////////////////////////////////
-cv::Mat FrameLinkedList::pop()
+paolMat FrameLinkedList::pop()
 {
   bool moreThanTwo = false;
-  cv::Mat toPop;
+  paolMat toPop;
   int readSize;
   boost::posix_time::seconds sleepTime(1);
   //Enter loop for the first time no matter what
@@ -155,7 +198,7 @@ cv::Mat FrameLinkedList::pop()
 	  #ifndef _debug_
 	  std::cout<<"No Frames in list size is: "<<size<<std::endl;
 	  #endif
-	  cv::Mat null;
+	  paolMat null;
 	  return null;
 	}else
 	{
@@ -191,17 +234,21 @@ int Buffer::registerConsumer()
 
 };
 
-void Buffer::push(cv::Mat frame)
+void Buffer::push(paolMat frame)
 {
+  std::cout<<"1Buffer, recieved image to push, about to lock"<<std::endl;
   boost::mutex::scoped_lock lock(bufferLock);
+  std::cout<<"2Buffer, recieved image to push, about to lock"<<std::endl;
   for(unsigned int i=0; i<consumerLists.size(); i++)
     {
+      std::cout<<" 3Buffer, recieved image to push, pushing to list "<<i<<std::endl;
       consumerLists[i]->push(frame);
+      std::cout<<" 4Buffer, recieved image to push, pushing to list "<<i<<std::endl;
     };
 
 };
 
-cv::Mat Buffer::pop(int consumerID)
+paolMat Buffer::pop(int consumerID)
 {
   return consumerLists[consumerID]->pop();
 };

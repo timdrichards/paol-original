@@ -9,7 +9,7 @@ class Producer
   
 public:
   Buffer *proBuffer;
-  void push(cv::Mat img);
+  void push(paolMat img);
   void start(Buffer *buffer);
   void stop();
   Producer(){killMe = false;};

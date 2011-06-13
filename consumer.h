@@ -11,7 +11,7 @@ public:
   Buffer *conBuffer;
   int myID;
   void start(Buffer *buffer);
-  cv::Mat pop();
+  paolMat pop();
   void stop();
   Consumer(){killMe = false; myID = -1;};
   bool keepRunning();

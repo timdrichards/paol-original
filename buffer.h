@@ -6,11 +6,24 @@
 
 using namespace cv;
 
+class paolMat
+{
+public:
+  cv::Mat src;
+  int count;
+  int time;
+  std::string name;
+  void print();
+
+  paolMat();
+  
+  paolMat operator = (const paolMat& m);
+};
 
 //List Item for buffer linked list//
 struct frameListItem
 {
-  cv::Mat frame;
+  paolMat frame;
   frameListItem* next;
 };
 
@@ -24,8 +37,8 @@ class FrameLinkedList
 private:
   bool producerRunning;
 public:
-  void push(cv::Mat frame);
-  cv::Mat pop();
+  void push(paolMat frame);
+  paolMat pop();
   void stop(){producerRunning=false;std::cout<<"FrameLinkedList:: STOP CALLED STOP CALLED"<<std::endl;};
   
   FrameLinkedList();
@@ -40,8 +53,8 @@ class Buffer
 {
  public:
   int registerConsumer();
-  void push(cv::Mat frame);
-  cv::Mat pop(int consumerID);
+  void push(paolMat frame);
+  paolMat pop(int consumerID);
 private:
    bool producerRunning;
 public:

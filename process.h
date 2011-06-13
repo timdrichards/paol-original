@@ -15,20 +15,20 @@ class Processor : public Producer, public Consumer
   Buffer* input;
   Buffer* output;
   int myID;
-  cv::Mat pop();
+  paolMat pop();
   Processor(Buffer* in, Buffer* out);
   void run();
   void stop();
   void passOn()
   {
-    cv::Mat img;
+    paolMat img;
     img = pop();
-    while (img.data)
+    while (img.src.data)
       {
 	output->push(img);
-	img = pop();
+	img = input->pop(myID);
       };
-    cv::Mat nullImg;
+    paolMat nullImg;
     output->push(nullImg);
     output->stop();
   };

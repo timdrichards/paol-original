@@ -37,7 +37,8 @@ Processor::Processor(Buffer* in, Buffer* out)
   myID = input->registerConsumer();
 };
 
-cv::Mat Processor::pop(){
+
+paolMat Processor::pop(){
   return input->pop(myID);
 };
 
@@ -55,24 +56,24 @@ void Processor::stop()
 
 void Processor::run()
 {
-  cv::Mat inputImg;
-  cv::Mat backgroundImg;
+  paolMat inputImg;
+  paolMat backgroundImg;
   inputImg = pop(); 
-    backgroundImg = inputImg;
-    cv::Point centerPoint(-1,-1);
-  while(inputImg.data)
+  backgroundImg = inputImg;
+  cv::Point centerPoint(-1,-1);
+  while(inputImg.src.data)
     {
 #ifndef _debug_
       std::cout<<"Processor:: Pushing and poppin!"<<std::endl;
 #endif
-      cv::blur(inputImg, backgroundImg, cv::Size(25,25), centerPoint, 1);
+      cv::blur(inputImg.src, backgroundImg.src, cv::Size(25,25), centerPoint, 1);
       output->push(backgroundImg);
       inputImg = pop();
     };
 #ifndef _debug_
   std::cout<<"Processor:: Loop Ended"<<std::endl;
 #endif
-  cv::Mat nullImage;
+  paolMat nullImage;
   output->push(nullImage);
   output->stop();
 #ifndef _debug_

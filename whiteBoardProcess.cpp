@@ -31,9 +31,9 @@ using namespace boost;
 void WhiteBoardProcess::run()
 {
   inputImg = pop();
-  inputImg.copyTo(backgroundImg);
+  inputImg.src.copyTo(backgroundImg.src);
   
-  while(inputImg.data)
+  while(inputImg.src.data)
     {
 
 #ifndef _debug_
@@ -74,7 +74,7 @@ void WhiteBoardProcess::run()
 #ifndef _debug_
   std::cout<<"Processor:: Loop Ended"<<std::endl;
 #endif
-  cv::Mat nullImage;
+  paolMat nullImage;
   output->push(nullImage);
   output->stop();
 #ifndef _debug_
@@ -85,24 +85,24 @@ void WhiteBoardProcess::run()
 void WhiteBoardProcess::createBackgroundImg(int kernalSize)
 {
   cv::Point centerPoint(-1,-1);
-  cv::blur(inputImg, backgroundImg, cv::Size(kernalSize,kernalSize), centerPoint, 1);
+  cv::blur(inputImg.src, backgroundImg.src, cv::Size(kernalSize,kernalSize), centerPoint, 1);
 
 };
 
 void WhiteBoardProcess::createImprovedInputImg()
 {
-  cv::split(inputImg, inputPlanes);
-  cv::split(backgroundImg, backgroundPlanes);
+  cv::split(inputImg.src, inputPlanes);
+  cv::split(backgroundImg.src, backgroundPlanes);
   improvedInputImg = inputImg;
-  cv::split(improvedInputImg, improvedPlanes);
+  cv::split(improvedInputImg.src, improvedPlanes);
   int temp;
   for (int channel = 0; channel <3; channel++)
-    for (int y = 0; y < inputImg.rows; y++)
+    for (int y = 0; y < inputImg.src.rows; y++)
       {
 	uchar* inputPtr = inputPlanes[channel].ptr<uchar>(y);
 	uchar* backgroundPtr = backgroundPlanes[channel].ptr<uchar>(y);
 	uchar* improvedPtr = improvedPlanes[channel].ptr<uchar>(y);
-	for (int x = 0; x < inputImg.cols; x++)
+	for (int x = 0; x < inputImg.src.cols; x++)
 	  {
 	    
 	    temp  = (inputPtr[x] * 255) / backgroundPtr[x];
@@ -114,7 +114,7 @@ void WhiteBoardProcess::createImprovedInputImg()
 
       };
   
-  cv::merge(improvedPlanes, improvedInputImg);
+  cv::merge(improvedPlanes, improvedInputImg.src);
 };
 
 void WhiteBoardProcess::removeProf()
@@ -131,7 +131,7 @@ void WhiteBoardProcess::createContrastImprovedInputImg()
   int thresh;
   int temp;
   int ave;
-  for (int y = 0; y < inputImg.rows; y++)
+  for (int y = 0; y < inputImg.src.rows; y++)
       {
 	uchar* RInPtr = improvedPlanesNoProf[0].ptr<uchar>(y);
 	uchar* RContrastPtr = improvedPlanesNoProfContrast[0].ptr<uchar>(y);
@@ -143,7 +143,7 @@ void WhiteBoardProcess::createContrastImprovedInputImg()
 	uchar* GContrastPtr = improvedPlanesNoProfContrast[2].ptr<uchar>(y);
 	
 		
-	for (int x = 0; x < inputImg.cols; x++)
+	for (int x = 0; x < inputImg.src.cols; x++)
 	  {
 	    ave = (RInPtr[x] + BInPtr[x] + GInPtr[x]) /3;
 	    if(ave <240 || ((RInPtr[x] < 220) || (BInPtr[x] < 220) || (GInPtr[x] < 220)))
@@ -181,15 +181,15 @@ void WhiteBoardProcess::createContrastImprovedInputImg()
 	  };
 
       };
-  cv::merge(improvedPlanesNoProfContrast, improvedInputImgNoProfContrast);
+  cv::merge(improvedPlanesNoProfContrast, improvedInputImgNoProfContrast.src);
 };
 
 
 void WhiteBoardProcess::sharpenContrastImprovedInputImg()
 {
   
-  improvedInputImgNoProfContrast.copyTo(improvedInputImgNoProfContrastSharp);
-  split(improvedInputImgNoProfContrastSharp, improvedPlanesNoProfContrastSharp);
+  improvedInputImgNoProfContrastSharp = improvedInputImgNoProfContrast;
+  split(improvedInputImgNoProfContrastSharp.src, improvedPlanesNoProfContrastSharp);
 
   cv::vector<cv::Mat> oldPlane;
   cv::vector<cv::Mat> newPlane;
@@ -198,7 +198,7 @@ void WhiteBoardProcess::sharpenContrastImprovedInputImg()
   double kSharp;
   kSharp = 0.75;
   v =2;
-  img = improvedInputImgNoProfContrast;
+  img = improvedInputImgNoProfContrast.src;
 
   oldPlane = improvedPlanesNoProfContrast;
   newPlane = improvedPlanesNoProfContrastSharp;
@@ -211,7 +211,7 @@ void WhiteBoardProcess::sharpenContrastImprovedInputImg()
 	uchar* bottomOldPtr = oldPlane[channel].ptr<uchar>(y+v);
 	uchar* newPtr = newPlane[channel].ptr<uchar>(y);
 	
-	for (int x = v; x < (inputImg.cols -v); x++)
+	for (int x = v; x < (inputImg.src.cols -v); x++)
 	  {
 	    temp = (int)(((double)middleOldPtr[x] - ( (kSharp/4) * (double)(topOldPtr[x]+middleOldPtr[x-v]+middleOldPtr[x+v]+bottomOldPtr[x])))/(1.0-kSharp));
 	    if(temp > 255)
@@ -225,6 +225,6 @@ void WhiteBoardProcess::sharpenContrastImprovedInputImg()
       };
 
 
-  merge(newPlane, improvedInputImgNoProfContrastSharp);
+  merge(newPlane, improvedInputImgNoProfContrastSharp.src);
 
 };

@@ -26,10 +26,13 @@ using namespace std;
 
 #define _debug_
 
-void WriteToDisk::setup(char* basename, char* dirIn)
+void WriteToDisk::setup(std::string basename, std::string dirIn)
 {
-  baseName=basename;
-  dir=dirIn;
+  baseName = new char[basename.length() +1];
+  strcpy(baseName, basename.c_str());
+  dir = new char[dirIn.length() + 1];
+  strcpy(dir, dirIn.c_str());
+  
 };
 
 void WriteToDisk::run()
@@ -37,7 +40,7 @@ void WriteToDisk::run()
  
   cout<<"WriteToDisk:: Launching disk write"<<endl;
   
-  cv::Mat img;
+  paolMat img;
   int count;
   count = 1;
   char name[256];
@@ -48,13 +51,13 @@ void WriteToDisk::run()
   #ifndef _debug_
   cout<<"WriteToDisk:: Poped first Img"<<endl;
   #endif
-  while(img.data)
+  while(img.src.data)
     {
       #ifndef _debug_
       cout<<"WriteToDisk:: Start of loop"<<endl;
       #endif
       sprintf(name, "%s%s%04d.png", dir, baseName, count);
-      imwrite(name, img);
+      imwrite(name, img.src);
       #ifndef _debug_
       cout<<"WriteToDisk:: end of loop poping next img"<<endl;
       #endif
