@@ -28,7 +28,6 @@
 #include "gige.h"
 
 
-
 //Toggle Debug Text
 #define _debug_
 using namespace cv;
@@ -107,7 +106,7 @@ int main(int argc, char** argv)
 
   //You need to start your consumers first otherwise the buffer will throw away pushed frames//
  
-  boost::thread display(testConsumer, diskWriteBuffer);
+  //boost::thread display(testConsumer, diskWriteBuffer);
   boost::thread diskWrite(testWriteToDisk, diskWriteBuffer);
   boost::thread debugProcess(testProcess, diskReadBuffer, diskWriteBuffer);
   //boost::thread process(nullProcess, diskReadBuffer, preProcessBuffer);
@@ -130,7 +129,7 @@ int main(int argc, char** argv)
 #ifndef _debug_
   std::cout<<"MAIN:: DiskWrite Joined"<<std::endl;
 #endif
-  display.join();
+  //display.join();
   
   
   std::cout<<"MAIN: Main Closing"<<std::endl;

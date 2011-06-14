@@ -30,8 +30,9 @@ using namespace boost;
 
 void WhiteBoardProcess::run()
 {
-  inputImg = pop();
-  inputImg.src.copyTo(backgroundImg.src);
+  inputImg.copy(pop());
+    
+  std::cout<<"\n\n  Count, seconds: "<<inputImg.count<<" ,"<<inputImg.time<<std::endl;
   
   while(inputImg.src.data)
     {
@@ -42,34 +43,40 @@ void WhiteBoardProcess::run()
       createBackgroundImg(25);
 #ifndef _debug_
       std::cout<<"Processor::2 Background done"<<std::endl;
+      backgroundImg.print();
 #endif
       createImprovedInputImg();
 #ifndef _debug_
       std::cout<<"Processor::3 Created Improved Input Img"<<std::endl;
+      improvedInputImg.print();
 #endif
       
       removeProf();
 #ifndef _debug_
       std::cout<<"Processor::4 Removed Prof"<<std::endl;
+      improvedInputImgNoProf.print();
 #endif
       //Remove from stream one we detirmine if we are keeping the image or not
       createContrastImprovedInputImg();
 #ifndef _debug_
       std::cout<<"Processor::5 Created contrast img"<<std::endl;
+      improvedInputImgNoProfContrast.print();
 #endif
-      output->push(improvedInputImgNoProfContrast);
-#ifndef _debug_
-      std::cout<<"Processor::6 Pushed improved img"<<std::endl;
-#endif
+      //output->push(improvedInputImgNoProfContrast);
+      //#ifndef _debug_
+      //std::cout<<"Processor::6 Pushed improved img"<<std::endl;
+      //#endif
 
       sharpenContrastImprovedInputImg();
-      output->push(improvedInputImg);
+      //output->push(improvedInputImg);
       output->push(improvedInputImgNoProfContrastSharp);
+      
 #ifndef _debug_
       std::cout<<"Processor:: pushed contrast improved img"<<std::endl;
+      improvedInputImgNoProfContrastSharp.print();
 #endif
 
-      inputImg = pop();
+      inputImg.copy(pop());
     };
 #ifndef _debug_
   std::cout<<"Processor:: Loop Ended"<<std::endl;
@@ -84,8 +91,10 @@ void WhiteBoardProcess::run()
 
 void WhiteBoardProcess::createBackgroundImg(int kernalSize)
 {
+  backgroundImg.copy(inputImg);
   cv::Point centerPoint(-1,-1);
   cv::blur(inputImg.src, backgroundImg.src, cv::Size(kernalSize,kernalSize), centerPoint, 1);
+  backgroundImg.name = "backgroundImg";
 
 };
 
@@ -93,7 +102,7 @@ void WhiteBoardProcess::createImprovedInputImg()
 {
   cv::split(inputImg.src, inputPlanes);
   cv::split(backgroundImg.src, backgroundPlanes);
-  improvedInputImg = inputImg;
+  improvedInputImg.copy(inputImg);
   cv::split(improvedInputImg.src, improvedPlanes);
   int temp;
   for (int channel = 0; channel <3; channel++)
@@ -115,18 +124,21 @@ void WhiteBoardProcess::createImprovedInputImg()
       };
   
   cv::merge(improvedPlanes, improvedInputImg.src);
+  improvedInputImg.name = "improvedInputImg";
 };
 
 void WhiteBoardProcess::removeProf()
 {
 
-  improvedInputImgNoProf = improvedInputImg;
+  improvedInputImgNoProf.copy(improvedInputImg);
   improvedPlanesNoProf = improvedPlanes;
+  improvedInputImgNoProf.name = "improvedInputImgNoProf";
 
 };
 
 void WhiteBoardProcess::createContrastImprovedInputImg()
 {
+  improvedInputImgNoProfContrast.copy(improvedInputImgNoProf);
   improvedPlanesNoProfContrast = improvedPlanesNoProf;
   int thresh;
   int temp;
@@ -182,6 +194,8 @@ void WhiteBoardProcess::createContrastImprovedInputImg()
 
       };
   cv::merge(improvedPlanesNoProfContrast, improvedInputImgNoProfContrast.src);
+  improvedInputImgNoProfContrast.name = "improvedInputImgNoProfContrast";
+
 };
 
 
@@ -226,5 +240,5 @@ void WhiteBoardProcess::sharpenContrastImprovedInputImg()
 
 
   merge(newPlane, improvedInputImgNoProfContrastSharp.src);
-
+  improvedInputImgNoProfContrastSharp.name = "improvedInputImgNoProfContrastSharp";
 };

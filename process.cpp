@@ -58,8 +58,9 @@ void Processor::run()
 {
   paolMat inputImg;
   paolMat backgroundImg;
-  inputImg = pop(); 
-  backgroundImg = inputImg;
+  inputImg.copy(pop());
+  
+  backgroundImg.copy(inputImg);
   cv::Point centerPoint(-1,-1);
   while(inputImg.src.data)
     {

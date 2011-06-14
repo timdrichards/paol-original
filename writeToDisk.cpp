@@ -41,28 +41,22 @@ void WriteToDisk::run()
   cout<<"WriteToDisk:: Launching disk write"<<endl;
   
   paolMat img;
-  int count;
-  count = 1;
-  char name[256];
+  //int count;
+  //count = 1;
+  //char name[256];
   #ifndef _debug_
   cout<<"WriteToDisk:: Set variables, about to pop"<<endl;
   #endif
-  img = pop();
+  img.copy(pop());
   #ifndef _debug_
   cout<<"WriteToDisk:: Poped first Img"<<endl;
   #endif
   while(img.src.data)
     {
-      #ifndef _debug_
-      cout<<"WriteToDisk:: Start of loop"<<endl;
-      #endif
-      sprintf(name, "%s%s%04d.png", dir, baseName, count);
-      imwrite(name, img.src);
-      #ifndef _debug_
-      cout<<"WriteToDisk:: end of loop poping next img"<<endl;
-      #endif
-      count++;
-      img = pop();
+      img.name = "output";
+      img.print();
+      //count++;
+      img.copy(pop());
     };
   cout<<"WriteToDisk:: Finnished loop, must have recieved null img, closing thread"<<endl;
   

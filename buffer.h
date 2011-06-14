@@ -14,17 +14,21 @@ public:
   int time;
   std::string name;
   void print();
-
+  void copy(paolMat m);
+  void read(std::string fileName,int countIn,int timeIn);
+  
   paolMat();
   
-  paolMat operator = (const paolMat& m);
+  //  paolMat operator = (const paolMat& m);
 };
 
 //List Item for buffer linked list//
-struct frameListItem
+class frameListItem
 {
+public:
   paolMat frame;
   frameListItem* next;
+  frameListItem(paolMat newFrame);
 };
 
 //Linked list of frames (the buffer will hold one list for each consumer)//

@@ -37,36 +37,49 @@ paolMat::paolMat()
 
 void paolMat::print()
 {
-  /*
-  std::string longName = "media/";
+  char temp[256];
+  std::string longName = "outMedia/";
   longName.append(name);
-  longName.append("-");
-  longName.append(count);
-  longName.append("-");
-  longName.append(time);
-  longName.append(".png");
-  cv::imwrite(src, longName);
-  */
+  sprintf(temp, "%06d-%010d.png",count,time);
+  longName.append(temp);
+  cv::imwrite(longName, src);
+  std::cout<<longName<<std::endl;
+  
 };
 
-paolMat paolMat::operator = (const paolMat& m)
+
+void paolMat::copy(paolMat m)
 {
-  std::cout<<"PaolMat:: = operator called"<<std::endl;
+  //std::cout<<"PaolMat:: = operator called"<<std::endl;
   m.src.copyTo(src);
-  std::cout<<"PaolMat:: 1 image "<<(src.data)<<std::endl;
-  imwrite("media/copiedImage.png", src);
-  std::cout<<"PaolMat:: 1.2 image had data? "<<(m.src.data)<<std::endl;
-  imwrite("media/copiedImage2.png", m.src);
-  std::cout<<"PaolMat:: 1.3 m image had data? "<<(m.src.data)<<std::endl;
+  //std::cout<<"PaolMat:: 1 image "<<(src.data)<<std::endl;
+  //imwrite("media/copiedImage.png", src);
+  //std::cout<<"PaolMat:: 1.2 image had data? "<<(!(!(m.src.data)))<<std::endl;
+  //imwrite("media/copiedImage2.png", m.src);
+  //std::cout<<"PaolMat:: 1.3 m image had data? "<<(!(!(m.src.data)))<<std::endl;
   count = m.count;
-  std::cout<<"PaolMat:: 2  count: "<<count<<"m.count "<<m.count<<std::endl;
+  //std::cout<<"PaolMat:: 2  count: "<<count<<"m.count "<<m.count<<std::endl;
   time = m.time;
-  std::cout<<"PaolMat:: 3  time: "<<time<<" m.time "<<m.time<<std::endl;
-  name = "bob";
-  std::cout<<"PaolMat:: = operator complete name:"<<name<<std::endl;
+  //std::cout<<"PaolMat:: 3  time: "<<time<<" m.time "<<m.time<<std::endl;
+  name = m.name;
+  //std::cout<<"PaolMat:: = operator complete name:"<<name<<std::endl;
 };
 
+void paolMat::read(std::string fileName,int countIn, int timeIn)
+{
+  src = imread(fileName);
+  name = fileName;
+  count=countIn;
+  time=timeIn;
+
+};
 //////////Frame Linked List /////////////////////////////////////
+
+frameListItem::frameListItem(paolMat newFrame)
+{
+  frame.copy(newFrame);
+};
+
 
 FrameLinkedList::FrameLinkedList()
 {
@@ -87,9 +100,12 @@ void FrameLinkedList::push(paolMat frame)
   
   //Create a pointer object to a frameListItem
   frameListItem* newItem;
+  std::cout<<"FrameLinkedList:: frameListItem pointer created"<<std::endl;
   //Set the pointer to a new frameListItem (Making the new item above the scope of push
-  newItem = new frameListItem;
-  
+  newItem = new frameListItem(frame);
+  std::cout<<"\n\nFLL:: frame count, time "<<frame.count<<" "<<frame.time<<std::endl;
+      
+  std::cout<<"FrameLinkedList:: frameListItem pointer set to new item"<<std::endl;
   #ifndef _debug_
   std::cout<<"FrameLinkedList:: New list item allocated"<<std::endl;
   #endif
@@ -113,7 +129,7 @@ void FrameLinkedList::push(paolMat frame)
   #endif
   newest = newItem;
   std::cout<<"FrameLinkedList:: Newest is new item"<<std::endl;
-  newItem->frame = frame;
+  // newItem->frame = frame;
   #ifndef _debug_
   std::cout<<"FrameLinkedList:: Read in new image, incrementing size"<<std::endl;
   #endif
@@ -157,7 +173,7 @@ paolMat FrameLinkedList::pop()
 	{
 	  boost::mutex::scoped_lock lock(listLock);
 	  moreThanTwo = true;
-	  toPop = oldest->frame;
+	  toPop.copy(oldest->frame);
 	  frameListItem* toDelete;
 	  toDelete = oldest;
 	  oldest = toDelete->next;
@@ -166,12 +182,14 @@ paolMat FrameLinkedList::pop()
 	  std::cout<<"LinkedList::More then two frames size is: "<<size<<std::endl;
 	  #endif
 	  size--;
-	  
+	 
+	  std::cout<<"\n\n  LINKED LIST POP:: Count, seconds: "<<toPop.count<<" ,"<<toPop.time<<std::endl;
+  
 	  return toPop;
 	}else if ( (readSize == 2) && !producerRunning)
 	{
 	  boost::mutex::scoped_lock lock(listLock);
-	  toPop = oldest->frame;
+	  toPop.copy(oldest->frame);
 	  frameListItem* toDelete;
 	  toDelete = oldest;
 	  oldest = toDelete->next;
@@ -184,7 +202,7 @@ paolMat FrameLinkedList::pop()
 	}else if ((readSize == 1) && !producerRunning)
 	{
 	  boost::mutex::scoped_lock lock(listLock);
-	  toPop = oldest->frame;
+	  toPop.copy(oldest->frame);
 	  frameListItem* toDelete;
 	  delete oldest;
 	  #ifndef _debug_
@@ -250,7 +268,10 @@ void Buffer::push(paolMat frame)
 
 paolMat Buffer::pop(int consumerID)
 {
-  return consumerLists[consumerID]->pop();
+  paolMat temp;
+  temp.copy(consumerLists[consumerID]->pop());
+  std::cout<<"\n\n  BUFFER POP:: Count, seconds: "<<temp.count<<" ,"<<temp.time<<std::endl;
+  return temp;
 };
 
 

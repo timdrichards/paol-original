@@ -122,18 +122,17 @@ void ReadFromDisk::readFromPattern(char *dir, char* firstImage)
     //try opening a file of the given name
     img.src.release();
     std::cout<<"Producer:: Image data is null: "<<img.src.empty()<<std::endl;
-    img.src = imread(name);
-    img.name = name;
+    img.read(name,count,seconds);
     if (img.src.data){
       std::cout<<"Producer:: Read1 image named: "<<name<<std::endl;
       push(img);
+      std::cout<<"\n\nRFP:: img count, time: "<<img.count<<" "<<img.time<<std::endl;
       std::cout<<"Producer:: Read1.1 image pushed: "<<name<<std::endl;
       lastLoaded=seconds;
       count++;
     } else {
       sprintf(name,"%simage%06d-%10d.ppm",dir,count+1,seconds);
-      img.src = imread(name);
-      img.name = name;
+      img.read(name,count,seconds);
       if (img.src.data){
 	std::cout<<"Producer:: Read2 image named: "<<name<<std::endl;
 	push(img);
