@@ -14,7 +14,7 @@
 //Open CV
 #include "opencv/cv.h"
 #include "opencv/highgui.h"
-
+#include "opencv/cvaux.h"
 //Our Libs
 
 
@@ -25,11 +25,12 @@
 #include "writeToDisk.h"
 #include "process.h"
 #include "whiteBoardProcess.h"
+#include "locateProf.h"
 #include "gige.h"
 
 
 //Toggle Debug Text
-#define _debug_
+//#define _debug_
 using namespace cv;
 using namespace boost;
 //using namespace std;
@@ -48,7 +49,7 @@ void testWriteToDisk(Buffer *myBuffer)
   consumer.setup("testImg", "outMedia/");
   consumer.run();
   #ifndef _debug_
-  std::cout<<"MAIN:: testWriteToDisk Done"<<std::endl;
+  //std::cout<<"MAIN:: testWriteToDisk Done"<<std::endl;
   #endif
 
 };
@@ -59,7 +60,7 @@ void testReadFromPattern(Buffer *myBuffer,char* dir, char* firstImage)
   producer.start(myBuffer);
   producer.readFromPattern(dir, firstImage);
   #ifndef _debug_
-  std::cout<<"MAIN:: testReadFromPattern Done"<<std::endl;
+  //std::cout<<"MAIN:: testReadFromPattern Done"<<std::endl;
   #endif
 };
 
@@ -79,7 +80,7 @@ void testProcess(Buffer *inBuffer, Buffer *outBuffer)
   /*Processor passOn(inBuffer, outBuffer);
   passOn.run();
   #ifndef _debug_
-  std::cout<<"MAIN:: testProcessDone"<<std::endl;
+  //std::cout<<"MAIN:: testProcessDone"<<std::endl;
   #endif */
 };
 
@@ -89,6 +90,13 @@ void nullProcess(Buffer *inBuffer, Buffer *outBuffer)
   nullPros.passOn();
 
 };
+
+void locateProf(Buffer *inBuffer, Buffer *outBuffer)
+{
+  LocateProf testLocate(inBuffer, outBuffer);
+  testLocate.run();
+};
+
 int main(int argc, char** argv)
 {
 
@@ -108,8 +116,12 @@ int main(int argc, char** argv)
  
   //boost::thread display(testConsumer, diskWriteBuffer);
   boost::thread diskWrite(testWriteToDisk, diskWriteBuffer);
-  boost::thread debugProcess(testProcess, diskReadBuffer, diskWriteBuffer);
-  //boost::thread process(nullProcess, diskReadBuffer, preProcessBuffer);
+  //boost::thread processWhiteBoard(testProcess, diskReadBuffer, diskWriteBuffer);
+  //To disable locateProf uncomment above, comment out locatProf thread
+  //And fix join statments
+  
+  boost::thread processWhiteBoard(testProcess, preProcessBuffer, diskWriteBuffer);
+  boost::thread processProf(locateProf, diskReadBuffer, preProcessBuffer);
   boost::thread diskRead(testReadFromPattern, diskReadBuffer, argv[1], argv[2]);
   
 
@@ -118,16 +130,17 @@ int main(int argc, char** argv)
   
   diskRead.join();
 #ifndef _debug_
-  std::cout<<"MAIN:: DiskRead Joined"<<std::endl;
+  //std::cout<<"MAIN:: DiskRead Joined"<<std::endl;
 #endif
   //  process.join();
-  debugProcess.join();
+  processProf.join();
+  processWhiteBoard.join();
 #ifndef _debug_
-  std::cout<<"MAIN:: Process Joined"<<std::endl;
+  //std::cout<<"MAIN:: Process Joined"<<std::endl;
 #endif
   diskWrite.join();
 #ifndef _debug_
-  std::cout<<"MAIN:: DiskWrite Joined"<<std::endl;
+  //std::cout<<"MAIN:: DiskWrite Joined"<<std::endl;
 #endif
   //display.join();
   

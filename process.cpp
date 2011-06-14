@@ -25,7 +25,7 @@
 using namespace cv;
 using namespace boost;
 
-#define _debug_
+//#define _debug_
 
 
 Processor::Processor(Buffer* in, Buffer* out)
@@ -65,20 +65,20 @@ void Processor::run()
   while(inputImg.src.data)
     {
 #ifndef _debug_
-      std::cout<<"Processor:: Pushing and poppin!"<<std::endl;
+      //std::cout<<"Processor:: Pushing and poppin!"<<std::endl;
 #endif
       cv::blur(inputImg.src, backgroundImg.src, cv::Size(25,25), centerPoint, 1);
       output->push(backgroundImg);
-      inputImg = pop();
+      inputImg.copy(pop());
     };
 #ifndef _debug_
-  std::cout<<"Processor:: Loop Ended"<<std::endl;
+  //std::cout<<"Processor:: Loop Ended"<<std::endl;
 #endif
   paolMat nullImage;
   output->push(nullImage);
   output->stop();
 #ifndef _debug_
-  std::cout<<"Processor:: Null image passed"<<std::endl;
+  //std::cout<<"Processor:: Null image passed"<<std::endl;
 #endif
 
 

@@ -26,40 +26,40 @@
 using namespace cv;
 using namespace boost;
 
-//#define _debug_
+#define _debug_
 
 void WhiteBoardProcess::run()
 {
   inputImg.copy(pop());
     
-  std::cout<<"\n\n  Count, seconds: "<<inputImg.count<<" ,"<<inputImg.time<<std::endl;
+  //std::cout<<"\n\n  Count, seconds: "<<inputImg.count<<" ,"<<inputImg.time<<std::endl;
   
   while(inputImg.src.data)
     {
 
 #ifndef _debug_
-      std::cout<<"Processor::1 loop head"<<std::endl;
+      //std::cout<<"Processor::1 loop head"<<std::endl;
 #endif
       createBackgroundImg(25);
 #ifndef _debug_
-      std::cout<<"Processor::2 Background done"<<std::endl;
+      //std::cout<<"Processor::2 Background done"<<std::endl;
       backgroundImg.print();
 #endif
       createImprovedInputImg();
 #ifndef _debug_
-      std::cout<<"Processor::3 Created Improved Input Img"<<std::endl;
+      //std::cout<<"Processor::3 Created Improved Input Img"<<std::endl;
       improvedInputImg.print();
 #endif
       
       removeProf();
 #ifndef _debug_
-      std::cout<<"Processor::4 Removed Prof"<<std::endl;
+      //std::cout<<"Processor::4 Removed Prof"<<std::endl;
       improvedInputImgNoProf.print();
 #endif
       //Remove from stream one we detirmine if we are keeping the image or not
       createContrastImprovedInputImg();
 #ifndef _debug_
-      std::cout<<"Processor::5 Created contrast img"<<std::endl;
+      //std::cout<<"Processor::5 Created contrast img"<<std::endl;
       improvedInputImgNoProfContrast.print();
 #endif
       //output->push(improvedInputImgNoProfContrast);

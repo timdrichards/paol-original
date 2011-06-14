@@ -1,14 +1,16 @@
 CXX=g++
 FLAGS=-I /usr/local/include/opencv/ \
 	-L/user/local/lib/ \
-	-lopencv_core -lopencv_highgui \
+	-lopencv_core \
+	-lopencv_highgui \
+	-lopencv_objdetect \
 	-L /usr/lib/ \
 	-lboost_thread \
 	-lboost_filesystem-mt \
 	-lboost_regex
 
 OBJ1=buffer.o consumer.o producer.o writeToDisk.o \
-	process.o whiteBoardProcess.o gige.o paolMat.o main.o
+	process.o whiteBoardProcess.o gige.o paolMat.o locateProf.o main.o
 
 all: everything
 

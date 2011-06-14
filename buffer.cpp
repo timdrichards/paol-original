@@ -19,7 +19,7 @@
 #include "buffer.h"
 
 
-//#define _debug_
+#define _debug_
 
 using namespace cv;
 using namespace boost;
@@ -43,7 +43,7 @@ void paolMat::print()
   sprintf(temp, "%06d-%010d.png",count,time);
   longName.append(temp);
   cv::imwrite(longName, src);
-  std::cout<<longName<<std::endl;
+  //std::cout<<longName<<std::endl;
   
 };
 
@@ -92,7 +92,7 @@ void FrameLinkedList::push(paolMat frame)
 {
   boost::mutex::scoped_lock lock(listLock);
   #ifndef _debug_
-  std::cout<<"FrameLinkedList:: I have the lock"<<std::endl;
+  //std::cout<<"FrameLinkedList:: I have the lock"<<std::endl;
   #endif
   //Store image locally
   //paolMat newFrame;
@@ -100,38 +100,38 @@ void FrameLinkedList::push(paolMat frame)
   
   //Create a pointer object to a frameListItem
   frameListItem* newItem;
-  std::cout<<"FrameLinkedList:: frameListItem pointer created"<<std::endl;
+  //std::cout<<"FrameLinkedList:: frameListItem pointer created"<<std::endl;
   //Set the pointer to a new frameListItem (Making the new item above the scope of push
   newItem = new frameListItem(frame);
-  std::cout<<"\n\nFLL:: frame count, time "<<frame.count<<" "<<frame.time<<std::endl;
+  //std::cout<<"\n\nFLL:: frame count, time "<<frame.count<<" "<<frame.time<<std::endl;
       
-  std::cout<<"FrameLinkedList:: frameListItem pointer set to new item"<<std::endl;
+  //std::cout<<"FrameLinkedList:: frameListItem pointer set to new item"<<std::endl;
   #ifndef _debug_
-  std::cout<<"FrameLinkedList:: New list item allocated"<<std::endl;
+  //std::cout<<"FrameLinkedList:: New list item allocated"<<std::endl;
   #endif
 
   if (size == 0)
     {
       #ifndef _debug_
-      std::cout<<"FrameLinkedList:: List size is zero, I must be the first!"<<std::endl;
+      //std::cout<<"FrameLinkedList:: List size is zero, I must be the first!"<<std::endl;
       #endif
       oldest = newItem;
       newest = newItem;
     }else
     {
       #ifndef _debug_
-      std::cout<<"FrameLinkedList:: I'm not the first, setting next to newItem"<<std::endl;
+      //std::cout<<"FrameLinkedList:: I'm not the first, setting next to newItem"<<std::endl;
       #endif
       newest->next = newItem;
     };
   #ifndef _debug_
-  std::cout<<"FrameLinkedList:: Done with house keeping, copying image memory"<<std::endl;
+  ////std::cout<<"FrameLinkedList:: Done with house keeping, copying image memory"<<std::endl;
   #endif
   newest = newItem;
-  std::cout<<"FrameLinkedList:: Newest is new item"<<std::endl;
+  ////std::cout<<"FrameLinkedList:: Newest is new item"<<std::endl;
   // newItem->frame = frame;
   #ifndef _debug_
-  std::cout<<"FrameLinkedList:: Read in new image, incrementing size"<<std::endl;
+  //std::cout<<"FrameLinkedList:: Read in new image, incrementing size"<<std::endl;
   #endif
   size++;
 };
@@ -163,8 +163,8 @@ paolMat FrameLinkedList::pop()
 	boost::mutex::scoped_lock lock(listLock);
 	readSize = size;
 	#ifndef _debug_
-	std::cout<<"FrameLinkedList:: About to check IF statments, producerRunning: "<<producerRunning<<std::endl;
-	std::cout<<"FrameLinkedList:: readSize is: "<<readSize<<std::endl;
+	//std::cout<<"FrameLinkedList:: About to check IF statments, producerRunning: "<<producerRunning<<std::endl;
+	//std::cout<<"FrameLinkedList:: readSize is: "<<readSize<<std::endl;
 	#endif
 
       }
@@ -179,11 +179,11 @@ paolMat FrameLinkedList::pop()
 	  oldest = toDelete->next;
 	  delete toDelete;
 	  #ifndef _debug_
-	  std::cout<<"LinkedList::More then two frames size is: "<<size<<std::endl;
+	  //std::cout<<"LinkedList::More then two frames size is: "<<size<<std::endl;
 	  #endif
 	  size--;
 	 
-	  std::cout<<"\n\n  LINKED LIST POP:: Count, seconds: "<<toPop.count<<" ,"<<toPop.time<<std::endl;
+	  //std::cout<<"\n\n  LINKED LIST POP:: Count, seconds: "<<toPop.count<<" ,"<<toPop.time<<std::endl;
   
 	  return toPop;
 	}else if ( (readSize == 2) && !producerRunning)
@@ -195,7 +195,7 @@ paolMat FrameLinkedList::pop()
 	  oldest = toDelete->next;
 	  delete toDelete;
 	  #ifndef _debug_
-	  std::cout<<"LinkedList::two frames in list size is: "<<size<<std::endl;
+	  //std::cout<<"LinkedList::two frames in list size is: "<<size<<std::endl;
 	  #endif
 	  size--;
 	  return toPop;
@@ -206,7 +206,7 @@ paolMat FrameLinkedList::pop()
 	  frameListItem* toDelete;
 	  delete oldest;
 	  #ifndef _debug_
-	  std::cout<<"LinkedList::One Frame in list, size is:: "<<size<<std::endl;
+	  //std::cout<<"LinkedList::One Frame in list, size is:: "<<size<<std::endl;
 	  #endif
 	  size--;
 	  return toPop;
@@ -214,7 +214,7 @@ paolMat FrameLinkedList::pop()
 	{
 	  boost::mutex::scoped_lock lock(listLock);
 	  #ifndef _debug_
-	  std::cout<<"No Frames in list size is: "<<size<<std::endl;
+	  //std::cout<<"No Frames in list size is: "<<size<<std::endl;
 	  #endif
 	  paolMat null;
 	  return null;
@@ -254,14 +254,14 @@ int Buffer::registerConsumer()
 
 void Buffer::push(paolMat frame)
 {
-  std::cout<<"1Buffer, recieved image to push, about to lock"<<std::endl;
+  //std::cout<<"1Buffer, recieved image to push, about to lock"<<std::endl;
   boost::mutex::scoped_lock lock(bufferLock);
-  std::cout<<"2Buffer, recieved image to push, about to lock"<<std::endl;
+  //std::cout<<"2Buffer, recieved image to push, about to lock"<<std::endl;
   for(unsigned int i=0; i<consumerLists.size(); i++)
     {
-      std::cout<<" 3Buffer, recieved image to push, pushing to list "<<i<<std::endl;
+      //std::cout<<" 3Buffer, recieved image to push, pushing to list "<<i<<std::endl;
       consumerLists[i]->push(frame);
-      std::cout<<" 4Buffer, recieved image to push, pushing to list "<<i<<std::endl;
+      //std::cout<<" 4Buffer, recieved image to push, pushing to list "<<i<<std::endl;
     };
 
 };
@@ -270,7 +270,7 @@ paolMat Buffer::pop(int consumerID)
 {
   paolMat temp;
   temp.copy(consumerLists[consumerID]->pop());
-  std::cout<<"\n\n  BUFFER POP:: Count, seconds: "<<temp.count<<" ,"<<temp.time<<std::endl;
+  //std::cout<<"\n\n  BUFFER POP:: Count, seconds: "<<temp.count<<" ,"<<temp.time<<std::endl;
   return temp;
 };
 

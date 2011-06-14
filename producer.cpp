@@ -82,21 +82,21 @@ void ReadFromDisk::readDir()
       std::string name = iter->path().leaf();
       //Check if it is a png
       #ifndef _debug_
-      std::cout<<"readFromDisk:: "<<name<<std::endl;
+      //std::cout<<"readFromDisk:: "<<name<<std::endl;
       #endif
       if (regex_search(name, pattern))
 	{
 	  std::string longPath = "media/";
 	  longPath.append(name);
 	  #ifndef _debug_
-	  std::cout<<longPath<<std::endl;
+	  //std::cout<<longPath<<std::endl;
 	  #endif
 	  img.src = imread(longPath);
 	  img.name = name;
 	  push(img);
 	  boost::this_thread::sleep(restTime);
 	  #ifndef _debug_
-	  std::cout << name << "\n";
+	  //std::cout << name << "\n";
 	  #endif
 	};
       
@@ -121,20 +121,20 @@ void ReadFromDisk::readFromPattern(char *dir, char* firstImage)
     boost::this_thread::sleep(sleepTime);
     //try opening a file of the given name
     img.src.release();
-    std::cout<<"Producer:: Image data is null: "<<img.src.empty()<<std::endl;
+    //std::cout<<"Producer:: Image data is null: "<<img.src.empty()<<std::endl;
     img.read(name,count,seconds);
     if (img.src.data){
-      std::cout<<"Producer:: Read1 image named: "<<name<<std::endl;
+      //std::cout<<"Producer:: Read1 image named: "<<name<<std::endl;
       push(img);
-      std::cout<<"\n\nRFP:: img count, time: "<<img.count<<" "<<img.time<<std::endl;
-      std::cout<<"Producer:: Read1.1 image pushed: "<<name<<std::endl;
+      //std::cout<<"\n\nRFP:: img count, time: "<<img.count<<" "<<img.time<<std::endl;
+      //std::cout<<"Producer:: Read1.1 image pushed: "<<name<<std::endl;
       lastLoaded=seconds;
       count++;
     } else {
       sprintf(name,"%simage%06d-%10d.ppm",dir,count+1,seconds);
       img.read(name,count,seconds);
       if (img.src.data){
-	std::cout<<"Producer:: Read2 image named: "<<name<<std::endl;
+	//std::cout<<"Producer:: Read2 image named: "<<name<<std::endl;
 	push(img);
 	lastLoaded=seconds;
 	count+=2;

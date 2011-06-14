@@ -24,7 +24,7 @@ using namespace cv;
 using namespace std;
 //using namespace boost;
 
-#define _debug_
+//#define _debug_
 
 void WriteToDisk::setup(std::string basename, std::string dirIn)
 {

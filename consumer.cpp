@@ -73,5 +73,5 @@ void imWindow::run()
 	  destroyWindow("Window");
 	};
     };
-  std::cout<<"ReadFromDisk:: I was told to stop, my ID was: "<<myID<<std::endl;
+  //std::cout<<"ReadFromDisk:: I was told to stop, my ID was: "<<myID<<std::endl;
 };
