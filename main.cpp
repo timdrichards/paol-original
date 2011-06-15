@@ -97,6 +97,13 @@ void locateProf(Buffer *inBuffer, Buffer *outBuffer)
   testLocate.run();
 };
 
+void findDiff(Buffer *inBuffer, Buffer *outBuffer)
+{
+  test testDiff(inBuffer, outBuffer);
+  testDiff.run();
+
+};
+
 int main(int argc, char** argv)
 {
 
@@ -121,7 +128,7 @@ int main(int argc, char** argv)
   //And fix join statments
   
   boost::thread processWhiteBoard(testProcess, preProcessBuffer, diskWriteBuffer);
-  boost::thread processProf(locateProf, diskReadBuffer, preProcessBuffer);
+  boost::thread processProf(findDiff, diskReadBuffer, preProcessBuffer);
   boost::thread diskRead(testReadFromPattern, diskReadBuffer, argv[1], argv[2]);
   
 

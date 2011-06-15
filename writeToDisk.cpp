@@ -16,6 +16,7 @@
 #include "opencv/highgui.h"
 
 
+#include "paolMat.h"
 #include "buffer.h"
 #include "consumer.h"
 #include "writeToDisk.h"

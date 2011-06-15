@@ -16,6 +16,8 @@
 #include "opencv/highgui.h"
 
 #include "paolMat.h"
+#include "buffer.h"
 
 using namespace cv;
 using namespace boost;
+

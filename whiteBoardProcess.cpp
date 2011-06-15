@@ -26,7 +26,7 @@
 using namespace cv;
 using namespace boost;
 
-#define _debug_
+//#define _debug_
 
 void WhiteBoardProcess::run()
 {
@@ -69,7 +69,7 @@ void WhiteBoardProcess::run()
 
       sharpenContrastImprovedInputImg();
       //output->push(improvedInputImg);
-      output->push(improvedInputImgNoProfContrastSharp);
+      output->push(improvedInputImgNoProfContrast);
       
 #ifndef _debug_
       std::cout<<"Processor:: pushed contrast improved img"<<std::endl;

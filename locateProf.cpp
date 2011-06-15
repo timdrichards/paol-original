@@ -115,7 +115,52 @@ void LocateProf::run()
   
 };
 
+void test::run()
+{
+  paolMat inImgNew;
+  paolMat inImgMid;
+  paolMat inImgOld;
+  paolMat difImgOld;
+  paolMat difImgNew;
+  paolMat outImg;
 
+  inImgOld.copy(pop());
+  inImgMid.copy(pop());
+  inImgNew.copy(pop());
+  difImgOld.copy(inImgOld);
+  difImgNew.copy(inImgOld);
+  outImg.copy(inImgOld);
+  output->push(inImgOld);
+
+  cv::absdiff(inImgOld.src, inImgMid.src, difImgOld.src);
+  
+  while(inImgOld.src.data && inImgNew.src.data)
+    {
+      difImgNew.copy(inImgNew);
+      cv::absdiff(inImgMid.src, inImgNew.src, difImgNew.src);
+      cv::absdiff(difImgOld.src, difImgNew.src, outImg.src);
+      
+      difImgOld.invert();
+      difImgOld.name = "dif";
+      difImgOld.print();
+
+      outImg.invert();
+      outImg.name = "difDiff";
+      outImg.print();
+      
+      output->push(inImgNew);
+      inImgOld.copy(inImgMid);
+      inImgMid.copy(inImgNew);
+      inImgNew.copy(pop());
+
+      difImgOld.copy(difImgNew);
+
+      outImg.copy(inImgOld);
+    };
+  paolMat nullImg;
+  output->push(nullImg);
+  output->stop();
+};
 
 /*
 

@@ -9,8 +9,8 @@ FLAGS=-I /usr/local/include/opencv/ \
 	-lboost_filesystem-mt \
 	-lboost_regex
 
-OBJ1=buffer.o consumer.o producer.o writeToDisk.o \
-	process.o whiteBoardProcess.o gige.o paolMat.o locateProf.o main.o
+OBJ1=paolMat.o buffer.o consumer.o producer.o writeToDisk.o \
+	process.o whiteBoardProcess.o gige.o locateProf.o main.o
 
 all: everything
 

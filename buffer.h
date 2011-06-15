@@ -2,7 +2,9 @@
 #ifndef _buffer_h_
 #define _buffer_h_
 
-///////BUFFER CLASS///////////
+
+
+///PaolMat////
 
 using namespace cv;
 
@@ -10,17 +12,31 @@ class paolMat
 {
 public:
   cv::Mat src;
+  cv::vector<cv::Mat> planes;
   int count;
   int time;
   std::string name;
   void print();
   void copy(paolMat m);
   void read(std::string fileName,int countIn,int timeIn);
-  
+
+  //This is a slow method for testing, not production//
+  void invert();
+  void split(){cv::split(src, planes);};
+  void merge(){cv::merge(planes, src);};
+  void createBackgroundImg(int kernalSize);
+  void improveInputImg(paolMat background);
+  void removeProf();
+  void createContrast();
+  void sharpen();
+
+
   paolMat();
   
   //  paolMat operator = (const paolMat& m);
 };
+
+///////BUFFER CLASS///////////
 
 //List Item for buffer linked list//
 class frameListItem

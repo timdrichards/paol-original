@@ -15,7 +15,6 @@
 #include "opencv/cv.h"
 #include "opencv/highgui.h"
 
-#include "paolMat.h"
 #include "buffer.h"
 
 
@@ -23,6 +22,7 @@
 
 using namespace cv;
 using namespace boost;
+
 
 //////////paolMat////////////////////////
 
@@ -73,6 +73,168 @@ void paolMat::read(std::string fileName,int countIn, int timeIn)
   time=timeIn;
 
 };
+
+//This is a slow method for testing, not production//
+void paolMat::invert()
+{
+  cv::vector<cv::Mat> planes;
+  cv::split(src, planes);
+  int temp;
+  
+  for (int y = 0; y < src.rows; y++)
+    {
+      uchar* red = planes[0].ptr<uchar>(y);
+      uchar* green = planes[1].ptr<uchar>(y);
+      uchar* blue = planes[2].ptr<uchar>(y);
+      for (int x = 0; x < src.cols; x++)
+	{
+	  temp=red[x]+green[x]+blue[x];
+	  if (temp>40)
+	    temp=255;
+	  red[x]=temp;
+	  blue[x]=temp;
+	  green[x]=temp;
+	  /*	  if (temp>30)
+	    green[x]=255;
+	  else
+	    green[x]=0;
+	  */
+	};
+      
+    };
+  
+  cv::merge(planes, src);
+};
+
+void paolMat::createBackgroundImg(int kernalSize)
+{
+  cv::Point centerPoint(-1,-1);
+  cv::blur(src, src, cv::Size(kernalSize,kernalSize), centerPoint, 1);
+  name = "backgroundImg";
+};
+void paolMat::improveInputImg(paolMat background)
+{
+  background.split();
+  split();
+  int temp;
+  
+  for (int channel = 0; channel <3; channel++)
+    for (int y = 0; y < src.rows; y++)
+      {
+	uchar* inputPtr = planes[channel].ptr<uchar>(y);
+	uchar* backgroundPtr = background.planes[channel].ptr<uchar>(y);
+	
+	for (int x = 0; x < src.cols; x++)
+	  {
+	    
+	    temp  = (inputPtr[x] * 255) / backgroundPtr[x];
+	    if(temp > 255)
+	      inputPtr[x] = 255;
+	    else
+	      inputPtr[x] = temp;
+	  };
+
+      };
+  
+  merge();
+  name = "improvedImage";
+};
+void paolMat::removeProf()
+{
+  name = "noProf";
+};
+void paolMat::createContrast()
+{
+  split();
+  int thresh;
+  int temp;
+  int ave;
+  for (int y = 0; y < src.rows; y++)
+      {
+	uchar* RInPtr = planes[0].ptr<uchar>(y);		
+	uchar* BInPtr = planes[1].ptr<uchar>(y);	
+	uchar* GInPtr = planes[2].ptr<uchar>(y);
+			
+	for (int x = 0; x < src.cols; x++)
+	  {
+	    ave = (RInPtr[x] + BInPtr[x] + GInPtr[x]) /3;
+	    if(ave <240 || ((RInPtr[x] < 220) || (BInPtr[x] < 220) || (GInPtr[x] < 220)))
+	      {
+		temp = RInPtr[x]-(255-RInPtr[x]);
+		if (temp < 0)
+		  temp = 0;
+		//else if (temp > 188)
+		//  temp = 255;
+		RInPtr[x] = temp;
+
+		temp = BInPtr[x]-(255-BInPtr[x]);
+		if (temp < 0)
+		  temp = 0;
+		//else if (temp > 188)
+		//  temp = 255;
+		BInPtr[x] = temp;
+
+		temp = GInPtr[x]-(255-GInPtr[x]);
+		if (temp < 0)
+		  temp = 0;
+		//else if (temp > 188)
+		//  temp = 255;
+		GInPtr[x] = temp;
+	       
+	      }else
+	      {
+		RInPtr[x] = 255;
+		GInPtr[x] = 255;
+		BInPtr[x] = 255;
+
+	      };
+	    
+	  };
+
+      };
+  merge();
+  name = "ContrastImg";
+};
+
+
+void paolMat::sharpen()
+{
+  cv::vector<cv::Mat> oldPlane;
+  split();
+  cv::split(src, oldPlane);
+
+  int v, temp;
+  double kSharp;
+  kSharp = 0.75;
+  v =2;
+  
+  for (int channel = 0; channel <3; channel++)
+    for (int y = v; y < (src.rows -v); y++)
+      {
+	uchar* topOldPtr = oldPlane[channel].ptr<uchar>(y-v);
+	uchar* middleOldPtr = oldPlane[channel].ptr<uchar>(y);
+	uchar* bottomOldPtr = oldPlane[channel].ptr<uchar>(y+v);
+	uchar* newPtr = planes[channel].ptr<uchar>(y);
+	
+	for (int x = v; x < (src.cols -v); x++)
+	  {
+	    temp = (int)(((double)middleOldPtr[x] - ( (kSharp/4) * (double)(topOldPtr[x]+middleOldPtr[x-v]+middleOldPtr[x+v]+bottomOldPtr[x])))/(1.0-kSharp));
+	    if(temp > 255)
+	      newPtr[x] = 255;
+	    else if(temp < 0)
+	      newPtr[x] = 0;
+	    else
+	      newPtr[x] = temp;	    
+	  };
+
+      };
+
+  merge();
+  name = "Sharp";
+
+};
+
+
 //////////Frame Linked List /////////////////////////////////////
 
 frameListItem::frameListItem(paolMat newFrame)
