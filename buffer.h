@@ -22,8 +22,9 @@ public:
 
   //This is a slow method for testing, not production//
   void invert();
+
   void split(){cv::split(src, planes);};
-  void merge(){cv::merge(planes, src);};
+  void merge();
   void createBackgroundImg(int kernalSize);
   void improveInputImg(paolMat background);
   void removeProf();

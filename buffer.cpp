@@ -50,19 +50,11 @@ void paolMat::print()
 
 void paolMat::copy(paolMat m)
 {
-  //std::cout<<"PaolMat:: = operator called"<<std::endl;
   m.src.copyTo(src);
-  //std::cout<<"PaolMat:: 1 image "<<(src.data)<<std::endl;
-  //imwrite("media/copiedImage.png", src);
-  //std::cout<<"PaolMat:: 1.2 image had data? "<<(!(!(m.src.data)))<<std::endl;
-  //imwrite("media/copiedImage2.png", m.src);
-  //std::cout<<"PaolMat:: 1.3 m image had data? "<<(!(!(m.src.data)))<<std::endl;
   count = m.count;
-  //std::cout<<"PaolMat:: 2  count: "<<count<<"m.count "<<m.count<<std::endl;
   time = m.time;
-  //std::cout<<"PaolMat:: 3  time: "<<time<<" m.time "<<m.time<<std::endl;
   name = m.name;
-  //std::cout<<"PaolMat:: = operator complete name:"<<name<<std::endl;
+  planes = m.planes;
 };
 
 void paolMat::read(std::string fileName,int countIn, int timeIn)
@@ -71,7 +63,15 @@ void paolMat::read(std::string fileName,int countIn, int timeIn)
   name = fileName;
   count=countIn;
   time=timeIn;
+};
 
+void paolMat::merge()
+{
+  std::cout<<"PaolMat Merge called, planes num is: "<<planes.size()<<std::endl;
+  if(planes.size() > 0)
+    {
+      cv::merge(planes, src);
+    };
 };
 
 //This is a slow method for testing, not production//
@@ -112,6 +112,7 @@ void paolMat::createBackgroundImg(int kernalSize)
   cv::blur(src, src, cv::Size(kernalSize,kernalSize), centerPoint, 1);
   name = "backgroundImg";
 };
+
 void paolMat::improveInputImg(paolMat background)
 {
   background.split();

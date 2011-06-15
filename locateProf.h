@@ -22,4 +22,22 @@ class test : public Processor
   
 };
 
+class Accumulate : public Processor
+{
+ public:
+  paolMat outImg;
+  void run();
+  void setup(int bufferSizeIn);
+  int bufferSize;
+  int current;
+  void addPaol(paolMat inImg);
+  void subtractPaol();
+  void updateOutput();
+  void insert();
+  std::vector<paolMat> buffer;
+  std::vector<std::vector<std::vector<int> > > big;
+ Accumulate(Buffer* in, Buffer* out) : Processor(in,out){};
+ 
+};
+
 #endif

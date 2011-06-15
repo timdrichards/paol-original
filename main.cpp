@@ -75,8 +75,11 @@ void testProducer(Buffer *myBuffer)
 void testProcess(Buffer *inBuffer, Buffer *outBuffer)
 {
 
-  WhiteBoardProcess debug(inBuffer, outBuffer);
-  debug.run();
+  Accumulate acc(inBuffer, outBuffer);
+  acc.run();
+
+  //  WhiteBoardProcess debug(inBuffer, outBuffer);
+  //debug.run();
   /*Processor passOn(inBuffer, outBuffer);
   passOn.run();
   #ifndef _debug_

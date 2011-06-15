@@ -26,7 +26,7 @@
 using namespace cv;
 using namespace boost;
 
-//#define _debug_
+#define _debug_
 
 void WhiteBoardProcess::run()
 {

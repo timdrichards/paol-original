@@ -3,6 +3,8 @@
 #include <boost/thread.hpp>
 #include <boost/date_time.hpp>
 #include <boost/interprocess/containers/vector.hpp>
+#include <boost/multi_array.hpp>
+#include <cassert>
 
 //Including C++ Libs
 #include <iostream>
@@ -117,6 +119,36 @@ void LocateProf::run()
 
 void test::run()
 {
+
+  paolMat background;
+  paolMat working;
+  
+  
+  working.copy(pop());
+
+  while(working.src.data)
+    {
+      
+      background.copy(working);
+      
+      background.createBackgroundImg(25);
+      background.print();
+  
+      working.improveInputImg(background);
+      working.print();
+      
+      working.createContrast();
+      working.print();
+  
+      working.sharpen();
+      working.print();
+      
+      output->push(working);
+      working.copy(pop());
+    };
+  output->stop();  
+
+  /*
   paolMat inImgNew;
   paolMat inImgMid;
   paolMat inImgOld;
@@ -160,6 +192,7 @@ void test::run()
   paolMat nullImg;
   output->push(nullImg);
   output->stop();
+  */
 };
 
 /*
@@ -208,3 +241,141 @@ void test::run()
 
 
  */
+
+void Accumulate::run()
+{
+  setup(5);
+  while(buffer[current].src.data)
+    {
+      insert();
+      output->push(outImg);
+      outImg.name = "accumulate";
+      outImg.print();
+    };
+  output->stop();
+};
+
+
+void Accumulate::setup(int bufferSizeIn)
+{
+  current = 1;
+  bufferSize = bufferSizeIn;
+  buffer.resize(bufferSize);
+  
+  buffer[0].copy( pop() );
+  outImg.copy(buffer[0]);
+  outImg.name = "accumulated";
+  
+  
+  for(int i = 1; i<bufferSize ; i++)
+    addPaol(buffer[0]);
+  
+  
+  big.resize(buffer[0].src.rows);
+  for(int i =0; i<buffer[0].src.rows; i++)
+    {
+      big[i].resize(buffer[0].src.cols);
+      for(int j=0; j<3; j++)
+	big[i][j].resize(3);
+    };
+
+  outImg.split();
+  for (int y = 0; y < outImg.src.rows; y++)
+    {
+      uchar* rPtr = outImg.planes[0].ptr<uchar>(y);
+      uchar* gPtr = outImg.planes[1].ptr<uchar>(y);
+      uchar* bPtr = outImg.planes[2].ptr<uchar>(y);
+      
+      for (int x = 0; x < outImg.src.cols; x++)
+	{
+	  rPtr[x] = big[y][x][0]/bufferSize;
+	  gPtr[x] = big[y][x][1]/bufferSize;
+	  bPtr[x] = big[y][x][2]/bufferSize;
+	};
+      
+    };
+  outImg.merge();
+};
+
+void Accumulate::addPaol(paolMat inImg)
+{
+  buffer[current].copy(inImg);
+  buffer[current].split();
+  for (int y = 0; y < buffer[current].src.rows; y++)
+    {
+      uchar* rPtr = buffer[current].planes[0].ptr<uchar>(y);
+      uchar* gPtr = buffer[current].planes[1].ptr<uchar>(y);
+      uchar* bPtr = buffer[current].planes[2].ptr<uchar>(y);
+      
+      for (int x = 0; x < buffer[current].src.cols; x++)
+	{
+	  big[y][x][0] += rPtr[x];
+	  big[y][x][1] += gPtr[x];
+	  big[y][x][2] += bPtr[x];
+	};
+      
+    };
+  
+  updateOutput();
+  current++;
+  if(current >= bufferSize)
+    current = 0;
+};
+
+void Accumulate::subtractPaol()
+{
+
+  for (int y = 0; y < buffer[current].src.rows; y++)
+    {
+      uchar* rPtr = buffer[current].planes[0].ptr<uchar>(y);
+      uchar* gPtr = buffer[current].planes[1].ptr<uchar>(y);
+      uchar* bPtr = buffer[current].planes[2].ptr<uchar>(y);
+      
+      for (int x = 0; x < buffer[current].src.cols; x++)
+	{
+	  big[y][x][0] -= rPtr[x];
+	  big[y][x][1] -= gPtr[x];
+	  big[y][x][2] -= bPtr[x];
+	};
+      
+    };
+};
+
+void Accumulate::updateOutput()
+{
+  int thresh=5;
+  bool same;
+  for (int p=0;p<3;p++)
+    for (int y = 0; y < outImg.src.rows; y++)
+      {
+	uchar* ptrOut = outImg.planes[p].ptr<uchar>(y);
+	uchar* ptrCur = buffer[current].planes[p].ptr<uchar>(y);
+	
+	for (int x = 0; x < buffer[current].src.cols; x++)
+	  {
+	    if(abs(ptrOut[x]-ptrCur[x])>thresh){
+	      //temp=0;
+	      same=true;
+	      for (int z=0;z<bufferSize;z++){
+		uchar* ptrTemp = buffer[z].planes[p].ptr<uchar>(y);
+		//temp+=ptrTemp[x];
+		
+		//temp/=bufferSize;
+		if(abs(ptrCur[x]-ptrTemp[x])>thresh)
+		  same=false;
+	      };
+	      if(same)
+		ptrOut[x]=ptrCur[x];
+	    };
+	  };
+      };
+  outImg.merge();
+  outImg.count = buffer[current].count;
+  outImg.time = buffer[current].time;
+};
+
+void Accumulate::insert()
+{
+  subtractPaol();
+  addPaol(pop());
+};
