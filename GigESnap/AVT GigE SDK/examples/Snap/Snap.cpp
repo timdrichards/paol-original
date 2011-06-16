@@ -198,6 +198,7 @@ void CameraSnap(tCamera* Camera)
         }
         else
             printf("the frame failed to be captured ...\n");
+	
     } 
     else
         printf("failed to enqueue the frame\n");

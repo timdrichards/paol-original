@@ -27,21 +27,29 @@
 |==============================================================================
 */
 
+#ifdef _WINDOWS
+#include "StdAfx.h"
+#endif
 
 #include <stdio.h>
 #include <string.h>
-#include <cstdio>
-#include <iostream>
 
+#ifdef _WINDOWS
+#define WIN32_LEAN_AND_MEAN
+#include <Windows.h>
+#endif
+
+#if defined(_LINUX) || defined(_QNX) || defined(_OSX)
 #include <unistd.h>
 #include <time.h>
+#endif
 
+#include <PvApi.h>
+#include <ImageLib.h>
 
-#include "PvApi.h"
-#include "ImageLib.h"
-#include "opencv/highgui.h"
 #include "opencv/cv.h"
-#include <memory.h>
+#include "opencv/highgui.h"
+#include "opencv/cvaux.h"
 
 // camera's data
 typedef struct 
@@ -52,7 +60,7 @@ typedef struct
 
 } tCamera;
 
-
+#if defined(_LINUX) || defined(_QNX) || defined(_OSX)
 void Sleep(unsigned int time)
 {
     struct timespec t,r;
@@ -63,10 +71,7 @@ void Sleep(unsigned int time)
     while(nanosleep(&t,&r)==-1)
         t = r;
 }
-
-
-// Global variables
-unsigned long FrameSize = 0;
+#endif
 
 // wait for a camera to be plugged
 void WaitForCamera()
@@ -115,14 +120,13 @@ bool CameraGet(tCamera* Camera)
 // open the camera
 bool CameraSetup(tCamera* Camera)
 {
-	tPvErr Error = PvCameraOpen(Camera->UID,ePvAccessMaster,&(Camera->Handle));   
-	printf("Setup returns %d\n", Error);
-	return (!Error);
+    return !PvCameraOpen(Camera->UID,ePvAccessMaster,&(Camera->Handle));   
 }
 
 // setup and start streaming
 bool CameraStart(tCamera* Camera)
 {
+    unsigned long FrameSize = 0;
 
     // Auto adjust the packet size to max supported by the network, up to a max of 8228.
     // NOTE: In Vista, if the packet size on the network card is set lower than 8228,
@@ -131,10 +135,7 @@ bool CameraStart(tCamera* Camera)
     //PvCaptureAdjustPacketSize(Camera->Handle,8228);
 
     // how big should the frame buffers be?
-    tPvErr Error = PvAttrUint32Get(Camera->Handle,"TotalBytesPerFrame",&FrameSize);
-	printf("Start returns %d,  Frame size= %d\n", Error, FrameSize);
-	Error = (tPvErr)0;  // BFS added this
-	if(!Error)
+    if(!PvAttrUint32Get(Camera->Handle,"TotalBytesPerFrame",&FrameSize))
     {
         bool failed = false;
 
@@ -149,20 +150,13 @@ bool CameraStart(tCamera* Camera)
         if(!failed)
         {
             // set the camera is capture mode
-            tPvErr Error = PvCaptureStart(Camera->Handle);
-			printf("Capture start returns %d\n", Error);
-            if(!Error)
+            if(!PvCaptureStart(Camera->Handle))
             {
 		        // set the camera in continuous acquisition mode
-		        Error = PvAttrEnumSet(Camera->Handle,"FrameStartTriggerMode","Freerun");
-				printf("Set trigger mode returns %d\n", Error);
-				Error = (tPvErr)0;		// THIS APPEARS TO BE NECESSARY, NOT SURE WHY
-				if(!Error)
+		        if(!PvAttrEnumSet(Camera->Handle,"FrameStartTriggerMode","Freerun"))
 		        {			
                 	        // and set the acquisition mode into continuous
-							Error = PvCommandRun(Camera->Handle,"AcquisitionStart");
-							printf("Start acquisition returns %d\n", Error);
-                	        if(Error)
+                	        if(PvCommandRun(Camera->Handle,"AcquisitionStart"))
                 	        {
                     		        // if that fail, we reset the camera to non capture mode
                     		        PvCaptureEnd(Camera->Handle) ;
@@ -192,27 +186,25 @@ void CameraStop(tCamera* Camera)
 }
 
 // snap and save a frame from the camera
-bool CameraSnap(tCamera* Camera)
+void CameraSnap(tCamera* Camera)
 {
-	bool snapOK = false;
-    tPvErr Error = PvCaptureQueueFrame(Camera->Handle,&(Camera->Frame),NULL);
-	printf("Snap returns %d\n", Error);
-	if(!Error)
+    if(!PvCaptureQueueFrame(Camera->Handle,&(Camera->Frame),NULL))
     {
         printf("waiting for the frame to be done ...\n");
         while(PvCaptureWaitForFrameDone(Camera->Handle,&(Camera->Frame),100) == ePvErrTimeout)
             printf("still waiting ...\n");
         if(Camera->Frame.Status == ePvErrSuccess)
         {
-			snapOK = true;
+            if(!ImageWriteTiff("./snap.tiff",&(Camera->Frame)))
+                printf("Failed to save the grabbed frame!");
+            else
+                printf("frame saved\n");
         }
         else
             printf("the frame failed to be captured ...\n");
     } 
     else
         printf("failed to enqueue the frame\n");
-
-	return snapOK;
 }
 
 // unsetup the camera
@@ -223,83 +215,9 @@ void CameraUnsetup(tCamera* Camera)
     delete [] (char*)Camera->Frame.ImageBuffer;
 }
 
-
-void CameraDisplay(tCamera* Camera)
-{
-	printf("Note that bit depth and number of planes should match camera setup\n");
-	cv::Mat img;//(Camera->Frame.Width, Camera->Frame.Height, IPL_DEPTH_8U, 1);
-	//img = cv::cvarrToMat(Camera->Frame.ImageBuffer).clone();
-	//img = Camera->Frame.ImageBuffer;
-	//memcpy(img.data, Camera->Frame.ImageBuffer, FrameSize);		// dest, source, #
-	char* frameChar[FrameSize];
-	
-	
-	frameChar = Camera->Frame.ImageBuffer;
-	//char frame = Camera->Frame.ImageBuffer;
-	//std::cout<< Camera->Frame.ImageBuffer&  << std::endl;
-	/*
-	// display main window
-	cvNamedWindow( "Example1", 0 ); //CV_WINDOW_AUTOSIZE );
-	cvShowImage( "Example1", img);
-	cvResizeWindow("Example1", 300, 300 );
-
-		// just for fun, make another image and do operations on it
-		IplImage* output = cvCreateImage( cvGetSize(img), IPL_DEPTH_8U, 1 );
-		cvCanny( img, output, 20, 40 );
-
-		CvFont font;
-		cvInitFont( &font, CV_FONT_HERSHEY_DUPLEX, 2.0, 2.0 );
-		cvPutText(output, "Edge Image", cvPoint(10,60), &font, cvScalar(255));
-
-		cvNamedWindow( "Example2", 0 ); //CV_WINDOW_AUTOSIZE );
-		cvShowImage( "Example2", output );
-		cvResizeWindow("Example2", 300, 300 );
-
-		// wait for key, then close displayed images
-		printf("select either window and press any key to clear the windows\n");
-		cvWaitKey( 0 );
-		
-		cvReleaseImage( &output );
-		cvDestroyWindow( "Example2" );    
-
-	cvReleaseImage( &img );
-	cvDestroyWindow( "Example1" ); 
-	*/
-}
-
-
-bool CameraSetupAndStart(tCamera* Camera)
-{
-bool setupOK = false;
-    // get a camera from the list
-    if(CameraGet(Camera))
-    {
-        // setup the camera
-        if(CameraSetup(Camera))
-        {
-            // start streaming from the camera
-            if(CameraStart(Camera))
-				setupOK = true;
-            else
-			{
-                printf("failed to start streaming\n");
-
-				// unsetup the camera
-				CameraUnsetup(Camera);
-			}
-        }
-        else
-            printf("failed to setup the camera\n");
-    }
-    else
-        printf("failed to find a camera\n");
-   
-	return setupOK;
-}
-
 int main(int argc, char* argv[])
 {
-    // initialize the Prosilica API
+    // initialise the Prosilica API
     if(!PvInitialize())
     { 
         tCamera Camera;
@@ -309,45 +227,43 @@ int main(int argc, char* argv[])
         // wait for a camera to be plugged
         WaitForCamera();
 
-		// get a camera from the list, set it up, start streaming
-		if( CameraSetupAndStart(&Camera) )
+        // get a camera from the list
+        if(CameraGet(&Camera))
         {
-			while (true)
-			{
-				printf("camera is ready now. Press q to quit or s to take a picture\n");
-				// wait for the user to quit or snap
-				if(WaitForUserToQuitOrSnap())
-				{
-					// snap now
-					if( CameraSnap(&Camera))
-					{
-						// save image
-						if(!ImageWriteTiff("./snap.tiff",&(Camera.Frame)))
-							printf("Failed to save the grabbed frame!\n");
-			            else
-						    printf("frame saved\n");
+            // setup the camera
+            if(CameraSetup(&Camera))
+            {
+                // strat streaming from the camera
+                if(CameraStart(&Camera))
+                {
+                    printf("camera is ready now. Press q to quit or s to take a picture\n");
+                    // wait for the user to quit or snap
+                    if(WaitForUserToQuitOrSnap())
+                    {
+                        // snap now
+                        CameraSnap(&Camera);
+                    }
 
-						// display image in OpenCV in two ways
-						//	CameraDisplay(&Camera);
-					}
-					else
-						printf("unable to snap image\n");
-				}
-				else
-					break;
-			}
-		}
-		else
-			printf("unable to setup and start the camera\n");        
+                    // stop the streaming
+                    CameraStop(&Camera);
+                }
+                else
+                    printf("failed to start streaming\n");
 
-		// uninitialise the API
+                // unsetup the camera
+                CameraUnsetup(&Camera);
+            }
+            else
+                printf("failed to setup the camera\n");
+        }
+        else
+            printf("failed to find a camera\n");
+       
+        // uninitialise the API
         PvUnInitialize();
     }
     else
         printf("failed to initialise the API\n");
-
-	printf("Capture done, press key to continue:\n");
-	getc(stdin);
-
-	return 0;
+    
+    return 0;
 }

@@ -7,7 +7,7 @@ include ../ARCH
 EXE	= SampleViewer
 
 ## location of the wxWidget library on your system
-WX_DIR   = /home/jlv/Junk/wxGTK-2.8.10/static64
+WX_DIR   = /usr/bin
 ## version of the wxWidget to use
 WX_VER   = 2.8
 ## flags & libs for wxWidget

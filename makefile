@@ -1,9 +1,5 @@
 CXX=g++
-FLAGS=-I /usr/local/include/opencv/ \
-	-L/user/local/lib/ \
-	-lopencv_core \
-	-lopencv_highgui \
-	-lopencv_objdetect \
+FLAGS=`pkg-config --cflags --libs opencv` \
 	-L /usr/lib/ \
 	-lboost_thread \
 	-lboost_filesystem-mt \

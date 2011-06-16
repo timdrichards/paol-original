@@ -22,7 +22,16 @@ SP      = strip
 
 # some flags
 DFLAGS	= -D_$(CPU) -D_$(OS)
-FLAGS   = -fno-strict-aliasing -fexceptions -I/usr/include $(DFLAGS)
+FLAGS   = -I /usr/local/include/opencv/ \
+	-L/user/local/lib/ \
+	-lopencv_core \
+	-lopencv_highgui \
+	-lopencv_objdetect \
+	-L /usr/lib/ \
+	-lboost_thread \
+	-lboost_filesystem-mt \
+	-lboost_regex \
+	-fno-strict-aliasing -fexceptions -I/usr/include $(DFLAGS)
 
 ## path where to look for PvAPI shared lib
 RPATH	= -Wl,--rpath -Wl,./ 

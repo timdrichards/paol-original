@@ -107,12 +107,18 @@ void findDiff(Buffer *inBuffer, Buffer *outBuffer)
 
 };
 
+void record(Buffer *outBuffer, int camN)
+{
+  CameraCap cam(outBuffer, camN);
+  cam.run();
+};
+
 int main(int argc, char** argv)
 {
-
+  
   const boost::posix_time::seconds globalSleepTime(2);
   std::cout<<"MAIN: Main launched"<<std::endl;
-
+  
   Buffer* diskWriteBuffer;
   diskWriteBuffer = new Buffer;
 
@@ -122,29 +128,40 @@ int main(int argc, char** argv)
   Buffer* diskReadBuffer;
   diskReadBuffer = new Buffer;
 
+  Buffer* camera1Buffer;
+  camera1Buffer = new Buffer;
+
   //You need to start your consumers first otherwise the buffer will throw away pushed frames//
  
   //boost::thread display(testConsumer, diskWriteBuffer);
-  boost::thread diskWrite(testWriteToDisk, diskWriteBuffer);
+  boost::thread diskWrite(testWriteToDisk, camera1Buffer);
   //boost::thread processWhiteBoard(testProcess, diskReadBuffer, diskWriteBuffer);
   //To disable locateProf uncomment above, comment out locatProf thread
   //And fix join statments
   
-  boost::thread processWhiteBoard(testProcess, preProcessBuffer, diskWriteBuffer);
-  boost::thread processProf(findDiff, diskReadBuffer, preProcessBuffer);
-  boost::thread diskRead(testReadFromPattern, diskReadBuffer, argv[1], argv[2]);
+  //boost::thread processWhiteBoard(testProcess, camera1Buffer, diskWriteBuffer);
+  //boost::thread processProf(findDiff, camera1Buffer, preProcessBuffer);
+  //boost::thread diskRead(testReadFromPattern, diskReadBuffer, argv[1], argv[2]);
+
+  
+  boost::thread getCam(record, camera1Buffer, 0);
   
 
   std::cout<<"MAIN:: Waiting for join"<<std::endl;
   //Boost .join waits for the thread to complete//
   
-  diskRead.join();
+  boost::this_thread::sleep(boost::posix_time::seconds(10));
+  //camera.stop();
+  
+
+  //  diskRead.join();
 #ifndef _debug_
   //std::cout<<"MAIN:: DiskRead Joined"<<std::endl;
 #endif
   //  process.join();
-  processProf.join();
-  processWhiteBoard.join();
+  getCam.join();
+  //processProf.join();
+  //processWhiteBoard.join();
 #ifndef _debug_
   //std::cout<<"MAIN:: Process Joined"<<std::endl;
 #endif
@@ -153,8 +170,8 @@ int main(int argc, char** argv)
   //std::cout<<"MAIN:: DiskWrite Joined"<<std::endl;
 #endif
   //display.join();
-  
-  
+
+
   std::cout<<"MAIN: Main Closing"<<std::endl;
   return 0;
 
