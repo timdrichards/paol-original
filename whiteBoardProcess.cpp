@@ -69,7 +69,7 @@ void WhiteBoardProcess::run()
 
       sharpenContrastImprovedInputImg();
       //output->push(improvedInputImg);
-      output->push(improvedInputImgNoProfContrast);
+      conBuffer->push(improvedInputImgNoProfContrast);
       
 #ifndef _debug_
       std::cout<<"Processor:: pushed contrast improved img"<<std::endl;
@@ -82,8 +82,8 @@ void WhiteBoardProcess::run()
   std::cout<<"Processor:: Loop Ended"<<std::endl;
 #endif
   paolMat nullImage;
-  output->push(nullImage);
-  output->stop();
+  conBuffer->push(nullImage);
+  conBuffer->stop();
 #ifndef _debug_
   std::cout<<"Processor:: Null image passed"<<std::endl;
 #endif

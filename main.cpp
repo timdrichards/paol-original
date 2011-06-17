@@ -35,6 +35,77 @@ using namespace cv;
 using namespace boost;
 //using namespace std;
 
+
+int main(int argc, char** argv)
+{
+  
+  const boost::posix_time::seconds globalSleepTime(2);
+  std::cout<<"MAIN:: Main launched"<<std::endl;
+  
+  /////////////////////////////////////////////////////////////////////
+  //Create All the Buffers/////////////////////////////////////////////
+  Buffer* diskWriteBuffer;
+  diskWriteBuffer = new Buffer;
+
+  Buffer* preProcessBuffer;
+  preProcessBuffer = new Buffer
+
+;
+
+  Buffer* diskReadBuffer;
+  diskReadBuffer = new Buffer;
+
+  Buffer* camera1Buffer;
+  camera1Buffer = new Buffer;
+
+  std::cout<<"MAIN:: Buffers created"<<std::endl;
+
+  /////////////////////////////////////////////////////////////////////
+  //Create All the Modules/////////////////////////////////////////////
+
+  WriteToDisk frameWriter(diskWriteBuffer, "output", "outMedia/");
+  
+  Accumulate accumulate(preProcessBuffer, diskWriteBuffer);
+
+  test findProf(diskReadBuffer, preProcessBuffer);
+
+  ReadFromDisk diskReader(diskReadBuffer, argv[1], argv[2]);
+
+  std::cout<<"MAIN:: Modules Created"<<std::endl;
+
+  //////////////////////////////////////////////////////////////////////
+  // Launch the Modules in reverse order ///////////////////////////////
+  //
+  // By creating the modules in main we can point boost to the class 
+  // methods and launch the methodes as seperate threads, this way we
+  //  can call stop from inside main
+  //
+  // We first pass a referance to the CLASS::Method and then a reference
+  // to the instance of the class
+  //////////////////////////////////////////////////////////////////////////
+  
+  boost::thread frameWriterThread(&WriteToDisk::run, &frameWriter);
+  boost::thread accumulateThread(&Accumulate::run, &accumulate);
+  boost::thread testThread(&test::run, &findProf);
+  boost::thread diskReaderThread(&ReadFromDisk::run, &diskReader);
+
+  std::cout<<"MAIN:: Modules Running, waiting for joing"<<std::endl;
+
+  diskReaderThread.join();
+  testThread.join();
+  accumulateThread.join();
+  frameWriterThread.join();
+
+  std::cout<<"Main:: Joins complete"<<std::endl;
+};
+
+
+
+
+
+
+/*
+
 void testConsumer(Buffer *myBuffer)
 {
   imWindow consumer;
@@ -80,11 +151,11 @@ void testProcess(Buffer *inBuffer, Buffer *outBuffer)
 
   //  WhiteBoardProcess debug(inBuffer, outBuffer);
   //debug.run();
-  /*Processor passOn(inBuffer, outBuffer);
+  Processor passOn(inBuffer, outBuffer);
   passOn.run();
   #ifndef _debug_
   //std::cout<<"MAIN:: testProcessDone"<<std::endl;
-  #endif */
+  #endif 
 };
 
 void nullProcess(Buffer *inBuffer, Buffer *outBuffer)
@@ -113,66 +184,4 @@ void record(Buffer *outBuffer, int camN)
   cam.run();
 };
 
-int main(int argc, char** argv)
-{
-  
-  const boost::posix_time::seconds globalSleepTime(2);
-  std::cout<<"MAIN: Main launched"<<std::endl;
-  
-  Buffer* diskWriteBuffer;
-  diskWriteBuffer = new Buffer;
-
-  Buffer* preProcessBuffer;
-  preProcessBuffer = new Buffer;
-
-  Buffer* diskReadBuffer;
-  diskReadBuffer = new Buffer;
-
-  Buffer* camera1Buffer;
-  camera1Buffer = new Buffer;
-
-  //You need to start your consumers first otherwise the buffer will throw away pushed frames//
- 
-  //boost::thread display(testConsumer, diskWriteBuffer);
-  boost::thread diskWrite(testWriteToDisk, camera1Buffer);
-  //boost::thread processWhiteBoard(testProcess, diskReadBuffer, diskWriteBuffer);
-  //To disable locateProf uncomment above, comment out locatProf thread
-  //And fix join statments
-  
-  //boost::thread processWhiteBoard(testProcess, camera1Buffer, diskWriteBuffer);
-  //boost::thread processProf(findDiff, camera1Buffer, preProcessBuffer);
-  //boost::thread diskRead(testReadFromPattern, diskReadBuffer, argv[1], argv[2]);
-
-  
-  boost::thread getCam(record, camera1Buffer, 0);
-  
-
-  std::cout<<"MAIN:: Waiting for join"<<std::endl;
-  //Boost .join waits for the thread to complete//
-  
-  boost::this_thread::sleep(boost::posix_time::seconds(10));
-  //camera.stop();
-  
-
-  //  diskRead.join();
-#ifndef _debug_
-  //std::cout<<"MAIN:: DiskRead Joined"<<std::endl;
-#endif
-  //  process.join();
-  getCam.join();
-  //processProf.join();
-  //processWhiteBoard.join();
-#ifndef _debug_
-  //std::cout<<"MAIN:: Process Joined"<<std::endl;
-#endif
-  diskWrite.join();
-#ifndef _debug_
-  //std::cout<<"MAIN:: DiskWrite Joined"<<std::endl;
-#endif
-  //display.join();
-
-
-  std::cout<<"MAIN: Main Closing"<<std::endl;
-  return 0;
-
-};
+*/

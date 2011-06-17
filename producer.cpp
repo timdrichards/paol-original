@@ -28,9 +28,10 @@ using namespace cv;
 using namespace boost;
 
 
-void Producer::start(Buffer *buffer)
+Producer::Producer(Buffer *buffer)
 {
   proBuffer = buffer;
+  killMe = false;
 };
 
 void Producer::push(paolMat img)
@@ -53,16 +54,7 @@ bool Producer::keepRunning()
 
 void ReadFromDisk::run()
 {
-  
-  /*while (keepRunning())
-    {
-      img = imread("test.jpg");
-      push(img);
-      boost::this_thread::sleep(restTime);
-
-    };
-  */
-  readDir();
+  readFromPattern(dirIn, firstImageIn);
 };
 
 
@@ -110,7 +102,7 @@ void ReadFromDisk::readFromPattern(char *dir, char* firstImage)
   char name[256];
   FILE *fp;
   paolMat img;
-  boost::posix_time::millisec sleepTime(50);
+  boost::posix_time::millisec sleepTime(100);
  
   sscanf(firstImage,"image%06d-%10d.ppm",&count,&seconds);
   lastLoaded=seconds;

@@ -27,7 +27,7 @@ using namespace std;
 
 //#define _debug_
 
-void WriteToDisk::setup(std::string basename, std::string dirIn)
+WriteToDisk::WriteToDisk(Buffer* inBuffer, std::string basename, std::string dirIn) : Consumer(inBuffer)
 {
   baseName = new char[basename.length() +1];
   strcpy(baseName, basename.c_str());

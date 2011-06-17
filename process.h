@@ -12,11 +12,11 @@ class Processor : public Producer, public Consumer
  
   public:
   bool keepRunning();
-  Buffer* input;
-  Buffer* output;
+  //Buffer* input;
+  //Buffer* output;
   int myID;
   paolMat pop();
-  Processor(Buffer* in, Buffer* out);
+  Processor(Buffer* in, Buffer* out);// : Producer(in) , Consumer(out);
   void run();
   void stop();
   void passOn()
@@ -25,12 +25,12 @@ class Processor : public Producer, public Consumer
     img = pop();
     while (img.src.data)
       {
-	output->push(img);
-	img = input->pop(myID);
+	conBuffer->push(img);
+	img = proBuffer->pop(myID);
       };
     paolMat nullImg;
-    output->push(nullImg);
-    output->stop();
+    conBuffer->push(nullImg);
+    conBuffer->stop();
   };
 
 };

@@ -28,18 +28,18 @@ using namespace boost;
 //#define _debug_
 
 
-Processor::Processor(Buffer* in, Buffer* out)
+Processor::Processor(Buffer* in, Buffer* out) : Producer(in) , Consumer(out) 
 {
   boost::mutex::scoped_lock lock(proLock);
   killMe = false;
-  input = in;
-  output = out;
-  myID = input->registerConsumer();
+  //input = in;
+  //output = out;
+  myID = proBuffer->registerConsumer();
 };
 
 
 paolMat Processor::pop(){
-  return input->pop(myID);
+  return proBuffer->pop(myID);
 };
 
 bool Processor::keepRunning()
@@ -68,15 +68,15 @@ void Processor::run()
       //std::cout<<"Processor:: Pushing and poppin!"<<std::endl;
 #endif
       cv::blur(inputImg.src, backgroundImg.src, cv::Size(25,25), centerPoint, 1);
-      output->push(backgroundImg);
+      conBuffer->push(backgroundImg);
       inputImg.copy(pop());
     };
 #ifndef _debug_
   //std::cout<<"Processor:: Loop Ended"<<std::endl;
 #endif
   paolMat nullImage;
-  output->push(nullImage);
-  output->stop();
+  conBuffer->push(nullImage);
+  conBuffer->stop();
 #ifndef _debug_
   //std::cout<<"Processor:: Null image passed"<<std::endl;
 #endif

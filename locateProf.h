@@ -34,8 +34,9 @@ class Accumulate : public Processor
   void subtractPaol();
   void updateOutput();
   void insert();
+  bool keepgoing;
   std::vector<paolMat> buffer;
-  std::vector<std::vector<std::vector<int> > > big;
+  //std::vector<std::vector<std::vector<int> > > big;
  Accumulate(Buffer* in, Buffer* out) : Processor(in,out){};
  
 };

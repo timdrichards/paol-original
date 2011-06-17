@@ -51,7 +51,7 @@ void LocateProf::run()
   while(inImg.src.data)
     {
       outImg.copy(inImg);
-      output->push(inImg);
+      conBuffer->push(inImg);
       
       // Dilate the image so there are less edges to detect
       outImg.name = "dilated";
@@ -112,8 +112,8 @@ void LocateProf::run()
       
     };
   paolMat nullImage;
-  output->push(nullImage);
-  output->stop();
+  conBuffer->push(nullImage);
+  conBuffer->stop();
   
 };
 
@@ -137,16 +137,16 @@ void test::run()
       working.improveInputImg(background);
       working.print();
       
-      working.createContrast();
-      working.print();
+      //      working.createContrast();
+      //      working.print();
   
-      working.sharpen();
-      working.print();
+      //      working.sharpen();
+      //      working.print();
       
-      output->push(working);
+      conBuffer->push(working);
       working.copy(pop());
     };
-  output->stop();  
+  conBuffer->stop();  
 
   /*
   paolMat inImgNew;
@@ -162,7 +162,7 @@ void test::run()
   difImgOld.copy(inImgOld);
   difImgNew.copy(inImgOld);
   outImg.copy(inImgOld);
-  output->push(inImgOld);
+  conBuffer->push(inImgOld);
 
   cv::absdiff(inImgOld.src, inImgMid.src, difImgOld.src);
   
@@ -180,7 +180,7 @@ void test::run()
       outImg.name = "difDiff";
       outImg.print();
       
-      output->push(inImgNew);
+      conBuffer->push(inImgNew);
       inImgOld.copy(inImgMid);
       inImgMid.copy(inImgNew);
       inImgNew.copy(pop());
@@ -190,8 +190,8 @@ void test::run()
       outImg.copy(inImgOld);
     };
   paolMat nullImg;
-  output->push(nullImg);
-  output->stop();
+  conBuffer->push(nullImg);
+  conBuffer->stop();
   */
 };
 
@@ -236,7 +236,7 @@ void test::run()
 	}
       inImg.name = "HOG";
       inImg.print();
-      output->push(inImg);  
+      conBuffer->push(inImg);  
 
 
 
@@ -244,41 +244,53 @@ void test::run()
 
 void Accumulate::run()
 {
-  setup(5);
-  while(buffer[current].src.data)
+  paolMat sharp;
+  setup(12);
+  while(keepgoing)
     {
       insert();
-      output->push(outImg);
-      outImg.name = "accumulate";
-      outImg.print();
+      if(keepgoing){
+	sharp.copy(outImg);
+	sharp.createContrast();
+	sharp.sharpen();
+	sharp.print();
+	conBuffer->push(outImg);
+	outImg.name = "accumulate";
+	outImg.print();
+      }
     };
-  output->stop();
+  conBuffer->stop();
 };
 
 
 void Accumulate::setup(int bufferSizeIn)
 {
   current = 1;
+  keepgoing = true;
   bufferSize = bufferSizeIn;
-  buffer.resize(bufferSize);
+  paolMat empty;
+  buffer.resize(bufferSize,empty);
   
   buffer[0].copy( pop() );
   outImg.copy(buffer[0]);
   outImg.name = "accumulated";
   
   
-  for(int i = 1; i<bufferSize ; i++)
-    addPaol(buffer[0]);
   
   
+  /*  
   big.resize(buffer[0].src.rows);
   for(int i =0; i<buffer[0].src.rows; i++)
     {
       big[i].resize(buffer[0].src.cols);
       for(int j=0; j<3; j++)
-	big[i][j].resize(3);
+	big[i][j].resize(3,0);
     };
-
+  */
+  for(int i = 1; i<bufferSize ; i++)
+    buffer[i].copy(buffer[0]);
+  addPaol(buffer[0]);
+  /*
   outImg.split();
   for (int y = 0; y < outImg.src.rows; y++)
     {
@@ -295,36 +307,51 @@ void Accumulate::setup(int bufferSizeIn)
       
     };
   outImg.merge();
+  */
+  outImg.copy(buffer[0]);
 };
 
 void Accumulate::addPaol(paolMat inImg)
 {
+  current++;
+  
+  if(current >= bufferSize)
+    current = 0;
+
+  //  std::cout<<"0  AddPaol called"<<std::endl;
   buffer[current].copy(inImg);
   buffer[current].split();
+  //  std::cout<<"1  AddPaol called"<<std::endl;
+  /*
   for (int y = 0; y < buffer[current].src.rows; y++)
     {
       uchar* rPtr = buffer[current].planes[0].ptr<uchar>(y);
       uchar* gPtr = buffer[current].planes[1].ptr<uchar>(y);
       uchar* bPtr = buffer[current].planes[2].ptr<uchar>(y);
+      std::cout<<"2  AddPaol called"<<std::endl;
       
       for (int x = 0; x < buffer[current].src.cols; x++)
 	{
-	  big[y][x][0] += rPtr[x];
-	  big[y][x][1] += gPtr[x];
-	  big[y][x][2] += bPtr[x];
+	  std::cout<<" Colors Red: "<<(int)rPtr[x]<<" Green: "<<(int)gPtr[x]<<" Blue: "<<(int)bPtr[x]<<std::endl;
+	  std::cout<<" Big Red: "<<big[y][x][0]<<" Green: "<<big[y][x][1]<<" Blue: "<<big[y][x][2]<<std::endl;
+	  big[y][x][0] += (int)rPtr[x];
+	  big[y][x][1] += (int)gPtr[x];
+	  big[y][x][2] += (int)bPtr[x];
+	  std::cout<<"3  AddPaol called"<<std::endl;
 	};
       
     };
-  
+  std::cout<<"4  AddPaol called"<<std::endl;
+  */
   updateOutput();
-  current++;
-  if(current >= bufferSize)
-    current = 0;
+  //  std::cout<<"2  AddPaol called"<<std::endl;
+  
+  //  std::cout<<"3  AddPaol called"<<std::endl;
 };
 
 void Accumulate::subtractPaol()
 {
-
+  /*
   for (int y = 0; y < buffer[current].src.rows; y++)
     {
       uchar* rPtr = buffer[current].planes[0].ptr<uchar>(y);
@@ -339,43 +366,59 @@ void Accumulate::subtractPaol()
 	};
       
     };
+  */
 };
 
 void Accumulate::updateOutput()
 {
-  int thresh=5;
+  int thresh=10;
   bool same;
+  //  std::cout<<"0  updateOutput called"<<std::endl;
   for (int p=0;p<3;p++)
     for (int y = 0; y < outImg.src.rows; y++)
       {
 	uchar* ptrOut = outImg.planes[p].ptr<uchar>(y);
 	uchar* ptrCur = buffer[current].planes[p].ptr<uchar>(y);
-	
-	for (int x = 0; x < buffer[current].src.cols; x++)
+	//std::cout<<"2  updateOutput called"<<std::endl;
+	for (int x = 0; x < outImg.src.cols; x++)
 	  {
+	    //std::cout<<"2.1 "<<buffer[current].count<<" "<<y<<"/"<<outImg.src.rows<<" "<<x<<"/"<<outImg.src.cols<<" "<<p<<std::endl;
 	    if(abs(ptrOut[x]-ptrCur[x])>thresh){
-	      //temp=0;
-	      same=true;
-	      for (int z=0;z<bufferSize;z++){
-		uchar* ptrTemp = buffer[z].planes[p].ptr<uchar>(y);
-		//temp+=ptrTemp[x];
-		
-		//temp/=bufferSize;
-		if(abs(ptrCur[x]-ptrTemp[x])>thresh)
-		  same=false;
-	      };
-	      if(same)
+	      if(ptrCur[x]>=245){
 		ptrOut[x]=ptrCur[x];
+	      }else {
+		//std::cout<<"2.2 "<<buffer[current].count<<" "<<y<<"/"<<outImg.src.rows<<" "<<x<<"/"<<outImg.src.cols<<" "<<p<<std::endl;
+		//temp=0;
+		same=true;
+		for (int z=0;z<bufferSize;z++){
+		  uchar* ptrTemp = buffer[z].planes[p].ptr<uchar>(y);
+		  //temp+=ptrTemp[x];
+		  
+		  //temp/=bufferSize;
+		  if(abs(ptrCur[x]-ptrTemp[x])>thresh)
+		    same=false;
+		};
+		//std::cout<<"2.3  updateOutput called"<<std::endl;
+		if(same)
+		  ptrOut[x]=ptrCur[x];
+		//std::cout<<"2.4  updateOutput called"<<std::endl;
+	      };
 	    };
 	  };
       };
-  outImg.merge();
-  outImg.count = buffer[current].count;
-  outImg.time = buffer[current].time;
+  //   std::cout<<"3  updateOutput called"<<std::endl;
+    outImg.merge();
+    outImg.count = buffer[current].count;
+    outImg.time = buffer[current].time;
 };
 
 void Accumulate::insert()
 {
   subtractPaol();
-  addPaol(pop());
+  paolMat temp;
+  temp.copy(pop());
+  if(temp.src.data)
+    addPaol(temp);
+  else
+    keepgoing = false;
 };

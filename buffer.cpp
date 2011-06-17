@@ -67,7 +67,7 @@ void paolMat::read(std::string fileName,int countIn, int timeIn)
 
 void paolMat::merge()
 {
-  std::cout<<"PaolMat Merge called, planes num is: "<<planes.size()<<std::endl;
+  //  std::cout<<"PaolMat Merge called, planes num is: "<<planes.size()<<std::endl;
   if(planes.size() > 0)
     {
       cv::merge(planes, src);
@@ -253,6 +253,7 @@ FrameLinkedList::FrameLinkedList()
 
 void FrameLinkedList::push(paolMat frame)
 {
+  boost::posix_time::seconds sleepTime(1);
   boost::mutex::scoped_lock lock(listLock);
   #ifndef _debug_
   //std::cout<<"FrameLinkedList:: I have the lock"<<std::endl;
@@ -275,13 +276,16 @@ void FrameLinkedList::push(paolMat frame)
 
   if (size == 0)
     {
-      #ifndef _debug_
+#ifndef _debug_
       //std::cout<<"FrameLinkedList:: List size is zero, I must be the first!"<<std::endl;
-      #endif
+#endif
       oldest = newItem;
       newest = newItem;
-    }else
+    }else if(size > 150)
     {
+      boost::this_thread::sleep(sleepTime);
+    }else
+	{
       #ifndef _debug_
       //std::cout<<"FrameLinkedList:: I'm not the first, setting next to newItem"<<std::endl;
       #endif

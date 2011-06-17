@@ -29,10 +29,10 @@
 using namespace cv;
 using namespace boost;
 
-CameraCap::CameraCap(Buffer *buffer, int incam)
+CameraCap::CameraCap(Buffer *buffer, int incam) : Producer(buffer)
 {
   cam = incam;
-  start(buffer);
+  //start(buffer);
 };
 
 

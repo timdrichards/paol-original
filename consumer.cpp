@@ -24,6 +24,14 @@ using namespace cv;
 using namespace std;
 //using namespace boost;
 
+Consumer::Consumer(Buffer *buffer)
+{
+  conBuffer = buffer;
+  myID = conBuffer->registerConsumer();
+  killMe = false;
+  
+};
+
 paolMat Consumer::pop()
 {
   paolMat img = conBuffer->pop(myID);
@@ -50,11 +58,7 @@ bool Consumer::keepRunning()
   return !killMe;
 };
 
-void Consumer::start(Buffer *buffer)
-{
-  conBuffer = buffer;
-  myID = conBuffer->registerConsumer();
-};
+/*
 
 void imWindow::run()
 {
@@ -75,3 +79,5 @@ void imWindow::run()
     };
   //std::cout<<"ReadFromDisk:: I was told to stop, my ID was: "<<myID<<std::endl;
 };
+
+*/

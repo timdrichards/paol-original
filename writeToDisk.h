@@ -7,7 +7,7 @@ using namespace cv;
 class WriteToDisk: public Consumer
 {
 public:
-  void setup(std::string basename, std::string dirIn);
+  WriteToDisk(Buffer* inBuffer, std::string basename, std::string dirIn);
   void run();
 private:
   char* baseName;
