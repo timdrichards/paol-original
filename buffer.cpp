@@ -57,6 +57,57 @@ void paolMat::copy(paolMat m)
   planes = m.planes;
 };
 
+void paolMat::edges()
+{
+  split();
+  cv::Mat temp(src);
+  temp = Scalar(0,0,0);
+  cv::vector<cv::Mat> tempPlanes;
+  cv::split(temp, tempPlanes);
+  int total;
+  
+  for (int y = 1; y < src.rows-1; y++)
+    {
+      uchar* sRT = planes[2].ptr<uchar>(y-1);
+      uchar* sGT = planes[1].ptr<uchar>(y-1);
+      uchar* sBT = planes[0].ptr<uchar>(y-1);
+
+      uchar* sRM = planes[2].ptr<uchar>(y);
+      uchar* sGM = planes[1].ptr<uchar>(y);
+      uchar* sBM = planes[0].ptr<uchar>(y);
+
+      uchar* sRB = planes[2].ptr<uchar>(y+1);
+      uchar* sGB = planes[1].ptr<uchar>(y+1);
+      uchar* sBB = planes[0].ptr<uchar>(y+1);
+
+      uchar* tR = tempPlanes[2].ptr<uchar>(y);
+      uchar* tG = tempPlanes[1].ptr<uchar>(y);
+      uchar* tB = tempPlanes[0].ptr<uchar>(y);
+
+      for (int x = 1; x < src.cols-1; x++)
+	{
+	  total=-2*sRT[x-1]-sRT[x]-sRM[x-1];
+	  total+=sRM[x+1]+sRB[x]+2*sRB[x+1];
+
+	  total+=-2*sGT[x-1]-sGT[x]-sGM[x-1];
+	  total+=sGM[x+1]+sGB[x]+2*sGB[x+1];
+
+	  total+=-2*sBT[x-1]-sBT[x]-sBM[x-1];
+	  total+=sBM[x+1]+sBB[x]+2*sBB[x+1];
+
+	  total=abs(total);
+	  if(total>128)
+	    tR[x]=255;
+	  if(total>512)
+	    tG[x]=255;
+	  if(total>768)
+	    tB[x]=255;
+	};
+    };
+  cv::merge(tempPlanes, temp);
+  temp.copyTo(src);
+};
+
 void paolMat::read(std::string fileName,int countIn, int timeIn)
 {
   src = imread(fileName);
@@ -70,8 +121,11 @@ void paolMat::merge()
   //  std::cout<<"PaolMat Merge called, planes num is: "<<planes.size()<<std::endl;
   if(planes.size() > 0)
     {
+      std::cout<<"Merging"<<std::endl;
       cv::merge(planes, src);
-    };
+    }else{
+    std::cout<<"Error merging"<<std::endl;
+  };
 };
 
 //This is a slow method for testing, not production//
@@ -234,6 +288,7 @@ void paolMat::sharpen()
   name = "Sharp";
 
 };
+
 
 
 //////////Frame Linked List /////////////////////////////////////

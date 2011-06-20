@@ -19,10 +19,9 @@ public:
   void print();
   void copy(paolMat m);
   void read(std::string fileName,int countIn,int timeIn);
-
+  void edges();
   //This is a slow method for testing, not production//
   void invert();
-
   void split(){cv::split(src, planes);};
   void merge();
   void createBackgroundImg(int kernalSize);

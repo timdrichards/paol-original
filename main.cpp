@@ -65,9 +65,9 @@ int main(int argc, char** argv)
 
   WriteToDisk frameWriter(diskWriteBuffer, "output", "outMedia/");
   
-  Accumulate accumulate(preProcessBuffer, diskWriteBuffer);
+  //Accumulate accumulate(preProcessBuffer, diskWriteBuffer);
 
-  test findProf(diskReadBuffer, preProcessBuffer);
+  LocateProf findProf(diskReadBuffer, diskWriteBuffer);
 
   ReadFromDisk diskReader(diskReadBuffer, argv[1], argv[2]);
 
@@ -85,15 +85,15 @@ int main(int argc, char** argv)
   //////////////////////////////////////////////////////////////////////////
   
   boost::thread frameWriterThread(&WriteToDisk::run, &frameWriter);
-  boost::thread accumulateThread(&Accumulate::run, &accumulate);
-  boost::thread testThread(&test::run, &findProf);
+  //boost::thread accumulateThread(&Accumulate::run, &accumulate);
+  boost::thread findProfThread(&LocateProf::run, &findProf);
   boost::thread diskReaderThread(&ReadFromDisk::run, &diskReader);
 
   std::cout<<"MAIN:: Modules Running, waiting for joing"<<std::endl;
 
   diskReaderThread.join();
-  testThread.join();
-  accumulateThread.join();
+  findProfThread.join();
+  //accumulateThread.join();
   frameWriterThread.join();
 
   std::cout<<"Main:: Joins complete"<<std::endl;

@@ -1,13 +1,29 @@
 #ifndef _locateProf_h_
 #define _locateProf_h_
 
-
+class locationData
+{
+ public:
+  locationData(paolMat in, double scale);
+  paolMat big;
+  paolMat small;
+};
 
 class LocateProf : public Processor
 {
 
  public:
   void run();
+  std::vector<locationData> frameBuffer;
+  int frameBufferSize;
+  void setup(int size, int scale);
+  int current;
+  int newest;
+  bool newFrame();
+  double scale;
+  paolMat difference;
+  void findProf();
+  void createDifference();
   
  LocateProf(Buffer* in, Buffer* out) : Processor(in,out){};
 

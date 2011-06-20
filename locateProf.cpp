@@ -34,82 +34,180 @@ using namespace std;
 ////#define _debug_
 
 
+locationData::locationData(paolMat in, double scale)
+{
+  big.copy(in);
+  small.copy(in);
+  if (big.src.data)
+    {     
+      small.src.release();
+      cv::Mat temp;
+      cv::resize(big.src, small.src, Size(), 1/scale, 1/scale, INTER_NEAREST);
+      //Sobel(temp, small.src, 3, 1, 1, 3, 2, 0, BORDER_DEFAULT);
+      small.edges();
+      
+      small.name = "Sobel";
+      small.print();
+      small.split();
+    };
+};
+
+
+void LocateProf::setup(int size, int scaleIn)
+{
+  frameBufferSize = size;
+  //locationData emptyImg(pop(), scale);
+  //frameBuffer.resize(frameBufferSize, emptyImg);
+  paolMat temp;
+  bool isData=true;
+  frameBuffer.push_back(locationData(temp, scaleIn));
+  
+  for( int i = 1; i<frameBufferSize && isData; i++)
+    {
+      frameBuffer.push_back(locationData(pop(), scaleIn));
+      isData=(frameBuffer[i].big.src.data);
+      if(!isData){
+	frameBuffer.pop_back();
+	frameBufferSize=frameBuffer.size();
+      }
+    };
+
+  current = 0;
+  newest = frameBufferSize-1;
+  scale = scaleIn;
+};
+
+bool LocateProf::newFrame()
+{
+  locationData temp(pop(), scale);
+  
+  if (temp.big.src.data)
+    {
+      frameBuffer[current] = temp;
+      current++;
+      newest++;
+      current%=frameBufferSize;
+      newest%=frameBufferSize;
+      return true;
+    }else
+    {
+      return false;
+    };
+};
+
+void LocateProf::createDifference()
+{
+  int totalC,totalN;
+  //  paolMat temp;
+  //temp.copy(frameBuffer[current].small);
+  //temp.src = cv::Mat::zeros(frameBuffer[current].small.src.rows, frameBuffer[current].small.src.cols, CV_8U);
+  difference.copy(frameBuffer[current].small);
+  difference.split();
+  int count = 0;
+  for(int y=0;y < difference.src.rows; y++)
+    {
+      //std::cout<<"1"<<std::endl;
+      uchar* DrPtr = difference.planes[2].ptr<uchar>(y);      
+      uchar* DgPtr = difference.planes[1].ptr<uchar>(y);      
+      uchar* DbPtr = difference.planes[0].ptr<uchar>(y); 
+      
+      uchar* CrPtr = frameBuffer[current].small.planes[2].ptr<uchar>(y);      
+      uchar* CgPtr = frameBuffer[current].small.planes[1].ptr<uchar>(y);      
+      uchar* CbPtr = frameBuffer[current].small.planes[0].ptr<uchar>(y);      
+      
+      uchar* NrPtr = frameBuffer[newest].small.planes[2].ptr<uchar>(y);      
+      uchar* NgPtr = frameBuffer[newest].small.planes[1].ptr<uchar>(y);      
+      uchar* NbPtr = frameBuffer[newest].small.planes[0].ptr<uchar>(y);      
+      for (int x = 0; x < difference.src.cols; x++)
+	{
+	  //count++;
+	  //std::cout<<count<<std::endl;
+	  //std::cout<<"2"<<std::endl;
+	  //	  totalC = CrPtr[x]+CbPtr[x]+CgPtr[x];
+	  //totalN = NrPtr[x]+NbPtr[x]+NgPtr[x];
+	  
+	  //if(totalC>100 && totalN>100){  
+	  //std::cout<<"000"<<std::endl;
+	  
+	  /*
+DrPtr[x]=abs(CrPtr[x]-NrPtr[x]);
+	  DgPtr[x]=abs(CrPtr[x]-NrPtr[x]);
+	  DbPtr[x]=abs(CrPtr[x]-NrPtr[x]);
+	  */
+	  //} else {
+	  
+	  //std::cout<<"255"<<std::endl;
+	  DrPtr[x]=255;
+	  DgPtr[x]=255;
+	  DbPtr[x]=255;
+	};
+    };
+  
+  difference.merge();
+  //  frameBuffer[current].small.merge();
+  //  cv::absdiff(frameBuffer[current].small.src, frameBuffer[newest].small.src, difference.src);
+  difference.name = "Difference";
+  //frameBuffer[current].small.name="dif";
+  //frameBuffer[current].small.print();
+  //difference.print();
+  
+};
+
+void LocateProf::findProf()
+{
+  difference.split();
+  //cv::rectangle roi;
+  int top=difference.src.rows-1;
+  int left=difference.src.cols-1;
+  int right=0;
+  int total;
+  
+  for(int y=0;y < difference.src.rows; y++)
+    {
+      uchar* rPtr = difference.planes[0].ptr<uchar>(y);      
+      uchar* gPtr = difference.planes[1].ptr<uchar>(y);      
+      uchar* bPtr = difference.planes[2].ptr<uchar>(y);      
+      for (int x = 0; x < difference.src.cols; x++)
+	{
+	  //	  rPtr[x]=255;
+	  total = (rPtr[x]+bPtr[x]+gPtr[x])/3;
+	  if(total>100)
+	    {  
+	      if(y<top)
+		top=y;
+	      if(x<left)
+		left=x;
+	      if(x>right)
+		right=x;
+	    };
+	};
+    };
+  
+  rectangle(difference.src, Point(left, top), Point(right, difference.src.rows-1), Scalar(255,255,255, 255), 2,8, 0);
+  std::cout<<"Prof found at: Top: "<<top<<" Left: "<<left<<" Right: "<<right<<std::endl;
+  //difference.merge();
+};
+
 void LocateProf::run()
 {
-  paolMat inImg;
-  paolMat outImg;
-  inImg.copy(pop());
-  cv::Mat edges(inImg.src.rows, inImg.src.cols, inImg.src.depth());
-  cv::Mat prof(inImg.src.rows, inImg.src.cols, CV_BGR2GRAY);
-  cv::vector<cv::Mat> edgePlane;
-  cv::vector<cv::Mat> profPlane;
-  int top;
+  setup(15,4);
   
-  HOGDescriptor hog;
-  hog.setSVMDetector(HOGDescriptor::getDefaultPeopleDetector());
+  //int top;
 
-  while(inImg.src.data)
+  //  paolMat img;
+  
+  //img.copy(pop());
+
+  while(newFrame())
     {
-      outImg.copy(inImg);
-      conBuffer->push(inImg);
-      
-      // Dilate the image so there are less edges to detect
-      outImg.name = "dilated";
-      cv::dilate(inImg.src, outImg.src, cv::Mat(), cv::Point(-1,-1), 20, 1, cv::morphologyDefaultBorderValue());
-      outImg.print();
-      //Make the image black and white so canny can draw lines on it
-      cv::cvtColor(outImg.src, edges, CV_BGR2GRAY);
-      cv::Canny(edges, outImg.src, 0, 50, 3, false);
-      outImg.name = "dilated_Canny";
-      outImg.print();
-      
-
-      cv::split(outImg.src, edgePlane);
-      cv::split(inImg.src, profPlane);
-      //Find the profesor by looking for horizontal lines with nothing below them.
-      int p;
-      int channel = 0;
-      int profEdge[inImg.src.cols];
-      int bottom = (7*(inImg.src.cols/8));
-      int roof = inImg.src.cols/8;
-      
-      for (int y = 0; y <inImg.src.rows; y++)
-	{
-	  uchar* edgePtr = edgePlane[channel].ptr<uchar>(y);
-	  for(int x = 0; x < inImg.src.cols; x++)
-	    {
-	      if (edgePtr[x] > 0)
-		{
-		  profEdge[x] = y;
-		  std::cout<<"Found edge at col: "<<y<<" row: "<<x<<std::endl;
-		};
-	    };
-
-	};
-      for (int y = 0; y <inImg.src.rows; y++)
-	{
-	  uchar* profPtr = profPlane[channel].ptr<uchar>(y);
-	  for(int x = 0; x < inImg.src.cols; x++)
-	    {
-	      if (profEdge[x]>=y)
-		{
-		  profPtr[x] = 255;
-		  //std::cout<<"bottom at: "<<y<<" at: "<<x<<std::endl;
-		};
-	    };
-
-	};
-      
-      cv::merge(profPlane, prof);
-
-      cv::imwrite("profLines.png", prof);
-
-      prof.copyTo(outImg.src);
-      outImg.name = "profCheck";
-      outImg.print();
-
-      inImg.copy(pop());
-      
+      createDifference();
+      findProf();
+      difference.print();
+      //img.edges();
+      //img.name = "edges";
+      //img.print();
+     
+      //img.copy(pop());
     };
   paolMat nullImage;
   conBuffer->push(nullImage);
