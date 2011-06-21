@@ -48,9 +48,7 @@ int main(int argc, char** argv)
   diskWriteBuffer = new Buffer;
 
   Buffer* preProcessBuffer;
-  preProcessBuffer = new Buffer
-
-;
+  preProcessBuffer = new Buffer;
 
   Buffer* diskReadBuffer;
   diskReadBuffer = new Buffer;
@@ -64,6 +62,8 @@ int main(int argc, char** argv)
   //Create All the Modules/////////////////////////////////////////////
 
   WriteToDisk frameWriter(diskWriteBuffer, "output", "outMedia/");
+
+  WriteMovie movieWriter(diskReadBuffer, "outMedia/movie.mp4", 15);
   
   //Accumulate accumulate(preProcessBuffer, diskWriteBuffer);
 
@@ -85,6 +85,7 @@ int main(int argc, char** argv)
   //////////////////////////////////////////////////////////////////////////
   
   boost::thread frameWriterThread(&WriteToDisk::run, &frameWriter);
+  boost::thread movieWriterThread(&WriteMovie::run, &movieWriter);
   //boost::thread accumulateThread(&Accumulate::run, &accumulate);
   boost::thread findProfThread(&LocateProf::run, &findProf);
   boost::thread diskReaderThread(&ReadFromDisk::run, &diskReader);
@@ -94,6 +95,7 @@ int main(int argc, char** argv)
   diskReaderThread.join();
   findProfThread.join();
   //accumulateThread.join();
+  movieWriterThread.join();
   frameWriterThread.join();
 
   std::cout<<"Main:: Joins complete"<<std::endl;

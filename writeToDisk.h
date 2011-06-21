@@ -14,4 +14,13 @@ private:
   char* dir;
 };
 
+class WriteMovie: public Consumer
+{
+public:
+  WriteMovie(Buffer* in, std::string dest, int fpsIn);
+  void run();
+  char* destName;
+  int fps;
+};
+
 #endif

@@ -62,3 +62,35 @@ void WriteToDisk::run()
   cout<<"WriteToDisk:: Finnished loop, must have recieved null img, closing thread"<<endl;
   
 };
+
+WriteMovie::WriteMovie(Buffer* in, std::string dest, int fpsIn) : Consumer(in)
+{
+  destName = new char[dest.length()+1];
+  strcpy(destName, dest.c_str());
+  fps = fpsIn;
+};
+
+void WriteMovie::run()
+{
+  cout<<"WriteMovie:: Launched"<<endl;
+  
+  paolMat img;
+
+  img.copy(pop());
+
+  cv::VideoWriter record(destName, CV_FOURCC('D','I','V','X'), fps, img.src.size(), true);
+  std::cout<<img.src.cols<<" x "<<img.src.rows<<std::endl;
+  if(!record.isOpened())
+    {
+      std::cout<<"Error recording"<<std::endl;
+      return;
+    };
+  while(img.src.data)
+    {
+      record << img.src;
+      img.copy(pop());
+
+    };
+
+  std::cout<<"WriteMovie:: Done recording"<<std::endl;
+};

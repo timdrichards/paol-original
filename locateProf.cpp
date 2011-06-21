@@ -111,12 +111,12 @@ void LocateProf::createDifference()
       uchar* DgPtr = difference.planes[1].ptr<uchar>(y);      
       uchar* DbPtr = difference.planes[0].ptr<uchar>(y); 
       
-      uchar* CrPtr = frameBuffer[current].small.planes[2].ptr<uchar>(y);      
-      uchar* CgPtr = frameBuffer[current].small.planes[1].ptr<uchar>(y);      
+      uchar* CrPtr = frameBuffer[current].small.planes[1].ptr<uchar>(y);      
+      uchar* CgPtr = frameBuffer[current].small.planes[0].ptr<uchar>(y);      
       uchar* CbPtr = frameBuffer[current].small.planes[0].ptr<uchar>(y);      
       
-      uchar* NrPtr = frameBuffer[newest].small.planes[2].ptr<uchar>(y);      
-      uchar* NgPtr = frameBuffer[newest].small.planes[1].ptr<uchar>(y);      
+      uchar* NrPtr = frameBuffer[newest].small.planes[1].ptr<uchar>(y);      
+      uchar* NgPtr = frameBuffer[newest].small.planes[0].ptr<uchar>(y);      
       uchar* NbPtr = frameBuffer[newest].small.planes[0].ptr<uchar>(y);      
       for (int x = 0; x < difference.src.cols; x++)
 	{
@@ -129,17 +129,17 @@ void LocateProf::createDifference()
 	  //if(totalC>100 && totalN>100){  
 	  //std::cout<<"000"<<std::endl;
 	  
-	  /*
-DrPtr[x]=abs(CrPtr[x]-NrPtr[x]);
+	  
+	  DrPtr[x]=abs(CrPtr[x]-NrPtr[x]);
 	  DgPtr[x]=abs(CrPtr[x]-NrPtr[x]);
 	  DbPtr[x]=abs(CrPtr[x]-NrPtr[x]);
-	  */
+	  
 	  //} else {
 	  
 	  //std::cout<<"255"<<std::endl;
-	  DrPtr[x]=255;
-	  DgPtr[x]=255;
-	  DbPtr[x]=255;
+	  //DrPtr[x]=255;
+	  //DgPtr[x]=255;
+	  //DbPtr[x]=255;
 	};
     };
   
@@ -201,7 +201,7 @@ void LocateProf::run()
   while(newFrame())
     {
       createDifference();
-      findProf();
+      //findProf();
       difference.print();
       //img.edges();
       //img.name = "edges";
