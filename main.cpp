@@ -65,13 +65,15 @@ int main(int argc, char** argv)
 
   //WriteDebugMovie debugMovieWriter(diskWriteBuffer, "outMedia/movie.mp4", 15);
 
-  Processor nullProc(diskReadBuffer, diskWriteBuffer);
+  //Processor nullProc(diskReadBuffer, diskWriteBuffer);
   
   //Accumulate accumulate(diskReadBuffer, diskWriteBuffer);
 
   //LocateProf findProf(diskReadBuffer, diskWriteBuffer);
 
-  ReadFromDisk diskReader(diskReadBuffer, argv[1], argv[2]);
+  CameraCap cameraCapture(diskWriteBuffer, 0);
+
+  //ReadFromDisk diskReader(diskReadBuffer, argv[1], argv[2]);
 
   std::cout<<"MAIN:: Modules Created"<<std::endl;
 
@@ -89,14 +91,22 @@ int main(int argc, char** argv)
   boost::thread frameWriterThread(&WriteToDisk::run, &frameWriter);
   //boost::thread debugMovieWriterThread(&WriteDebugMovie::run, &debugMovieWriter);
   //boost::thread accumulateThread(&Accumulate::run, &accumulate);
-  boost::thread nullProcThread(&Processor::passOn, &nullProc);
+  //boost::thread nullProcThread(&Processor::passOn, &nullProc);
     //boost::thread findProfThread(&LocateProf::run, &findProf);
-  boost::thread diskReaderThread(&ReadFromDisk::run, &diskReader);
+  boost::thread cameraCaptureThread(&CameraCap::run, &cameraCapture);
+  //boost::thread diskReaderThread(&ReadFromDisk::run, &diskReader);
 
   std::cout<<"MAIN:: Modules Running, waiting for joing"<<std::endl;
 
-  diskReaderThread.join();
-  nullProcThread.join();
+  boost::posix_time::seconds sleepTime(10);
+
+  boost::this_thread::sleep(sleepTime);
+
+  cameraCapture.stop();
+
+  cameraCaptureThread.join();
+  //diskReaderThread.join();
+  //nullProcThread.join();
   //findProfThread.join();
   //accumulateThread.join();
   //debugMovieWriterThread.join();

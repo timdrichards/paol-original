@@ -42,7 +42,7 @@ void CameraCap::run()
   std::cout<<"CameraCap:: Run launched"<<std::endl;
   int count =0;
   //cvNamedWindow("Example", CV_WINDOW_AUTOSIZE);
-  CvCapture* capture = cvCreateCameraCapture(800);
+  CvCapture* capture = cvCreateCameraCapture(-1);
   BOOST_ASSERT(capture != NULL);
 
   paolMat matFrame;
@@ -70,6 +70,8 @@ void CameraCap::run()
       matFrame.count = count;
       count++;
       push(matFrame);
+      matFrame.name ="cam";
+      matFrame.print();
       std::cout<<"CameraCap:: Loop Foot"<<std::endl;
     };
   std::cout<<"CameraCap:: Loop Broken Exiting"<<std::endl;
