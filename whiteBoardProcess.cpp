@@ -43,12 +43,12 @@ void WhiteBoardProcess::run()
       createBackgroundImg(25);
 #ifndef _debug_
       //std::cout<<"Processor::2 Background done"<<std::endl;
-      backgroundImg.print();
+      //backgroundImg.print();
 #endif
       createImprovedInputImg();
 #ifndef _debug_
       //std::cout<<"Processor::3 Created Improved Input Img"<<std::endl;
-      improvedInputImg.print();
+      //improvedInputImg.print();
 #endif
       
       removeProf();
@@ -140,7 +140,7 @@ void WhiteBoardProcess::createContrastImprovedInputImg()
 {
   improvedInputImgNoProfContrast.copy(improvedInputImgNoProf);
   improvedPlanesNoProfContrast = improvedPlanesNoProf;
-  int thresh;
+  //int thresh;
   int temp;
   int ave;
   for (int y = 0; y < inputImg.src.rows; y++)

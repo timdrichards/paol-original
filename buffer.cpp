@@ -33,6 +33,13 @@ paolMat::paolMat()
   count = -1;
   time = -1;
   name = "No Name";
+  prof = Point(0,0);
+  camera = Point(0,0);
+};
+
+paolMat::~paolMat()
+{
+  src.release();
 };
 
 void paolMat::print()
@@ -50,11 +57,14 @@ void paolMat::print()
 
 void paolMat::copy(paolMat m)
 {
+  src.release();
   m.src.copyTo(src);
   count = m.count;
   time = m.time;
   name = m.name;
   planes = m.planes;
+  prof = m.prof;
+  camera = m.camera;
 };
 
 void paolMat::edges()
@@ -121,10 +131,10 @@ void paolMat::merge()
   //  std::cout<<"PaolMat Merge called, planes num is: "<<planes.size()<<std::endl;
   if(planes.size() > 0)
     {
-      std::cout<<"Merging"<<std::endl;
+      //std::cout<<"Merging"<<std::endl;
       cv::merge(planes, src);
     }else{
-    std::cout<<"Error merging"<<std::endl;
+    //std::cout<<"Error merging"<<std::endl;
   };
 };
 
@@ -201,7 +211,7 @@ void paolMat::removeProf()
 void paolMat::createContrast()
 {
   split();
-  int thresh;
+  //int thresh;
   int temp;
   int ave;
   for (int y = 0; y < src.rows; y++)
@@ -289,7 +299,47 @@ void paolMat::sharpen()
 
 };
 
+void paolMat::shrink()
+{
+  paolMat outImg;
+  src.copyTo(outImg.src);
+  outImg.src = Scalar(0,0,0);
+  outImg.split();
+  split();
+  int total;
 
+   for (int channel = 0; channel <3; channel++)
+    for (int y = 1; y < (src.rows -1); y++)
+      {
+	uchar* topOldPtr = planes[channel].ptr<uchar>(y-1);
+	uchar* middleOldPtr = planes[channel].ptr<uchar>(y);
+	uchar* bottomOldPtr = planes[channel].ptr<uchar>(y+1);
+	uchar* newPtr = outImg.planes[channel].ptr<uchar>(y);
+	
+	for (int x = 1; x < (src.cols -1); x++)
+	  {
+	    if(middleOldPtr[x]>0)
+	      {
+		total = topOldPtr[x-1];
+		total += topOldPtr[x];
+		total += topOldPtr[x+1];
+		
+		total += middleOldPtr[x-1];
+		total += middleOldPtr[x+1];
+		
+		total += bottomOldPtr[x-1];
+		total += bottomOldPtr[x];
+		total += bottomOldPtr[x+1];
+	      
+		if(total>=1530)
+		  newPtr[x] = 255; 
+	      };
+	  };
+	
+      };
+   outImg.merge();
+   outImg.src.copyTo(src);
+};
 
 //////////Frame Linked List /////////////////////////////////////
 
@@ -298,6 +348,10 @@ frameListItem::frameListItem(paolMat newFrame)
   frame.copy(newFrame);
 };
 
+frameListItem::~frameListItem()
+{
+  frame.src.release();
+};
 
 FrameLinkedList::FrameLinkedList()
 {
@@ -305,6 +359,12 @@ FrameLinkedList::FrameLinkedList()
   producerRunning=true;
 };
 
+FrameLinkedList::~FrameLinkedList()
+{
+  //oldest->~frameListItem();
+  //newest->~frameListItem();
+
+};
 
 void FrameLinkedList::push(paolMat frame)
 {
@@ -379,14 +439,14 @@ paolMat FrameLinkedList::pop()
   //Loop where you grab a frame from the linked list, or wait for a frame to be available
   while(!moreThanTwo)
     {
-      
+      //std::cout<<"Head of linked list loop"<<std::endl;
       //Scoped so that the mutex will be released while the thread sleeps
       {
 	boost::mutex::scoped_lock lock(listLock);
 	readSize = size;
 	#ifndef _debug_
-	//std::cout<<"FrameLinkedList:: About to check IF statments, producerRunning: "<<producerRunning<<std::endl;
-	//std::cout<<"FrameLinkedList:: readSize is: "<<readSize<<std::endl;
+	std::cout<<"FrameLinkedList:: About to check IF statments, producerRunning: "<<producerRunning<<std::endl;
+	std::cout<<"FrameLinkedList:: readSize is: "<<readSize<<std::endl;
 	#endif
 
       }
@@ -401,7 +461,7 @@ paolMat FrameLinkedList::pop()
 	  oldest = toDelete->next;
 	  delete toDelete;
 	  #ifndef _debug_
-	  //std::cout<<"LinkedList::More then two frames size is: "<<size<<std::endl;
+	  std::cout<<"LinkedList::More then two frames size is: "<<size<<std::endl;
 	  #endif
 	  size--;
 	 
@@ -417,7 +477,7 @@ paolMat FrameLinkedList::pop()
 	  oldest = toDelete->next;
 	  delete toDelete;
 	  #ifndef _debug_
-	  //std::cout<<"LinkedList::two frames in list size is: "<<size<<std::endl;
+	  std::cout<<"LinkedList::two frames in list size is: "<<size<<std::endl;
 	  #endif
 	  size--;
 	  return toPop;
@@ -425,10 +485,10 @@ paolMat FrameLinkedList::pop()
 	{
 	  boost::mutex::scoped_lock lock(listLock);
 	  toPop.copy(oldest->frame);
-	  frameListItem* toDelete;
+	  //frameListItem* toDelete;
 	  delete oldest;
 	  #ifndef _debug_
-	  //std::cout<<"LinkedList::One Frame in list, size is:: "<<size<<std::endl;
+	  std::cout<<"LinkedList::One Frame in list, size is:: "<<size<<std::endl;
 	  #endif
 	  size--;
 	  return toPop;
@@ -436,10 +496,11 @@ paolMat FrameLinkedList::pop()
 	{
 	  boost::mutex::scoped_lock lock(listLock);
 	  #ifndef _debug_
-	  //std::cout<<"No Frames in list size is: "<<size<<std::endl;
+	  std::cout<<"No Frames in list size is: "<<size<<std::endl;
 	  #endif
 	  paolMat null;
 	  return null;
+	  //this.~FrameLinkedList();
 	}else
 	{
 	  #ifndef _debug_
@@ -463,7 +524,15 @@ Buffer::Buffer()
   boost::mutex::scoped_lock lock(bufferLock);
   consumerLists.clear();
   producerRunning=true;
-  std::cout<<"Buffer:: Buffer created"<<std::endl;
+  //std::cout<<"Buffer:: Buffer created"<<std::endl;
+};
+
+Buffer::~Buffer()
+{
+  for(int i = 0; i < consumerLists.size(); i++)
+    delete consumerLists[i];
+  //delete bufferLock;
+
 };
 
 int Buffer::registerConsumer()
@@ -491,9 +560,16 @@ void Buffer::push(paolMat frame)
 paolMat Buffer::pop(int consumerID)
 {
   paolMat temp;
+  //std::cout<<"BufferPop 1"<<std::endl;
   temp.copy(consumerLists[consumerID]->pop());
-  //std::cout<<"\n\n  BUFFER POP:: Count, seconds: "<<temp.count<<" ,"<<temp.time<<std::endl;
-  return temp;
+  if (temp.src.data)
+    return temp;
+  else
+    {
+      temp.src=Scalar(0,0,0,0);
+      consumerLists[consumerID]->stop();
+      return temp;
+    };
 };
 
 

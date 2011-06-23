@@ -16,6 +16,8 @@ public:
   int count;
   int time;
   std::string name;
+  cv::Point prof;
+  cv::Point camera;
   void print();
   void copy(paolMat m);
   void read(std::string fileName,int countIn,int timeIn);
@@ -29,9 +31,11 @@ public:
   void removeProf();
   void createContrast();
   void sharpen();
+  void shrink();
 
 
   paolMat();
+  ~paolMat();
   
   //  paolMat operator = (const paolMat& m);
 };
@@ -45,6 +49,7 @@ public:
   paolMat frame;
   frameListItem* next;
   frameListItem(paolMat newFrame);
+  ~frameListItem();
 };
 
 //Linked list of frames (the buffer will hold one list for each consumer)//
@@ -62,6 +67,7 @@ public:
   void stop(){producerRunning=false;std::cout<<"FrameLinkedList:: STOP CALLED STOP CALLED"<<std::endl;};
   
   FrameLinkedList();
+  ~FrameLinkedList();
   
 private:
   boost::mutex listLock;
@@ -80,6 +86,7 @@ private:
 public:
   void stop();
   Buffer();
+  ~Buffer();
  private:
   boost::mutex bufferLock;
   std::vector<FrameLinkedList*> consumerLists;

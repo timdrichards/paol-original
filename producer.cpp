@@ -37,6 +37,7 @@ Producer::Producer(Buffer *buffer)
 void Producer::push(paolMat img)
 {
   proBuffer->push(img);
+  //img.~paolMat();
 };
 
 void Producer::stop()
@@ -100,7 +101,7 @@ void ReadFromDisk::readFromPattern(char *dir, char* firstImage)
 {
   int count, seconds, lastLoaded;
   char name[256];
-  FILE *fp;
+  //FILE *fp;
   paolMat img;
   boost::posix_time::millisec sleepTime(100);
  

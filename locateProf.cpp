@@ -12,6 +12,7 @@
 #include <queue>
 //#include <algorithm>
 #include <cstdio>
+#include <cstdlib>
 #include <cctype>
 
 //Open CV
@@ -31,35 +32,52 @@
 using namespace cv;
 using namespace std;
 
-////#define _debug_
+#define _debug_
 
 
 locationData::locationData(paolMat in, double scale)
 {
+  
+  //std::cout<<"LocationData Constructor 1"<<std::endl;
   big.copy(in);
+  //std::cout<<"LocationData Constructor 2"<<std::endl;
   small.copy(in);
+  //std::cout<<"LocationData Constructor 2"<<std::endl;
   if (big.src.data)
     {     
+      //std::cout<<"LocationData Constructor 3"<<std::endl;
       small.src.release();
       cv::Mat temp;
       cv::resize(big.src, small.src, Size(), 1/scale, 1/scale, INTER_NEAREST);
       //Sobel(temp, small.src, 3, 1, 1, 3, 2, 0, BORDER_DEFAULT);
       small.edges();
-      
+      //std::cout<<"LocationData Constructor 4"<<std::endl;
       small.name = "Sobel";
-      small.print();
+      //small.print();
       small.split();
+      //std::cout<<"LocationData Constructor 5"<<std::endl;
     };
+  //std::cout<<"LocationData Constructor 6"<<std::endl;
+};
+
+void locationData::copy(locationData m)
+{
+  big.copy(m.big);
+  small.copy(m.small);
 };
 
 
-void LocateProf::setup(int size, int scaleIn)
+void LocateProf::setup(int size, int scaleIn, int rBoxIn)
 {
   frameBufferSize = size;
   //locationData emptyImg(pop(), scale);
   //frameBuffer.resize(frameBufferSize, emptyImg);
   paolMat temp;
   bool isData=true;
+  rBox = rBoxIn;
+  moveX = true;
+  moveY = true;
+  camera = Point(0,0);
   frameBuffer.push_back(locationData(temp, scaleIn));
   
   for( int i = 1; i<frameBufferSize && isData; i++)
@@ -79,31 +97,37 @@ void LocateProf::setup(int size, int scaleIn)
 
 bool LocateProf::newFrame()
 {
+  //std::cout<<"New frame 1"<<std::endl;
   locationData temp(pop(), scale);
-  
+  //std::cout<<"New frame 2"<<std::endl;
   if (temp.big.src.data)
     {
-      frameBuffer[current] = temp;
+      //std::cout<<"New frame 3"<<std::endl;
+      frameBuffer[current].copy(temp);
       current++;
       newest++;
       current%=frameBufferSize;
       newest%=frameBufferSize;
+      //std::cout<<"New frame 4"<<std::endl;
       return true;
     }else
     {
+      //std::cout<<"New frame 5 (false)"<<std::endl;
       return false;
     };
+  
+  //std::cout<<"New frame 6 (done)"<<std::endl;
 };
 
 void LocateProf::createDifference()
 {
-  int totalC,totalN;
+  int totalC;//,totalN;
   //  paolMat temp;
   //temp.copy(frameBuffer[current].small);
   //temp.src = cv::Mat::zeros(frameBuffer[current].small.src.rows, frameBuffer[current].small.src.cols, CV_8U);
   difference.copy(frameBuffer[current].small);
   difference.split();
-  int count = 0;
+  //int count = 0;
   for(int y=0;y < difference.src.rows; y++)
     {
       //std::cout<<"1"<<std::endl;
@@ -111,13 +135,13 @@ void LocateProf::createDifference()
       uchar* DgPtr = difference.planes[1].ptr<uchar>(y);      
       uchar* DbPtr = difference.planes[0].ptr<uchar>(y); 
       
-      uchar* CrPtr = frameBuffer[current].small.planes[1].ptr<uchar>(y);      
-      uchar* CgPtr = frameBuffer[current].small.planes[0].ptr<uchar>(y);      
-      uchar* CbPtr = frameBuffer[current].small.planes[0].ptr<uchar>(y);      
+      uchar* CrPtr = frameBuffer[current].small.planes[2].ptr<uchar>(y);      
+      //uchar* CgPtr = frameBuffer[current].small.planes[0].ptr<uchar>(y);      
+      //uchar* CbPtr = frameBuffer[current].small.planes[0].ptr<uchar>(y);      
       
-      uchar* NrPtr = frameBuffer[newest].small.planes[1].ptr<uchar>(y);      
-      uchar* NgPtr = frameBuffer[newest].small.planes[0].ptr<uchar>(y);      
-      uchar* NbPtr = frameBuffer[newest].small.planes[0].ptr<uchar>(y);      
+      uchar* NrPtr = frameBuffer[newest].small.planes[2].ptr<uchar>(y);      
+      //uchar* NgPtr = frameBuffer[newest].small.planes[0].ptr<uchar>(y);      
+      //uchar* NbPtr = frameBuffer[newest].small.planes[0].ptr<uchar>(y);      
       for (int x = 0; x < difference.src.cols; x++)
 	{
 	  //count++;
@@ -128,11 +152,11 @@ void LocateProf::createDifference()
 	  
 	  //if(totalC>100 && totalN>100){  
 	  //std::cout<<"000"<<std::endl;
+	  totalC = abs(CrPtr[x]-NrPtr[x]);
 	  
-	  
-	  DrPtr[x]=abs(CrPtr[x]-NrPtr[x]);
-	  DgPtr[x]=abs(CrPtr[x]-NrPtr[x]);
-	  DbPtr[x]=abs(CrPtr[x]-NrPtr[x]);
+	  DrPtr[x]= totalC;
+	  DgPtr[x]= totalC;
+	  DbPtr[x]= totalC;
 	  
 	  //} else {
 	  
@@ -147,6 +171,7 @@ void LocateProf::createDifference()
   //  frameBuffer[current].small.merge();
   //  cv::absdiff(frameBuffer[current].small.src, frameBuffer[newest].small.src, difference.src);
   difference.name = "Difference";
+  difference.shrink();
   //frameBuffer[current].small.name="dif";
   //frameBuffer[current].small.print();
   //difference.print();
@@ -161,6 +186,8 @@ void LocateProf::findProf()
   int left=difference.src.cols-1;
   int right=0;
   int total;
+  int count=0;
+  char countString[256];
   
   for(int y=0;y < difference.src.rows; y++)
     {
@@ -173,6 +200,7 @@ void LocateProf::findProf()
 	  total = (rPtr[x]+bPtr[x]+gPtr[x])/3;
 	  if(total>100)
 	    {  
+	      count++;
 	      if(y<top)
 		top=y;
 	      if(x<left)
@@ -183,14 +211,57 @@ void LocateProf::findProf()
 	};
     };
   
-  rectangle(difference.src, Point(left, top), Point(right, difference.src.rows-1), Scalar(255,255,255, 255), 2,8, 0);
-  std::cout<<"Prof found at: Top: "<<top<<" Left: "<<left<<" Right: "<<right<<std::endl;
-  //difference.merge();
+  //rectangle(difference.src, Point(left, top), Point(right, difference.src.rows-1), Scalar(255,255,255, 255), 2,8, 0);
+  //std::cout<<"returnPoints X: "<<(left+right)/2<<" top: "<<top<<std::endl;
+  //std::cout<<"  returnPoints X: "<<((left+right)/2)*scale<<" top: "<<top*scale<<std::endl;
+  sprintf(countString,"%d",count);
+  cv::putText(frameBuffer[current].big.src,countString,Point(600,300), FONT_HERSHEY_PLAIN, 3, Scalar(0,255,0,255), 1, 8, false);
+  if(((right - left)<100) && (count>200))
+    {
+      curLoc.x = ((left+right)/2)*scale;
+      curLoc.y = (top+10)*scale;
+    };
+};
+
+void LocateProf::fixLocation()
+{
+  if(moveX)
+    {
+      if(abs(camera.x - curLoc.x)<rBox/2)
+	moveX = false;
+      else
+	camera.x += ((curLoc.x - camera.x) * 40) / 160 +2;
+    }else
+    {
+      if(abs(camera.x - curLoc.x)>rBox)
+	{
+	  moveX = true;
+	  camera.x += ((curLoc.x - camera.x) * 40) / 160 +2;
+	};
+    };
+  if(moveY)
+    {
+      if(abs(camera.y - curLoc.y)<rBox/4)
+	moveY = false;
+      else
+	camera.y += ((curLoc.y - camera.y) / abs(curLoc.y - camera.y)) * 2;
+    }else
+    {
+      if(abs(camera.y - curLoc.y)>rBox)
+	{
+	  moveY = true;
+	  camera.y += ((curLoc.y - camera.y) / abs(curLoc.y - camera.y)) * 2;
+	};
+    };
+  frameBuffer[current].big.prof = curLoc;
+  frameBuffer[current].big.camera = camera;
+  //std::cout<<"Current Point X: "<<frameBuffer[current].big.camera.x<<" y: "<<frameBuffer[current].big.camera.y<<" Current: "<<current<<std::endl;
 };
 
 void LocateProf::run()
 {
-  setup(15,4);
+  setup(15,4,50);
+  
   
   //int top;
 
@@ -200,145 +271,26 @@ void LocateProf::run()
 
   while(newFrame())
     {
+      //std::cout<<"0"<<std::endl;
       createDifference();
-      //findProf();
-      difference.print();
-      //img.edges();
-      //img.name = "edges";
-      //img.print();
-     
-      //img.copy(pop());
+      findProf();
+      
+      //difference.print();
+      //std::cout<<"1"<<std::endl;
+      fixLocation();
+      //std::cout<<"2"<<std::endl;
+      std::cout<<"Frame Count: "<<frameBuffer[current].big.count<<std::endl;
+      conBuffer->push(frameBuffer[current].big);
+      //std::cout<<"3"<<std::endl;
     };
+  //std::cout<<"4"<<std::endl;
   paolMat nullImage;
   conBuffer->push(nullImage);
   conBuffer->stop();
   
 };
 
-void test::run()
-{
 
-  paolMat background;
-  paolMat working;
-  
-  
-  working.copy(pop());
-
-  while(working.src.data)
-    {
-      
-      background.copy(working);
-      
-      background.createBackgroundImg(25);
-      background.print();
-  
-      working.improveInputImg(background);
-      working.print();
-      
-      //      working.createContrast();
-      //      working.print();
-  
-      //      working.sharpen();
-      //      working.print();
-      
-      conBuffer->push(working);
-      working.copy(pop());
-    };
-  conBuffer->stop();  
-
-  /*
-  paolMat inImgNew;
-  paolMat inImgMid;
-  paolMat inImgOld;
-  paolMat difImgOld;
-  paolMat difImgNew;
-  paolMat outImg;
-
-  inImgOld.copy(pop());
-  inImgMid.copy(pop());
-  inImgNew.copy(pop());
-  difImgOld.copy(inImgOld);
-  difImgNew.copy(inImgOld);
-  outImg.copy(inImgOld);
-  conBuffer->push(inImgOld);
-
-  cv::absdiff(inImgOld.src, inImgMid.src, difImgOld.src);
-  
-  while(inImgOld.src.data && inImgNew.src.data)
-    {
-      difImgNew.copy(inImgNew);
-      cv::absdiff(inImgMid.src, inImgNew.src, difImgNew.src);
-      cv::absdiff(difImgOld.src, difImgNew.src, outImg.src);
-      
-      difImgOld.invert();
-      difImgOld.name = "dif";
-      difImgOld.print();
-
-      outImg.invert();
-      outImg.name = "difDiff";
-      outImg.print();
-      
-      conBuffer->push(inImgNew);
-      inImgOld.copy(inImgMid);
-      inImgMid.copy(inImgNew);
-      inImgNew.copy(pop());
-
-      difImgOld.copy(difImgNew);
-
-      outImg.copy(inImgOld);
-    };
-  paolMat nullImg;
-  conBuffer->push(nullImg);
-  conBuffer->stop();
-  */
-};
-
-/*
-
-  
-  while(inImg.src.data)
-    {
-    
-      vector<Rect> found, found_filtered;
-      double t = (double)getTickCount();
-      // run the detector with default parameters. to get a higher hit-rate
-      // (and more false alarms, respectively), decrease the hitThreshold and
-      // groupThreshold (set groupThreshold to 0 to turn off the grouping completely).
-      int can = inImg.src.channels();
-      hog.detectMultiScale(inImg.src, found, 0, Size(8,8), Size(128,128), 1.05, 1);
-      t = (double)getTickCount() - t;
-      printf("tdetection time = %gms\n", t*1000./cv::getTickFrequency());
-      cout<<"Found: "<<found.size()<<endl;
-      size_t i, j;
-
-      for( i = 0; i < found.size(); i++ )
-	{
-	  Rect r = found[i];
-	  for( j = 0; j < found.size(); j++ )
-	    if( j != i && (r & found[j]) == r)
-	      break;
-	  if( j == found.size() )
-	    found_filtered.push_back(r);
-	}
-
-      for( i = 0; i < found_filtered.size(); i++ )
-	{
-	  Rect r = found_filtered[i];
-	  // the HOG detector returns slightly larger rectangles than the real objects.
-	  // so we slightly shrink the rectangles to get a nicer output.
-	  r.x += cvRound(r.width*0.1);
-	  r.width = cvRound(r.width*0.8);
-	  r.y += cvRound(r.height*0.07);
-	  r.height = cvRound(r.height*0.8);
-	  rectangle(inImg.src, r.tl(), r.br(), cv::Scalar(0,255,0), 3);
-	}
-      inImg.name = "HOG";
-      inImg.print();
-      conBuffer->push(inImg);  
-
-
-
- */
 
 void Accumulate::run()
 {
@@ -351,10 +303,12 @@ void Accumulate::run()
 	sharp.copy(outImg);
 	sharp.createContrast();
 	sharp.sharpen();
-	sharp.print();
+	//sharp.print();
 	conBuffer->push(outImg);
 	outImg.name = "accumulate";
 	outImg.print();
+	std::cout<<"Acc image count is: "<<outImg.count<<std::endl;
+	//std::cout<<"Acc should have printed here"<<std::endl;
       }
     };
   conBuffer->stop();
@@ -363,16 +317,21 @@ void Accumulate::run()
 
 void Accumulate::setup(int bufferSizeIn)
 {
+  //std::cout<<"Acc:: 0"<<std::endl;
   current = 1;
   keepgoing = true;
   bufferSize = bufferSizeIn;
   paolMat empty;
+  //std::cout<<"Acc:: 1"<<std::endl;
   buffer.resize(bufferSize,empty);
-  
+  //std::cout<<"Acc:: 2"<<std::endl;
   buffer[0].copy( pop() );
+  buffer[0].split();
+  //std::cout<<"Acc:: 3"<<std::endl;
   outImg.copy(buffer[0]);
+  //std::cout<<"Acc:: 4"<<std::endl;
   outImg.name = "accumulated";
-  
+  //std::cout<<"Acc:: 5"<<std::endl;
   
   
   
@@ -385,9 +344,16 @@ void Accumulate::setup(int bufferSizeIn)
 	big[i][j].resize(3,0);
     };
   */
+  //std::cout<<"Acc:: 6"<<std::endl;
   for(int i = 1; i<bufferSize ; i++)
+    {
     buffer[i].copy(buffer[0]);
+    buffer[i].split();
+    //std::cout<<"Acc:: 7"<<std::endl;
+    };
+  //std::cout<<"Acc:: 8"<<std::endl;
   addPaol(buffer[0]);
+  //std::cout<<"Acc:: 9"<<std::endl;
   /*
   outImg.split();
   for (int y = 0; y < outImg.src.rows; y++)
@@ -406,7 +372,9 @@ void Accumulate::setup(int bufferSizeIn)
     };
   outImg.merge();
   */
+  //std::cout<<"Acc:: 10"<<std::endl;
   outImg.copy(buffer[0]);
+  //std::cout<<"Acc finnished setup"<<std::endl;
 };
 
 void Accumulate::addPaol(paolMat inImg)
@@ -416,9 +384,12 @@ void Accumulate::addPaol(paolMat inImg)
   if(current >= bufferSize)
     current = 0;
 
-  //  std::cout<<"0  AddPaol called"<<std::endl;
+  //std::cout<<"0  AddPaol called"<<std::endl;
+  
   buffer[current].copy(inImg);
+  //std::cout<<"1  AddPaol called"<<std::endl;
   buffer[current].split();
+  //std::cout<<"3  AddPaol called"<<std::endl;
   //  std::cout<<"1  AddPaol called"<<std::endl;
   /*
   for (int y = 0; y < buffer[current].src.rows; y++)
@@ -441,8 +412,10 @@ void Accumulate::addPaol(paolMat inImg)
     };
   std::cout<<"4  AddPaol called"<<std::endl;
   */
+  //std::cout<<"4  AddPaol called"<<std::endl;
   updateOutput();
-  //  std::cout<<"2  AddPaol called"<<std::endl;
+  //std::cout<<"5  AddPaol called"<<std::endl;
+  //  //std::cout<<"2  AddPaol called"<<std::endl;
   
   //  std::cout<<"3  AddPaol called"<<std::endl;
 };
@@ -471,29 +444,40 @@ void Accumulate::updateOutput()
 {
   int thresh=10;
   bool same;
-  //  std::cout<<"0  updateOutput called"<<std::endl;
+  //std::cout<<"0  updateOutput called"<<std::endl;
+  outImg.split();
   for (int p=0;p<3;p++)
+    {
+      //std::cout<<"1  updateOutput called"<<std::endl;
     for (int y = 0; y < outImg.src.rows; y++)
       {
+	//std::cout<<"1.1  updateOutput called"<<std::endl;
 	uchar* ptrOut = outImg.planes[p].ptr<uchar>(y);
+	//std::cout<<"1.2  updateOutput called"<<std::endl;
 	uchar* ptrCur = buffer[current].planes[p].ptr<uchar>(y);
 	//std::cout<<"2  updateOutput called"<<std::endl;
 	for (int x = 0; x < outImg.src.cols; x++)
 	  {
 	    //std::cout<<"2.1 "<<buffer[current].count<<" "<<y<<"/"<<outImg.src.rows<<" "<<x<<"/"<<outImg.src.cols<<" "<<p<<std::endl;
 	    if(abs(ptrOut[x]-ptrCur[x])>thresh){
+	      //std::cout<<"2.01  updateOutput called"<<std::endl;
 	      if(ptrCur[x]>=245){
+		//std::cout<<"2.02 updateOutput called"<<std::endl;
 		ptrOut[x]=ptrCur[x];
 	      }else {
 		//std::cout<<"2.2 "<<buffer[current].count<<" "<<y<<"/"<<outImg.src.rows<<" "<<x<<"/"<<outImg.src.cols<<" "<<p<<std::endl;
 		//temp=0;
+		//std::cout<<"2.03 updateOutput called"<<std::endl;
 		same=true;
 		for (int z=0;z<bufferSize;z++){
+		  //std::cout<<"2.04 updateOutput called"<<std::endl;
+		  //std::cout<<"2.041 "<<buffer.size()<<" "<<buffer[z].planes.size()<<std::endl;
 		  uchar* ptrTemp = buffer[z].planes[p].ptr<uchar>(y);
 		  //temp+=ptrTemp[x];
 		  
 		  //temp/=bufferSize;
 		  if(abs(ptrCur[x]-ptrTemp[x])>thresh)
+		    //std::cout<<"2.05 updateOutput called"<<std::endl;
 		    same=false;
 		};
 		//std::cout<<"2.3  updateOutput called"<<std::endl;
@@ -504,10 +488,11 @@ void Accumulate::updateOutput()
 	    };
 	  };
       };
-  //   std::cout<<"3  updateOutput called"<<std::endl;
-    outImg.merge();
-    outImg.count = buffer[current].count;
-    outImg.time = buffer[current].time;
+    };
+  //std::cout<<"3  updateOutput called"<<std::endl;
+  outImg.merge();
+  outImg.count = buffer[current].count;
+  outImg.time = buffer[current].time;
 };
 
 void Accumulate::insert()

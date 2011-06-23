@@ -34,13 +34,19 @@ Consumer::Consumer(Buffer *buffer)
 
 paolMat Consumer::pop()
 {
-  paolMat img = conBuffer->pop(myID);
+  //std::cout<<"Consumer Pop1"<<std::endl;
+  paolMat img;
+  //std::cout<<"Consumer Pop2"<<std::endl;
+  img.copy(conBuffer->pop(myID));
+  //std::cout<<"Consumer Pop3"<<std::endl;
   if (img.src.data)
     {
+      //std::cout<<"Consumer Pop4"<<std::endl;
       return img;
     }else
     {
       stop();
+      //std::cout<<"Consumer Pop5"<<std::endl;
       return img;
     };
 };

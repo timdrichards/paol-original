@@ -46,7 +46,7 @@ int main(int argc, char** argv)
   //Create All the Buffers/////////////////////////////////////////////
   Buffer* diskWriteBuffer;
   diskWriteBuffer = new Buffer;
-
+  
   Buffer* preProcessBuffer;
   preProcessBuffer = new Buffer;
 
@@ -63,11 +63,11 @@ int main(int argc, char** argv)
 
   WriteToDisk frameWriter(diskWriteBuffer, "output", "outMedia/");
 
-  WriteMovie movieWriter(diskReadBuffer, "outMedia/movie.mp4", 15);
+  //WriteDebugMovie debugMovieWriter(diskWriteBuffer, "outMedia/movie.mp4", 15);
   
-  //Accumulate accumulate(preProcessBuffer, diskWriteBuffer);
+  Accumulate accumulate(diskReadBuffer, diskWriteBuffer);
 
-  LocateProf findProf(diskReadBuffer, diskWriteBuffer);
+  //LocateProf findProf(diskReadBuffer, diskWriteBuffer);
 
   ReadFromDisk diskReader(diskReadBuffer, argv[1], argv[2]);
 
@@ -85,19 +85,24 @@ int main(int argc, char** argv)
   //////////////////////////////////////////////////////////////////////////
   
   boost::thread frameWriterThread(&WriteToDisk::run, &frameWriter);
-  boost::thread movieWriterThread(&WriteMovie::run, &movieWriter);
-  //boost::thread accumulateThread(&Accumulate::run, &accumulate);
-  boost::thread findProfThread(&LocateProf::run, &findProf);
+  //boost::thread debugMovieWriterThread(&WriteDebugMovie::run, &debugMovieWriter);
+  boost::thread accumulateThread(&Accumulate::run, &accumulate);
+  //boost::thread findProfThread(&LocateProf::run, &findProf);
   boost::thread diskReaderThread(&ReadFromDisk::run, &diskReader);
 
   std::cout<<"MAIN:: Modules Running, waiting for joing"<<std::endl;
 
   diskReaderThread.join();
-  findProfThread.join();
-  //accumulateThread.join();
-  movieWriterThread.join();
+  //findProfThread.join();
+  accumulateThread.join();
+  //debugMovieWriterThread.join();
   frameWriterThread.join();
 
+  delete diskWriteBuffer;
+  delete preProcessBuffer;
+  delete diskReadBuffer;
+  delete camera1Buffer;
+  
   std::cout<<"Main:: Joins complete"<<std::endl;
 };
 

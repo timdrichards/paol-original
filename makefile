@@ -3,7 +3,8 @@ FLAGS=`pkg-config --cflags --libs opencv` \
 	-L /usr/lib/ \
 	-lboost_thread \
 	-lboost_filesystem-mt \
-	-lboost_regex
+	-lboost_regex \
+	-g
 
 OBJ1=paolMat.o buffer.o consumer.o producer.o writeToDisk.o \
 	process.o whiteBoardProcess.o gige.o locateProf.o main.o
