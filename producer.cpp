@@ -114,6 +114,7 @@ void ReadFromDisk::readFromPattern(char *dir, char* firstImage)
     boost::this_thread::sleep(sleepTime);
     //try opening a file of the given name
     img.src.release();
+    //delete img;
     //std::cout<<"Producer:: Image data is null: "<<img.src.empty()<<std::endl;
     img.read(name,count,seconds);
     if (img.src.data){

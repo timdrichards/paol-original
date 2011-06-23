@@ -42,6 +42,7 @@ locationData::locationData(paolMat in, double scale)
   big.copy(in);
   //std::cout<<"LocationData Constructor 2"<<std::endl;
   small.copy(in);
+  
   //std::cout<<"LocationData Constructor 2"<<std::endl;
   if (big.src.data)
     {     
@@ -72,17 +73,20 @@ void LocateProf::setup(int size, int scaleIn, int rBoxIn)
   frameBufferSize = size;
   //locationData emptyImg(pop(), scale);
   //frameBuffer.resize(frameBufferSize, emptyImg);
-  paolMat temp;
+  paolMat* temp;
+  temp = new paolMat;
   bool isData=true;
   rBox = rBoxIn;
   moveX = true;
   moveY = true;
   camera = Point(0,0);
-  frameBuffer.push_back(locationData(temp, scaleIn));
-  
+  frameBuffer.push_back(locationData(*temp, scaleIn));
+  delete temp;
   for( int i = 1; i<frameBufferSize && isData; i++)
     {
-      frameBuffer.push_back(locationData(pop(), scaleIn));
+      temp = pop();
+      frameBuffer.push_back(locationData(*temp, scaleIn));
+      delete temp;
       isData=(frameBuffer[i].big.src.data);
       if(!isData){
 	frameBuffer.pop_back();
@@ -98,7 +102,7 @@ void LocateProf::setup(int size, int scaleIn, int rBoxIn)
 bool LocateProf::newFrame()
 {
   //std::cout<<"New frame 1"<<std::endl;
-  locationData temp(pop(), scale);
+  locationData temp(*pop(), scale);
   //std::cout<<"New frame 2"<<std::endl;
   if (temp.big.src.data)
     {

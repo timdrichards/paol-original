@@ -15,24 +15,11 @@ class Processor : public Producer, public Consumer
   //Buffer* input;
   //Buffer* output;
   int myID;
-  paolMat pop();
+  paolMat* pop();
   Processor(Buffer* in, Buffer* out);// : Producer(in) , Consumer(out);
-  void run();
+  //void run();
   void stop();
-  void passOn()
-  {
-    paolMat img;
-    img = pop();
-    while (img.src.data)
-      {
-	conBuffer->push(img);
-	img = proBuffer->pop(myID);
-      };
-    paolMat nullImg;
-    conBuffer->push(nullImg);
-    conBuffer->stop();
-  };
-
+  void passOn();
 };
 
 

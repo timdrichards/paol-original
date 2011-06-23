@@ -20,6 +20,7 @@ public:
   cv::Point camera;
   void print();
   void copy(paolMat m);
+  void copy(paolMat* m);
   void read(std::string fileName,int countIn,int timeIn);
   void edges();
   //This is a slow method for testing, not production//
@@ -46,9 +47,9 @@ public:
 class frameListItem
 {
 public:
-  paolMat frame;
+  paolMat* frame;
   frameListItem* next;
-  frameListItem(paolMat newFrame);
+  frameListItem(paolMat* newFrame);
   ~frameListItem();
 };
 
@@ -62,8 +63,8 @@ class FrameLinkedList
 private:
   bool producerRunning;
 public:
-  void push(paolMat frame);
-  paolMat pop();
+  void push(paolMat* frame);
+  paolMat* pop();
   void stop(){producerRunning=false;std::cout<<"FrameLinkedList:: STOP CALLED STOP CALLED"<<std::endl;};
   
   FrameLinkedList();
@@ -79,8 +80,9 @@ class Buffer
 {
  public:
   int registerConsumer();
+  void push(paolMat* frame);
   void push(paolMat frame);
-  paolMat pop(int consumerID);
+  paolMat* pop(int consumerID);
 private:
    bool producerRunning;
 public:

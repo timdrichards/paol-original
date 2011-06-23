@@ -38,7 +38,7 @@ Processor::Processor(Buffer* in, Buffer* out) : Producer(in) , Consumer(out)
 };
 
 
-paolMat Processor::pop(){
+paolMat* Processor::pop(){
   return proBuffer->pop(myID);
 };
 
@@ -54,33 +54,59 @@ void Processor::stop()
   killMe=true;
 };
 
+/*
 void Processor::run()
 {
   paolMat inputImg;
-  paolMat backgroundImg;
-  inputImg.copy(pop());
+  paolMat* ptr;
+  //paolMat backgroundImg;
+  ptr = pop();
+  inputImg.copy(&ptr);
   
-  backgroundImg.copy(inputImg);
-  cv::Point centerPoint(-1,-1);
+  //backgroundImg.copy(inputImg);
+  //cv::Point centerPoint(-1,-1);
   while(inputImg.src.data)
     {
 #ifndef _debug_
       //std::cout<<"Processor:: Pushing and poppin!"<<std::endl;
 #endif
-      cv::blur(inputImg.src, backgroundImg.src, cv::Size(25,25), centerPoint, 1);
-      conBuffer->push(backgroundImg);
-      inputImg.copy(pop());
+      //cv::blur(inputImg.src, backgroundImg.src, cv::Size(25,25), centerPoint, 1);
+      conBuffer->push(inputImg);
+      inputImg.src.release();
+      ptr = pop();
+      inputImg.copy(ptr);
     };
 #ifndef _debug_
   //std::cout<<"Processor:: Loop Ended"<<std::endl;
 #endif
+  inputImg.src.release();
   paolMat nullImage;
   conBuffer->push(nullImage);
   conBuffer->stop();
+  
 #ifndef _debug_
   //std::cout<<"Processor:: Null image passed"<<std::endl;
 #endif
 
 
 
+};
+
+*/
+
+void Processor::passOn()
+{
+  paolMat* img;
+  img = pop();
+  while (img->src.data)
+    {
+      conBuffer->push(img);
+      delete img;
+      img = proBuffer->pop(myID);
+    };
+  delete img;
+  paolMat* nullImg;
+  nullImg = new paolMat;
+  conBuffer->push(nullImg);
+  conBuffer->stop();
 };

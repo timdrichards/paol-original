@@ -64,8 +64,10 @@ int main(int argc, char** argv)
   WriteToDisk frameWriter(diskWriteBuffer, "output", "outMedia/");
 
   //WriteDebugMovie debugMovieWriter(diskWriteBuffer, "outMedia/movie.mp4", 15);
+
+  Processor nullProc(diskReadBuffer, diskWriteBuffer);
   
-  Accumulate accumulate(diskReadBuffer, diskWriteBuffer);
+  //Accumulate accumulate(diskReadBuffer, diskWriteBuffer);
 
   //LocateProf findProf(diskReadBuffer, diskWriteBuffer);
 
@@ -86,15 +88,17 @@ int main(int argc, char** argv)
   
   boost::thread frameWriterThread(&WriteToDisk::run, &frameWriter);
   //boost::thread debugMovieWriterThread(&WriteDebugMovie::run, &debugMovieWriter);
-  boost::thread accumulateThread(&Accumulate::run, &accumulate);
-  //boost::thread findProfThread(&LocateProf::run, &findProf);
+  //boost::thread accumulateThread(&Accumulate::run, &accumulate);
+  boost::thread nullProcThread(&Processor::passOn, &nullProc);
+    //boost::thread findProfThread(&LocateProf::run, &findProf);
   boost::thread diskReaderThread(&ReadFromDisk::run, &diskReader);
 
   std::cout<<"MAIN:: Modules Running, waiting for joing"<<std::endl;
 
   diskReaderThread.join();
+  nullProcThread.join();
   //findProfThread.join();
-  accumulateThread.join();
+  //accumulateThread.join();
   //debugMovieWriterThread.join();
   frameWriterThread.join();
 

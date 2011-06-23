@@ -11,7 +11,7 @@ public:
   Buffer *conBuffer;
   int myID;
   Consumer(Buffer *buffer);
-  paolMat pop();
+  paolMat* pop();
   void stop();
   bool keepRunning();
 

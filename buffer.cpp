@@ -67,6 +67,19 @@ void paolMat::copy(paolMat m)
   camera = m.camera;
 };
 
+void paolMat::copy(paolMat* m)
+{
+  src.release();
+  m->src.copyTo(src);
+  count = m->count;
+  time = m->time;
+  name = m->name;
+  planes = m->planes;
+  prof = m->prof;
+  camera = m->camera;
+
+};
+
 void paolMat::edges()
 {
   split();
@@ -343,14 +356,15 @@ void paolMat::shrink()
 
 //////////Frame Linked List /////////////////////////////////////
 
-frameListItem::frameListItem(paolMat newFrame)
+frameListItem::frameListItem(paolMat* newFrame)
 {
-  frame.copy(newFrame);
+  //frame = new PaolMat;
+  frame = newFrame;
 };
 
 frameListItem::~frameListItem()
 {
-  frame.src.release();
+  frame->src.release();
 };
 
 FrameLinkedList::FrameLinkedList()
@@ -366,12 +380,12 @@ FrameLinkedList::~FrameLinkedList()
 
 };
 
-void FrameLinkedList::push(paolMat frame)
+void FrameLinkedList::push(paolMat* frame)
 {
   boost::posix_time::seconds sleepTime(1);
   boost::mutex::scoped_lock lock(listLock);
   #ifndef _debug_
-  //std::cout<<"FrameLinkedList:: I have the lock"<<std::endl;
+  std::cout<<"FrameLinkedList:: I have the lock"<<std::endl;
   #endif
   //Store image locally
   //paolMat newFrame;
@@ -379,14 +393,10 @@ void FrameLinkedList::push(paolMat frame)
   
   //Create a pointer object to a frameListItem
   frameListItem* newItem;
-  //std::cout<<"FrameLinkedList:: frameListItem pointer created"<<std::endl;
   //Set the pointer to a new frameListItem (Making the new item above the scope of push
   newItem = new frameListItem(frame);
-  //std::cout<<"\n\nFLL:: frame count, time "<<frame.count<<" "<<frame.time<<std::endl;
-      
-  //std::cout<<"FrameLinkedList:: frameListItem pointer set to new item"<<std::endl;
   #ifndef _debug_
-  //std::cout<<"FrameLinkedList:: New list item allocated"<<std::endl;
+  std::cout<<"FrameLinkedList:: New list item allocated"<<std::endl;
   #endif
 
   if (size == 0)
@@ -429,17 +439,17 @@ void FrameLinkedList::push(paolMat frame)
 //       last two images destroying the list
 //     Else sleep for sleepTime
 ////////////////////////////////////
-paolMat FrameLinkedList::pop()
+paolMat* FrameLinkedList::pop()
 {
   bool moreThanTwo = false;
-  paolMat toPop;
+  paolMat* toPop;
+  toPop = new paolMat;
   int readSize;
   boost::posix_time::seconds sleepTime(1);
   //Enter loop for the first time no matter what
   //Loop where you grab a frame from the linked list, or wait for a frame to be available
   while(!moreThanTwo)
     {
-      //std::cout<<"Head of linked list loop"<<std::endl;
       //Scoped so that the mutex will be released while the thread sleeps
       {
 	boost::mutex::scoped_lock lock(listLock);
@@ -455,7 +465,7 @@ paolMat FrameLinkedList::pop()
 	{
 	  boost::mutex::scoped_lock lock(listLock);
 	  moreThanTwo = true;
-	  toPop.copy(oldest->frame);
+	  toPop = oldest->frame;
 	  frameListItem* toDelete;
 	  toDelete = oldest;
 	  oldest = toDelete->next;
@@ -471,7 +481,7 @@ paolMat FrameLinkedList::pop()
 	}else if ( (readSize == 2) && !producerRunning)
 	{
 	  boost::mutex::scoped_lock lock(listLock);
-	  toPop.copy(oldest->frame);
+	  toPop = oldest->frame;
 	  frameListItem* toDelete;
 	  toDelete = oldest;
 	  oldest = toDelete->next;
@@ -484,7 +494,7 @@ paolMat FrameLinkedList::pop()
 	}else if ((readSize == 1) && !producerRunning)
 	{
 	  boost::mutex::scoped_lock lock(listLock);
-	  toPop.copy(oldest->frame);
+	  toPop = oldest->frame;
 	  //frameListItem* toDelete;
 	  delete oldest;
 	  #ifndef _debug_
@@ -498,7 +508,8 @@ paolMat FrameLinkedList::pop()
 	  #ifndef _debug_
 	  std::cout<<"No Frames in list size is: "<<size<<std::endl;
 	  #endif
-	  paolMat null;
+	  paolMat* null;
+	  null = new paolMat;
 	  return null;
 	  //this.~FrameLinkedList();
 	}else
@@ -543,7 +554,7 @@ int Buffer::registerConsumer()
 
 };
 
-void Buffer::push(paolMat frame)
+void Buffer::push(paolMat* frame)
 {
   //std::cout<<"1Buffer, recieved image to push, about to lock"<<std::endl;
   boost::mutex::scoped_lock lock(bufferLock);
@@ -557,16 +568,24 @@ void Buffer::push(paolMat frame)
 
 };
 
-paolMat Buffer::pop(int consumerID)
+void Buffer::push(paolMat frame)
 {
-  paolMat temp;
+  paolMat* toPass;
+  toPass = new paolMat;
+  toPass->copy(frame);
+  push(toPass);
+};
+
+paolMat* Buffer::pop(int consumerID)
+{
+  paolMat* temp;
   //std::cout<<"BufferPop 1"<<std::endl;
-  temp.copy(consumerLists[consumerID]->pop());
-  if (temp.src.data)
+  temp = consumerLists[consumerID]->pop();
+  if (temp->src.data)
     return temp;
   else
     {
-      temp.src=Scalar(0,0,0,0);
+      temp->src=Scalar(0,0,0,0);
       consumerLists[consumerID]->stop();
       return temp;
     };

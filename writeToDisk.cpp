@@ -48,23 +48,23 @@ void WriteToDisk::run()
  
   cout<<"WriteToDisk:: Launching disk write"<<endl;
   
-  paolMat img;
+  paolMat* img;
   //int count;
   //count = 1;
   //char name[256];
   #ifndef _debug_
   cout<<"WriteToDisk:: Set variables, about to pop"<<endl;
   #endif
-  img.copy(pop());
+  img = pop();
   #ifndef _debug_
   cout<<"WriteToDisk:: Popped first Img"<<endl;
   #endif
-  while(img.src.data)
+  while(img->src.data)
     {
-      img.name = "output";
-      img.print();
+      img->name = "output";
+      img->print();
       //count++;
-      img.copy(pop());
+      img = pop();
     };
   //gets deallocated elsewhere? errors if we do it here.
   //img.~paolMat();
@@ -83,21 +83,21 @@ void WriteMovie::run()
 {
   cout<<"WriteMovie:: Launched"<<endl;
   
-  paolMat img;
+  paolMat* img;
 
-  img.copy(pop());
+  img = pop();
 
-  cv::VideoWriter record(destName, CV_FOURCC('D','I','V','X'), fps, img.src.size(), true);
-  std::cout<<img.src.cols<<" x "<<img.src.rows<<std::endl;
+  cv::VideoWriter record(destName, CV_FOURCC('D','I','V','X'), fps, img->src.size(), true);
+  std::cout<<img->src.cols<<" x "<<img->src.rows<<std::endl;
   if(!record.isOpened())
     {
       std::cout<<"Error recording"<<std::endl;
       return;
     };
-  while(img.src.data)
+  while(img->src.data)
     {
-      record << img.src;
-      img.copy(pop());
+      record << img->src;
+      img = pop();
 
     };
 
@@ -119,11 +119,11 @@ void WriteDebugMovie::run()
 {
   cout<<"WriteDebugMovie:: Launched"<<endl;
   
-  paolMat img;
+  paolMat* img;
 
-  img.copy(pop());
+  img = pop();
 
-  cv::VideoWriter record(destName, CV_FOURCC('D','I','V','X'), fps, img.src.size(), true);
+  cv::VideoWriter record(destName, CV_FOURCC('D','I','V','X'), fps, img->src.size(), true);
   //std::cout<<img.src.cols<<" x "<<img.src.rows<<std::endl;
   if(!record.isOpened())
     {
@@ -131,21 +131,21 @@ void WriteDebugMovie::run()
       return;
     };
   int left,top,right,bottom;
-  while(img.src.data)
+  while(img->src.data)
     {
-      left = img.camera.x-160;
-      right = img.camera.x+160;
-      top = img.camera.y-120;
-      bottom = img.camera.y+120;
+      left = img->camera.x-160;
+      right = img->camera.x+160;
+      top = img->camera.y-120;
+      bottom = img->camera.y+120;
       //std::cout<<"DebugMovie Writer X: "<<img.camera.x<<" y: "<<img.camera.y<<std::endl;
       if(top<0)
 	{
 	  top = 0;
 	  bottom = top+240;
 	};
-      if(bottom>img.src.rows-1)
+      if(bottom>img->src.rows-1)
 	{
-	  bottom = img.src.rows -1;
+	  bottom = img->src.rows -1;
 	  top = bottom -240;
 	};
       if(left<0)
@@ -153,20 +153,20 @@ void WriteDebugMovie::run()
 	  left = 0;
 	  right = left+320;
 	};
-      if(right>img.src.cols-1)
+      if(right>img->src.cols-1)
 	{
-	  right = img.src.cols-1;
+	  right = img->src.cols-1;
 	  left = right -320;
 	};
       //std::cout<<"rec "<<std::endl;;
-      rectangle(img.src, Point(left, top), Point(right, bottom), Scalar(0,0,255, 255),2,8,0);
-      rectangle(img.src, Point(img.prof.x-1, img.prof.y-1), Point(img.prof.x+1, img.prof.y+1), Scalar(255,0,0,255),2,8,0);
+      rectangle(img->src, Point(left, top), Point(right, bottom), Scalar(0,0,255, 255),2,8,0);
+      rectangle(img->src, Point(img->prof.x-1, img->prof.y-1), Point(img->prof.x+1, img->prof.y+1), Scalar(255,0,0,255),2,8,0);
       //std::cout<<"done"<<std::endl;
-      img.name="rec";
-      img.print();
-      record << img.src;
+      img->name="rec";
+      img->print();
+      record << img->src;
       std::cout<<"recorded"<<std::endl;
-      img.copy(pop());
+      img = pop();
       std::cout<<"Popped new"<<std::endl;
 
     };
