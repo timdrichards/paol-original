@@ -13,10 +13,12 @@ class PMList
   paolMat* pop();
   void stop();
   int current;
-  int oldest;
+  long oldest;
   int size;
+  int listSize;
   
   PMList();
+  PMList(int size);
   ~PMList();
   
  private:
