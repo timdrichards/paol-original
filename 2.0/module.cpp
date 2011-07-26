@@ -124,6 +124,67 @@ void Module::nullRun()
     };
 };
 
+void ReadMod::ReadFromPattern(char* dir, char* firstImg)
+{
+  int count, seconds, lastLoaded;
+  char name[256];
+
+  
+  boost::posix_time::millisec sleepTime(100);
+
+  sscanf(firstImg,"image%06d-%10d.ppm",&count,&seconds);
+  lastLoaded = seconds;
+
+  sprintf(name,"%simage%06d-%10d.ppm",dir,count,seconds);
+
+  paolMat* img;
+  img = new paolMat();
+  while((seconds-lastLoaded)<20)
+    {
+      boost::this_thread::sleep(sleepTime);
+      img->read(name,count,seconds);
+      if(img->src.data)
+	{
+	  push(img);
+	  lastLoaded=seconds;
+	  count++;
+	}
+      else
+	{
+	  sprintf(name,"%simage%06d-%10d.ppm",dir,count+1,seconds);
+	  img->read(name,count,seconds);
+	  if(img->src.data)
+	    {
+	      push(img);
+	      lastLoaded=seconds;
+	      count+=2;
+	    }
+	  else
+	    seconds++;
+	}
+      sprintf(name,"%simage%06d-%10d.ppm",dir,count,seconds);
+    };
+  stop();
+  delete img;
+};
+
+void WriteMod::WriteMats()
+{
+  std::cout<<"WriteMats a"<<std::endl;
+  paolMat* img;
+  img = pop();
+  std::cout<<"WriteMats b"<<std::endl;
+  while(img!=NULL)
+    {
+      img->write();
+      delete img;
+      img = pop();
+    };
+};
+
+
+
+
 /*
 ReadFromPattern::ReadFromPattern(Buffer* buffer, char* dirIn, char* firstImgIn) : Module(NULL, buffer, 0)
 {

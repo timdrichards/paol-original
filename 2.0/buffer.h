@@ -9,16 +9,17 @@ class PMList
 {
  public:
   std::vector<paolMat*> PaolMats;
-  int push(paolMat* inPM);
-  paolMat* pop();
-  void stop();
   int current;
   int oldest;
   int size;
   
   PMList();
   ~PMList();
-  
+  int push(paolMat* inPM);
+  paolMat* pop();
+  void stop();
+  void print();
+
  private:
   bool producerRunning;
   boost::mutex listLock;
@@ -27,16 +28,18 @@ class PMList
 class Buffer
 {
  public:
+  std::vector<PMList*> consumerLists;
+  
+  Buffer();
+  ~Buffer();
+  
   int push(paolMat* inPM);
   paolMat* pop(int id);
   void stop();
   int registerConsumer();
-
-  Buffer();
-  ~Buffer();
-
+  void print();
  private:
-  std::vector<PMList*> consumerLists;
+  
   boost::mutex bufferLock;
 };
 

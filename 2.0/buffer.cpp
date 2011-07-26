@@ -25,7 +25,7 @@ using namespace cv;
 
 PMList::PMList()
 {
-  PaolMats.resize(150);
+  PaolMats.resize(150, NULL);
   producerRunning = true;
   size = 0;
   current = 0;
@@ -34,11 +34,20 @@ PMList::PMList()
 
 PMList::~PMList()
 {
+  /*
+  paolMat* img;
   while(!PaolMats.empty())
     {
-      delete PaolMats.back();
-      PaolMats.pop_back();
+    
+      if(PaolMats.back() != NULL)
+	{
+	  PaolMats.back()->print();
+	  delete PaolMats.back();
+	}
+       PaolMats.pop_back();
+      
     }
+*/
 };
 
 int PMList::push(paolMat* inPM)
@@ -93,6 +102,20 @@ void PMList::stop()
   producerRunning = false;
 };
 
+void PMList::print()
+{
+  using namespace std;
+  cout<<endl<<"  PMList Print::"<<endl;
+  cout<<"  Current: "<<current<<" oldest: "<<oldest<<" size: "<<size<<endl;
+  cout<<"  PaolMats.size(): "<<PaolMats.size()<<endl;
+  for(int i = 0; i < (int)PaolMats.size(); i++)
+    {
+      if(PaolMats[i] != NULL)
+	PaolMats[i]->print();
+    };
+  cout<<endl<<endl;
+};
+
 Buffer::Buffer()
 {
   
@@ -102,11 +125,12 @@ Buffer::Buffer()
 Buffer::~Buffer()
 {
   
-  while (!consumerLists.empty())
+  /*while (!consumerLists.empty())
     {
-      delete consumerLists.back();
+      //consumerLists[0].erase();
+      delete[] consumerLists.back();
       consumerLists.pop_back();
-    }
+      }*/
   //for(int i = 0; i < (int)consumerLists.size();i++)
   //  consumerLists[i]->~PMList();
   //consumerLists.~vector();
@@ -146,5 +170,20 @@ int Buffer::registerConsumer()
   //aList = new PMList;
   consumerLists.push_back(new PMList);
   return consumerLists.size()-1;
+
+};
+
+using namespace std;
+void Buffer::print()
+{
+  cout<<endl<<"BUFFER PRINT::"<<endl;
+  cout<<" consumerLists.size(): "<<consumerLists.size()<<endl;
+  for(int i = 0; i < (int)consumerLists.size(); i++)
+    {
+      cout<<" Consumer List #"<<i<<endl;
+      consumerLists[i]->print();
+    };
+  cout<<endl<<endl<<endl;
+
 
 };

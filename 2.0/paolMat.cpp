@@ -55,3 +55,31 @@ paolMat::~paolMat()
   camera.~Point();
   prof.~Point();
 };
+
+void paolMat::read(std::string fileName,int countIn, int timeIn)
+{
+  src = imread(fileName);
+  name = fileName;
+  count=countIn;
+  time=timeIn;
+};
+
+void paolMat::write()
+{
+  if(!src.empty())
+    {
+      char temp[256];
+      std::string longName = "outMedia/";
+      longName.append(name);
+      sprintf(temp,"%06d-%010d.png",count,time);
+      longName.append(temp);
+      cv::imwrite(longName, src);
+    };
+};
+
+void paolMat::print()
+{
+  std::cout<<"     "<<name<<" time "<<time<<" count "<<count<<std::endl;
+
+};
+

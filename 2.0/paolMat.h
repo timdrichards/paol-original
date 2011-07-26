@@ -18,6 +18,9 @@ class paolMat
   paolMat();
   ~paolMat();
   paolMat(paolMat* m);
+  void read(std::string fileName, int countIn, int timeIn);
+  void write();
+  void print();
 };
 
 

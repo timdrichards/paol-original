@@ -25,4 +25,21 @@ class Module
   void nullRun();
 };
 
+class ReadMod : public Module
+{
+ public:
+  ReadMod(Buffer* out) : Module(NULL, out, 150){};
+  //~ReadMod();
+  void ReadFromPattern(char* dir, char* firstImg);
+  
+};
+
+class WriteMod : public Module
+{
+ public:
+  WriteMod(Buffer* in) : Module(in, NULL, 150){};
+  
+  void WriteMats();
+
+};
 #endif

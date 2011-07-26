@@ -23,7 +23,7 @@
 
 using namespace cv;
 
-int main(int arc, char** argv)
+int main(int argc, char** argv)
 {
   paolMat* img;
   img = new paolMat;
@@ -33,7 +33,9 @@ int main(int arc, char** argv)
   img->time = 1;
 
   paolMat* newImg;
-  newImg = new paolMat(img);
+  newImg = new paolMat;
+
+  newImg->read("img2.jpg", 2, 2);
 
 
   Buffer* testBuffer;
@@ -44,19 +46,167 @@ int main(int arc, char** argv)
 
   //testBuffer->registerConsumer();
   
+  //ReadMod PatternRead(testBuffer);
+  WriteMod writeMod(testBuffer);
+  WriteMod bob(testBuffer);
+  
+  //PatternRead.ReadFromPattern(argv[1], argv[2]);
 
-  Module mod(testBuffer, secondBuffer, 150);
+  //Module mod(testBuffer, secondBuffer, 150);
 
+  std::cout<<testBuffer->consumerLists.size()<<std::endl;
   testBuffer->push(newImg);
-  testBuffer->push(img);
-
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
+  testBuffer->push(newImg);
   testBuffer->stop();
-  mod.nullRun();
+  testBuffer->print();
+  writeMod.WriteMats();
+  //testBuffer->push(newImg);
+  //testBuffer->push(img);
 
+  
+  //mod.nullRun();
+  //
+  writeMod.~WriteMod();
+  bob.~WriteMod();
   delete img;
   delete newImg;
   std::cout<<"Images gone"<<std::endl;
   delete testBuffer;
+  std::cout<<"It won't read me"<<std::endl;
   delete secondBuffer;
   std::cout<<"Buffer deleted"<<std::endl;
   return 0;
