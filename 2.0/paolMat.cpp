@@ -22,17 +22,17 @@ using namespace cv;
 
 paolMat::paolMat()
 {
-  //src.create(1,1,1);
-  name = "";
+  name = "No Name";
   count = -1;
   time = -1;
+
 };
 
 paolMat::paolMat(paolMat* m)
 {
   
   src = m->src.clone();
-  for(int i = 0; i < (int)m->planes.size(); i++)
+  for(int i = 0; i < m->planes.size(); i++)
     {
       m->planes[i].copyTo(planes[i]);
     };
@@ -48,19 +48,10 @@ paolMat::paolMat(paolMat* m)
 paolMat::~paolMat()
 {
   src.~Mat();
-  //src.~Mat();
-  for(int i = 0; i < (int)planes.size(); i++)
+  for(int i = 0; i < planes.size(); i++)
     {
       planes[i].~Mat();
     };
   camera.~Point();
   prof.~Point();
-};
-
-void paolMat::read(std::string fileName,int countIn,int timeIn)
-{
-  src = imread(fileName);
-  name = fileName;
-  count = countIn;
-  time = timeIn;
 };
