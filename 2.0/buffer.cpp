@@ -41,11 +41,11 @@ int PMList::push(paolMat* inPM)
 {
   listLock.lock();
   std::cout<<"listLocked1"<<std::endl;
-  if(size<PaolMats.size())
+  if(size<(int)PaolMats.size())
     {
     PaolMats[current] = inPM;
     current++;
-    current%=PaolMats.size();
+    current%=(int)PaolMats.size();
     size++;
     listLock.unlock();
     std::cout<<"listUNLocked1a"<<std::endl;
@@ -63,7 +63,7 @@ int PMList::push(paolMat* inPM)
 
 paolMat* PMList::pop()
 {
-  paolMat* toReturn;
+  //paolMat* toReturn;
   boost::mutex::scoped_lock lock(listLock);
   std::cout<<"listLocked2"<<std::endl;
   if(size>0)
@@ -103,13 +103,14 @@ Buffer::~Buffer()
 int Buffer::push(paolMat* inPM)
 {
   boost::mutex::scoped_lock lock(bufferLock);
-  for(int i=0; i < consumerLists.size(); i++)
+  for(int i=0; i < (int)consumerLists.size(); i++)
     {
       paolMat* heap;
       heap = new paolMat(inPM);
       consumerLists[i]->push(heap);
     };
   delete inPM;
+  return 0;
 };
 
 paolMat* Buffer::pop(int id)
@@ -120,7 +121,7 @@ paolMat* Buffer::pop(int id)
 void Buffer::stop()
 {
   boost::mutex::scoped_lock lock(bufferLock);
-  for(int i = 0; i <consumerLists.size(); i++)
+  for(int i = 0; i <(int)consumerLists.size(); i++)
     consumerLists[i]->stop();
 };
 

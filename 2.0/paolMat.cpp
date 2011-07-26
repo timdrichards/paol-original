@@ -32,7 +32,7 @@ paolMat::paolMat(paolMat* m)
 {
   
   src = m->src.clone();
-  for(int i = 0; i < m->planes.size(); i++)
+  for(int i = 0; i < (int)m->planes.size(); i++)
     {
       m->planes[i].copyTo(planes[i]);
     };
@@ -48,7 +48,7 @@ paolMat::paolMat(paolMat* m)
 paolMat::~paolMat()
 {
   src.~Mat();
-  for(int i = 0; i < planes.size(); i++)
+  for(int i = 0; i < (int)planes.size(); i++)
     {
       planes[i].~Mat();
     };

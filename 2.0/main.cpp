@@ -33,8 +33,16 @@ int main(int arc, char** argv)
 
   paolMat* newImg;
   newImg = new paolMat(img);
-  
-  Buffer aBuffer;
+
+  delete img;
+  std::cout<<newImg->name<<std::endl;
+  delete newImg;
+  return 0;
+
+};
+
+/*
+ Buffer aBuffer;
   aBuffer.registerConsumer();
   aBuffer.registerConsumer();
   std::cout<<"Debug 0.0"<<std::endl;
@@ -74,7 +82,4 @@ int main(int arc, char** argv)
   //imwrite("image2a.jpg", aBuffer.pop(1)->src);
   //imwrite("image2b.jpg", aBuffer.pop(1)->src);
 
-  
-  return 0;
-
-};
+  */
