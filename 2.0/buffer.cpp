@@ -35,7 +35,7 @@ PMList::PMList()
 PMList::~PMList()
 {
   /*
-  paolMat* img;
+  Ptr<paolMat> img;
   while(!PaolMats.empty())
     {
     
@@ -50,7 +50,7 @@ PMList::~PMList()
 */
 };
 
-int PMList::push(paolMat* inPM)
+int PMList::push(Ptr<paolMat> inPM)
 {
   listLock.lock();
   std::cout<<"listLocked1"<<std::endl;
@@ -74,9 +74,9 @@ int PMList::push(paolMat* inPM)
   return 0;
 };
 
-paolMat* PMList::pop()
+Ptr<paolMat> PMList::pop()
 {
-  //paolMat* toReturn;
+  //Ptr<paolMat> toReturn;
   boost::mutex::scoped_lock lock(listLock);
   std::cout<<"listLocked2"<<std::endl;
   if(size>0)
@@ -116,6 +116,11 @@ void PMList::print()
   cout<<endl<<endl;
 };
 
+//template<> inline void Ptr<PMList>::delete_obj()
+//{
+//  
+//};
+
 Buffer::Buffer()
 {
   
@@ -136,12 +141,12 @@ Buffer::~Buffer()
   //consumerLists.~vector();
 };
 
-int Buffer::push(paolMat* inPM)
+int Buffer::push(Ptr<paolMat> inPM)
 {
   boost::mutex::scoped_lock lock(bufferLock);
   for(int i=0; i < (int)consumerLists.size(); i++)
     {
-      paolMat* heap;
+      Ptr<paolMat> heap;
       heap = new paolMat(inPM);
       consumerLists[i]->push(heap);
     };
@@ -149,7 +154,7 @@ int Buffer::push(paolMat* inPM)
   return 0;
 };
 
-paolMat* Buffer::pop(int id)
+Ptr<paolMat> Buffer::pop(int id)
 {
   return consumerLists[id]->pop();
 };
@@ -168,7 +173,9 @@ int Buffer::registerConsumer()
   
   //PMList* aList;
   //aList = new PMList;
-  consumerLists.push_back(new PMList);
+  Ptr<PMList> aList;
+  aList = new PMList;
+  consumerLists.push_back(aList);
   return consumerLists.size()-1;
 
 };

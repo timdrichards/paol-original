@@ -52,7 +52,7 @@ Module::~Module()
 
 };
 
-paolMat* Module::pop()
+Ptr<paolMat> Module::pop()
 {
   if(consumer)
     return input->pop(myID);
@@ -60,7 +60,7 @@ paolMat* Module::pop()
     return NULL;
 };
 
-int Module::push(paolMat* m)
+int Module::push(Ptr<paolMat> m)
 {
   if(producer)
     {
@@ -92,7 +92,7 @@ void Module::nullRun()
   if(consumer&&producer)
     {
       std::cout<<"1a"<<std::endl;
-      paolMat* img;
+      Ptr<paolMat> img;
       img = pop();
       std::cout<<"1b"<<std::endl;
       while(img != NULL)
@@ -107,17 +107,17 @@ void Module::nullRun()
     }
   else if(consumer)
     {
-      paolMat* img;
+      Ptr<paolMat> img;
       img = pop();
       while(img != NULL)
 	{
-	  delete img;
+	  //delete img;
 	  img = pop();
 	};
     }
   else
     {
-      paolMat* img;
+      Ptr<paolMat> img;
       img = NULL;
       push(img);
       stop();
@@ -128,21 +128,21 @@ void ReadMod::ReadFromPattern(char* dir, char* firstImg)
 {
   int count, seconds, lastLoaded;
   char name[256];
-
+  char fullName[256];
   
-  boost::posix_time::millisec sleepTime(100);
+  boost::posix_time::millisec sleepTime(10);
 
   sscanf(firstImg,"image%06d-%10d.ppm",&count,&seconds);
   lastLoaded = seconds;
 
-  sprintf(name,"%simage%06d-%10d.ppm",dir,count,seconds);
-
-  paolMat* img;
+  sprintf(name,"image");
+  sprintf(fullName,"%simage%06d-%10d.ppm",dir,count,seconds);
+  Ptr<paolMat> img;
   img = new paolMat();
   while((seconds-lastLoaded)<20)
     {
       boost::this_thread::sleep(sleepTime);
-      img->read(name,count,seconds);
+      img->read(fullName,name,count,seconds);
       if(img->src.data)
 	{
 	  push(img);
@@ -151,8 +151,9 @@ void ReadMod::ReadFromPattern(char* dir, char* firstImg)
 	}
       else
 	{
-	  sprintf(name,"%simage%06d-%10d.ppm",dir,count+1,seconds);
-	  img->read(name,count,seconds);
+	  sprintf(name,"image");
+	  sprintf(fullName,"%simage%06d-%10d.ppm",dir,count,seconds);
+	  img->read(fullName,name,count,seconds);
 	  if(img->src.data)
 	    {
 	      push(img);
@@ -162,22 +163,23 @@ void ReadMod::ReadFromPattern(char* dir, char* firstImg)
 	  else
 	    seconds++;
 	}
-      sprintf(name,"%simage%06d-%10d.ppm",dir,count,seconds);
+      sprintf(name,"image");
+      sprintf(fullName,"%simage%06d-%10d.ppm",dir,count,seconds);
     };
   stop();
-  delete img;
+  //delete img;
 };
 
 void WriteMod::WriteMats()
 {
   std::cout<<"WriteMats a"<<std::endl;
-  paolMat* img;
+  Ptr<paolMat> img;
   img = pop();
   std::cout<<"WriteMats b"<<std::endl;
   while(img!=NULL)
     {
       img->write();
-      delete img;
+      //delete img;
       img = pop();
     };
 };
@@ -213,7 +215,7 @@ void ReadFromPattern::run()
 
   while((seconds-lastLoaded)<20)
     {
-      paolMat* img;
+      Ptr<paolMat> img;
       boost::this_thread::sleep(sleepTime);
       img = new paolMat();
       img->read(name,count,seconds);

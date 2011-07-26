@@ -18,8 +18,8 @@ class Module
   Module(Buffer* in, Buffer* out, int arraySize);
   ~Module();
 
-  paolMat* pop();
-  int push(paolMat* m);
+  Ptr<paolMat> pop();
+  int push(Ptr<paolMat> m);
   void stop();
   bool running();
   void nullRun();

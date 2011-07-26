@@ -28,7 +28,7 @@ paolMat::paolMat()
 
 };
 
-paolMat::paolMat(paolMat* m)
+paolMat::paolMat(Ptr<paolMat> m)
 {
   
   src = m->src.clone();
@@ -56,10 +56,10 @@ paolMat::~paolMat()
   prof.~Point();
 };
 
-void paolMat::read(std::string fileName,int countIn, int timeIn)
+void paolMat::read(std::string fullName, std::string fileName,int countIn, int timeIn)
 {
-  src = imread(fileName);
   name = fileName;
+  src = imread(fullName);
   count=countIn;
   time=timeIn;
 };
@@ -74,6 +74,10 @@ void paolMat::write()
       sprintf(temp,"%06d-%010d.png",count,time);
       longName.append(temp);
       cv::imwrite(longName, src);
+      std::cout<<longName<<std::endl;
+    }else
+    {
+      std::cout<<"   Tried to write a empty src"<<std::endl;
     };
 };
 
@@ -83,3 +87,10 @@ void paolMat::print()
 
 };
 
+/*namespace cv
+{
+  template<> inline void Ptr<paolMat>::delete_obj()
+  {
+    obj->~paolMat();
+  };
+  };*/

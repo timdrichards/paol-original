@@ -8,15 +8,15 @@ using namespace cv;
 class PMList
 {
  public:
-  std::vector<paolMat*> PaolMats;
+  std::vector< Ptr<paolMat> > PaolMats;
   int current;
   int oldest;
   int size;
   
   PMList();
   ~PMList();
-  int push(paolMat* inPM);
-  paolMat* pop();
+  int push(Ptr<paolMat> inPM);
+  Ptr<paolMat> pop();
   void stop();
   void print();
 
@@ -28,13 +28,13 @@ class PMList
 class Buffer
 {
  public:
-  std::vector<PMList*> consumerLists;
+  std::vector< Ptr<PMList> > consumerLists;
   
   Buffer();
   ~Buffer();
   
-  int push(paolMat* inPM);
-  paolMat* pop(int id);
+  int push(Ptr<paolMat> inPM);
+  Ptr<paolMat> pop(int id);
   void stop();
   int registerConsumer();
   void print();
