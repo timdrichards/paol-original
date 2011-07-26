@@ -19,6 +19,7 @@
 
 #include "paolMat.h"
 #include "buffer.h"
+#include "module.h"
 
 using namespace cv;
 
@@ -34,9 +35,30 @@ int main(int arc, char** argv)
   paolMat* newImg;
   newImg = new paolMat(img);
 
+
+  Buffer* testBuffer;
+  testBuffer = new Buffer;
+
+  Buffer* secondBuffer;
+  secondBuffer = new Buffer;
+
+  //testBuffer->registerConsumer();
+  
+
+  Module mod(testBuffer, secondBuffer, 150);
+
+  testBuffer->push(newImg);
+  testBuffer->push(img);
+
+  testBuffer->stop();
+  mod.nullRun();
+
   delete img;
-  std::cout<<newImg->name<<std::endl;
   delete newImg;
+  std::cout<<"Images gone"<<std::endl;
+  delete testBuffer;
+  delete secondBuffer;
+  std::cout<<"Buffer deleted"<<std::endl;
   return 0;
 
 };

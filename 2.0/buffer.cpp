@@ -34,7 +34,11 @@ PMList::PMList()
 
 PMList::~PMList()
 {
-  
+  while(!PaolMats.empty())
+    {
+      delete PaolMats.back();
+      PaolMats.pop_back();
+    }
 };
 
 int PMList::push(paolMat* inPM)
@@ -97,7 +101,15 @@ Buffer::Buffer()
 
 Buffer::~Buffer()
 {
-
+  
+  while (!consumerLists.empty())
+    {
+      delete consumerLists.back();
+      consumerLists.pop_back();
+    }
+  //for(int i = 0; i < (int)consumerLists.size();i++)
+  //  consumerLists[i]->~PMList();
+  //consumerLists.~vector();
 };
 
 int Buffer::push(paolMat* inPM)
@@ -109,7 +121,7 @@ int Buffer::push(paolMat* inPM)
       heap = new paolMat(inPM);
       consumerLists[i]->push(heap);
     };
-  delete inPM;
+  
   return 0;
 };
 
@@ -127,9 +139,12 @@ void Buffer::stop()
 
 int Buffer::registerConsumer()
 {
+  
   boost::mutex::scoped_lock lock(bufferLock);
-  PMList* aList;
-  aList = new PMList;
-  consumerLists.push_back(aList);
+  
+  //PMList* aList;
+  //aList = new PMList;
+  consumerLists.push_back(new PMList);
   return consumerLists.size()-1;
+
 };
