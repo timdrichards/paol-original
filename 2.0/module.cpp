@@ -64,9 +64,7 @@ int Module::push(Ptr<paolMat> m)
 {
   if(producer)
     {
-      std::cout<<"output->push"<<std::endl;
       output->push(m);
-      std::cout<<"output->push"<<std::endl;
     }else
     return 1;
   
@@ -91,18 +89,13 @@ void Module::nullRun()
 {
   if(consumer&&producer)
     {
-      std::cout<<"1a"<<std::endl;
       Ptr<paolMat> img;
       img = pop();
-      std::cout<<"1b"<<std::endl;
       while(img != NULL)
 	{
-	  std::cout<<"1ba"<<std::endl;
 	  push(img);
-	  std::cout<<"1c"<<std::endl;
 	  img = pop();
 	};
-      std::cout<<"stop"<<std::endl;
       stop();
     }
   else if(consumer)
@@ -172,10 +165,8 @@ void ReadMod::ReadFromPattern(char* dir, char* firstImg)
 
 void WriteMod::WriteMats()
 {
-  std::cout<<"WriteMats a"<<std::endl;
   Ptr<paolMat> img;
   img = pop();
-  std::cout<<"WriteMats b"<<std::endl;
   while(img!=NULL)
     {
       img->write();

@@ -20,11 +20,47 @@
 #include "paolMat.h"
 #include "buffer.h"
 #include "module.h"
+#include "whiteBoard.h"
+#include "genericProcess.h"
 
 using namespace cv;
 
 int main(int argc, char** argv)
 {
+  Ptr<paolMat> img;
+  Ptr<paolMat> bg;
+  
+  img = new paolMat;
+  img->read("test.ppm","test.ppm",1,1);
+
+  Buffer* readBuffer;
+  readBuffer = new Buffer;
+  Buffer* writeBuffer;
+  writeBuffer = new Buffer;
+
+  WriteMod writer(writeBuffer);
+  GenericProcess generic(readBuffer, writeBuffer);
+  ReadMod reader(readBuffer);
+
+  boost::thread writerThread(&WriteMod::WriteMats, &writer);
+  boost::thread genericThread(&GenericProcess::run, &generic);
+  boost::thread readerThread(&ReadMod::ReadFromPattern, &reader, argv[1], argv[2]);
+  
+  readerThread.join();
+  genericThread.join();
+  writerThread.join();
+
+  delete readBuffer;
+  delete writeBuffer;
+
+  return 0;
+
+};
+
+
+/////////////////////////////////////////////////////////////////////////
+/////PaolMat tests //////////////////////////////////////////////////////
+/*
   Ptr<paolMat> img;
   Ptr<paolMat> bg;
   Ptr<paolMat> improve;
@@ -64,7 +100,5 @@ int main(int argc, char** argv)
   sharpen=contrast->returnSharpen();
   sharpen->write();
   
-
-  return 0;
-
-};
+*/
+/////////////////////////////////////////////////////////

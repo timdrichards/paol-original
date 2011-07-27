@@ -53,7 +53,6 @@ PMList::~PMList()
 int PMList::push(Ptr<paolMat> inPM)
 {
   listLock.lock();
-  std::cout<<"listLocked1"<<std::endl;
   if(size<(int)PaolMats.size())
     {
     PaolMats[current] = inPM;
@@ -61,12 +60,10 @@ int PMList::push(Ptr<paolMat> inPM)
     current%=(int)PaolMats.size();
     size++;
     listLock.unlock();
-    std::cout<<"listUNLocked1a"<<std::endl;
     }
   else
     {
       listLock.unlock();
-      std::cout<<"listUNLocked1b"<<std::endl;
       boost::this_thread::sleep(boost::posix_time::seconds(1));
       push(inPM);
     };
@@ -78,7 +75,6 @@ Ptr<paolMat> PMList::pop()
 {
   //Ptr<paolMat> toReturn;
   boost::mutex::scoped_lock lock(listLock);
-  std::cout<<"listLocked2"<<std::endl;
   if(size>0)
     {
       oldest++;
@@ -88,7 +84,6 @@ Ptr<paolMat> PMList::pop()
   else if(producerRunning)
     {
       lock.unlock();
-      std::cout<<"listUNLocked2b"<<std::endl;
       boost::this_thread::sleep(boost::posix_time::seconds(1));
       return pop();
     };
@@ -115,11 +110,6 @@ void PMList::print()
     };
   cout<<endl<<endl;
 };
-
-//template<> inline void Ptr<PMList>::delete_obj()
-//{
-//  
-//};
 
 Buffer::Buffer()
 {
@@ -171,8 +161,6 @@ int Buffer::registerConsumer()
   
   boost::mutex::scoped_lock lock(bufferLock);
   
-  //PMList* aList;
-  //aList = new PMList;
   Ptr<PMList> aList;
   aList = new PMList;
   consumerLists.push_back(aList);
