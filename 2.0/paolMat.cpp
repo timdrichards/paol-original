@@ -25,6 +25,7 @@ paolMat::paolMat()
   name = "No Name";
   count = -1;
   time = -1;
+  difs = -1;
   prof = Point(0,0);
   camera = Point(0,0);
 
@@ -43,6 +44,7 @@ paolMat::paolMat(Ptr<paolMat> m)
   count = m->count;
   time = m->time;
   name = m->name;
+  difs = m->difs;
   camera.x = m->camera.x;
   camera.y = m->camera.y;
   prof.x = m->prof.x;
@@ -62,6 +64,7 @@ paolMat::paolMat(paolMat* m)
   count = m->count;
   time = m->time;
   name = m->name;
+  difs = m->difs;
   camera.x = m->camera.x;
   camera.y = m->camera.y;
   prof.x = m->prof.x;
@@ -92,6 +95,7 @@ void paolMat::copy(Ptr<paolMat> m)
   count = m->count;
   time = m->time;
   name = m->name;
+  difs = m->difs;
   camera.x = m->camera.x;
   camera.y = m->camera.y;
   prof.x = m->prof.x;
@@ -242,6 +246,7 @@ void paolMat::improveInputImg(Ptr<paolMat> background)
   background->split();
   split();
   int temp;
+  int thresh = 5;
   
   for (int channel = 0; channel <3; channel++)
     for (int y = 0; y < src.rows; y++)
@@ -251,8 +256,11 @@ void paolMat::improveInputImg(Ptr<paolMat> background)
 	
 	for (int x = 0; x < src.cols; x++)
 	  {
-	    if(backgroundPtr[x] == 0)
+	    temp=backgroundPtr[x]-thresh;
+	    if(temp <= 0)
 	      backgroundPtr[x] = 1;
+	    else
+	      backgroundPtr[x] = temp;
 	    temp  = (inputPtr[x] * 255) / backgroundPtr[x];
 	    if(temp > 255)
 	      inputPtr[x] = 255;
@@ -439,4 +447,74 @@ void paolMat::shrink(){
   copy(img);
 };
 
+Ptr<paolMat> paolMat::returnDifference(Ptr<paolMat> img, int thresh, int size, int mask)
+{
+  bool diff;
+  int numDiff;
+  int surroundThresh = 50;
+  int dist;
+  bool first;
+  int cenx;
+  int ceny;
+  Ptr<paolMat> diffImg;
+  diffImg = new paolMat(this);
+  
+  diffImg->src = Scalar(0,0,0);
+  diffImg->split();
 
+  split();
+  img->split();
+
+  //img->at<double>(x,y,c)
+
+  numDiff = 0;
+  first = true;
+  dist = 0;
+  for (int y = size; y < (src.rows-(size+1+mask)); y++)
+    {	
+      for (int x = size; x < (src.cols-(size+1)); x++)
+	{
+	  diff = false;
+	  for(int i = 0; i < 3; i++)
+	    {
+	      if(abs((double)img->src.at<Vec3b>(y,x)[i]-(double)src.at<Vec3b>(y,x)[i])>thresh)
+		diff = true;
+	    };
+	  if(diff)
+	    {
+	      diffImg->src.at<Vec3b>(y,x)[1]=255;
+	      for(int yy = y-size; yy < y+size; yy++)
+		{
+		  for(int xx = x-size; xx < x+size; xx++)
+		    {
+		      for(int ii = 0; ii < 3; ii++)
+			{
+			  if(abs(((double)(src.at<Vec3b>(y,x)[ii]))-(((double)(src.at<Vec3b>((x+1),y)[ii])))>surroundThresh))
+			    diff = false;
+			  if(abs(((double)(src.at<Vec3b>(y,x)[ii]))-(((double)(src.at<Vec3b>(x,(y+1))[ii])))>surroundThresh))
+			    diff = false;
+			};
+		    };
+		};
+	    };
+	  if(diff)
+	    {
+	      numDiff++;
+	      diffImg->src.at<Vec3b>(y,x)[0]=255;
+	      if(first)
+		{
+		  first = false;
+		  cenx = x;
+		  ceny = y;
+		};
+	      dist+=sqrt(((x-cenx)*(x-cenx))+((y-ceny)*(y-ceny)));
+	    };
+	};
+    };
+  diffImg->name = "diff";
+  if((dist<10000)&&(mask>0))
+    diffImg->difs = 0;
+  else
+    diffImg->difs = numDiff;
+  return diffImg;
+};

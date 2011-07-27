@@ -11,6 +11,7 @@ class paolMat
   cv::vector<cv::Mat> planes;
   int count;
   int time;
+  int difs;
   std::string name;
   cv::Point camera;
   cv::Point prof;
@@ -39,6 +40,9 @@ class paolMat
   Ptr<paolMat> returnSharpen();
   void shrink();
   Ptr<paolMat> returnShrink();
+  Ptr<paolMat> returnDifference(Ptr<paolMat> img, int thresh, int size, int mask);
+  
+  
 };
 
 

@@ -24,3 +24,48 @@
 
 using namespace cv;
 
+
+void WhiteBoardProcess::run()
+{
+  Ptr<paolMat> img;
+  Ptr<paolMat> bgImg;
+  Ptr<paolMat> lastImg;
+  Ptr<paolMat> difference;
+  img = pop();
+  if(img != NULL){
+    lastImg = new paolMat(img);
+    bgImg = lastImg->returnCreateBackgroundImg(25);
+    lastImg->improveInputImg(bgImg);
+    lastImg->removeProf();
+  };
+  while(img != NULL)
+    {
+      bgImg = img->returnCreateBackgroundImg(25);
+      img->improveInputImg(bgImg);
+#ifdef _debug_
+      bgImg->write();
+      img->write();
+#endif
+      img->removeProf();
+#ifdef _debug_
+      img->write();
+#endif
+      difference=lastImg->returnDifference(img,20,3,0);
+      lastImg->copy(img);
+#ifdef _debug_
+      difference->write();
+#endif
+      img->createContrast();
+#ifdef _debug_
+      img->write();
+#endif
+      img->sharpen();
+#ifdef _debug_
+      img->write();
+#endif
+      
+      push(img);
+      img = pop();
+    };
+  stop();
+};

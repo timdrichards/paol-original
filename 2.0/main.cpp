@@ -39,15 +39,15 @@ int main(int argc, char** argv)
   writeBuffer = new Buffer;
 
   WriteMod writer(writeBuffer);
-  GenericProcess generic(readBuffer, writeBuffer);
+  WhiteBoardProcess wbProcesor(readBuffer, writeBuffer);
   ReadMod reader(readBuffer);
 
   boost::thread writerThread(&WriteMod::WriteMats, &writer);
-  boost::thread genericThread(&GenericProcess::run, &generic);
+  boost::thread wbProcesorThread(&WhiteBoardProcess::run, &wbProcesor);
   boost::thread readerThread(&ReadMod::ReadFromPattern, &reader, argv[1], argv[2]);
   
   readerThread.join();
-  genericThread.join();
+  wbProcesorThread.join();
   writerThread.join();
 
   delete readBuffer;
