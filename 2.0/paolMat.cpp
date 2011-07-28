@@ -500,7 +500,8 @@ Ptr<paolMat> paolMat::returnDifference(Ptr<paolMat> img, int thresh, int size, i
 	  if(diff)
 	    {
 	      numDiff++;
-	      diffImg->src.at<Vec3b>(y,x)[0]=255;
+	      diffImg->src.at<Vec3b>(y,x)[1]=0;
+	      diffImg->src.at<Vec3b>(y,x)[2]=255;
 	      if(first)
 		{
 		  first = false;
