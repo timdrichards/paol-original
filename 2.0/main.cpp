@@ -39,7 +39,7 @@ int main(int argc, char** argv)
   writeBuffer = new Buffer;
 
   WriteMod writer(writeBuffer);
-  GenericProcess pointer(readBuffer, writeBuffer);
+  WhiteBoardProcess wbProcesor(readBuffer, writeBuffer);
   ReadMod reader(readBuffer);
 
   boost::thread writerThread(&WriteMod::WriteMats, &writer);

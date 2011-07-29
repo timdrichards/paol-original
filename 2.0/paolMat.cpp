@@ -35,12 +35,7 @@ paolMat::paolMat(Ptr<paolMat> m)
 {
   
   src = m->src.clone();
-  if((int)m->planes.size() > (int)planes.size())
-    split();
-  for(int i = 0; i < (int)m->planes.size(); i++)
-    {
-      m->planes[i].copyTo(planes[i]);
-    };
+  mask = m->mask.clone();
   count = m->count;
   time = m->time;
   name = m->name;
@@ -55,12 +50,7 @@ paolMat::paolMat(paolMat* m)
 {
   
   src = m->src.clone();
-  if((int)m->planes.size() > (int)planes.size())
-    split();
-  for(int i = 0; i < (int)m->planes.size(); i++)
-    {
-      m->planes[i].copyTo(planes[i]);
-    };
+  mask = m->mask.clone();
   count = m->count;
   time = m->time;
   name = m->name;
@@ -74,10 +64,7 @@ paolMat::paolMat(paolMat* m)
 paolMat::~paolMat()
 {
   src.~Mat();
-  for(int i = 0; i < (int)planes.size(); i++)
-    {
-      planes[i].~Mat();
-    };
+  mask.~Mat();
   camera.~Point();
   prof.~Point();
 };
@@ -86,12 +73,7 @@ void paolMat::copy(Ptr<paolMat> m)
 {
   
   src = m->src.clone();
-  if((int)m->planes.size() > (int)planes.size())
-    split();
-  for(int i = 0; i < (int)m->planes.size(); i++)
-    {
-      m->planes[i].copyTo(planes[i]);
-    };
+  mask = m->mask.clone();
   count = m->count;
   time = m->time;
   name = m->name;
@@ -106,6 +88,7 @@ void paolMat::read(std::string fullName, std::string fileName,int countIn, int t
 {
   name = fileName;
   src = imread(fullName);
+  mask = Mat::zeros(src.size(), src.type());
   count=countIn;
   time=timeIn;
 };
@@ -120,10 +103,28 @@ void paolMat::write()
       sprintf(temp,"%06d-%010d.png",count,time);
       longName.append(temp);
       cv::imwrite(longName, src);
-      //std::cout<<longName<<std::endl;
+      std::cout<<longName<<std::endl;
     }else
     {
       std::cout<<"   Tried to write a empty src"<<std::endl;
+    };
+};
+
+void paolMat::writeMask()
+{
+  if(!src.empty())
+    {
+      char temp[256];
+      std::string longName = "outMedia/";
+      longName.append("Mask-");
+      longName.append(name);
+      sprintf(temp,"%06d-%010d.png",count,time);
+      longName.append(temp);
+      cv::imwrite(longName, mask);
+      std::cout<<longName<<std::endl;
+    }else
+    {
+      std::cout<<"   Tried to write a empty mask"<<std::endl;
     };
 };
 
@@ -135,95 +136,56 @@ void paolMat::print()
 
 void paolMat::edges()
 {
-  split();
-  cv::Mat temp(src);
-  temp = Scalar(0,0,0);
-  cv::vector<cv::Mat> tempPlanes;
-  cv::split(temp, tempPlanes);
+  cv::Mat temp;
+  temp = src.clone();
   int total;
 
   for (int y = 1; y < src.rows-1; y++)
     {
-      uchar* sRT = planes[2].ptr<uchar>(y-1);
-      uchar* sGT = planes[1].ptr<uchar>(y-1);
-      uchar* sBT = planes[0].ptr<uchar>(y-1);
-
-      uchar* sRM = planes[2].ptr<uchar>(y);
-      uchar* sGM = planes[1].ptr<uchar>(y);
-      uchar* sBM = planes[0].ptr<uchar>(y);
-
-      uchar* sRB = planes[2].ptr<uchar>(y+1);
-      uchar* sGB = planes[1].ptr<uchar>(y+1);
-      uchar* sBB = planes[0].ptr<uchar>(y+1);
-
-      uchar* tR = tempPlanes[2].ptr<uchar>(y);
-      uchar* tG = tempPlanes[1].ptr<uchar>(y);
-      uchar* tB = tempPlanes[0].ptr<uchar>(y);
-
       for (int x = 1; x < src.cols-1; x++)
 	{
-	  total=-2*sRT[x-1]-sRT[x]-sRM[x-1];
-	  total+=sRM[x+1]+sRB[x]+2*sRB[x+1];
-
-	  total+=-2*sGT[x-1]-sGT[x]-sGM[x-1];
-	  total+=sGM[x+1]+sGB[x]+2*sGB[x+1];
-
-	  total+=-2*sBT[x-1]-sBT[x]-sBM[x-1];
-	  total+=sBM[x+1]+sBB[x]+2*sBB[x+1];
+	  for(int i = 0; i <3; i++)
+	    {
+	      total+= -2*temp.at<Vec3b>((y-1),(x-1))[i];
+	      total+= -1*temp.at<Vec3b>((y-1),x)[i];
+	      total+= -1*temp.at<Vec3b>(y,(x-1))[i];
+	      total+= 2*temp.at<Vec3b>((y+1),(x+1))[i];
+	      total+= 1*temp.at<Vec3b>((y+1),x)[i];
+	      total+= 1*temp.at<Vec3b>(y,(x+1))[i];
+	      
+	    };
 
 	  total=abs(total);
 	  if(total>128)
-	    tR[x]=255;
+	    src.at<Vec3b>(y,x)[2]=255;
 	  if(total>512)
-	    tG[x]=255;
+	    src.at<Vec3b>(y,x)[1]=255;
 	  if(total>768)
-	    tB[x]=255;
+	    src.at<Vec3b>(y,x)[0]=255;
 	};
     };
-  cv::merge(tempPlanes, temp);
-  temp.copyTo(src);
 };
 
 //This is a slow method for testing, not production//
 void paolMat::invert()
 {
-  //cv::vector<cv::Mat> planes;
-  //cv::split(src, planes);
-  split();
   int temp;
   
   for (int y = 0; y < src.rows; y++)
     {
-      uchar* red = planes[0].ptr<uchar>(y);
-      uchar* green = planes[1].ptr<uchar>(y);
-      uchar* blue = planes[2].ptr<uchar>(y);
       for (int x = 0; x < src.cols; x++)
 	{
-	  temp=red[x]+green[x]+blue[x];
+	  temp = src.at<Vec3b>(y,x)[0];
+	  temp += src.at<Vec3b>(y,x)[1];
+	  temp += src.at<Vec3b>(y,x)[2];
+	  
 	  if (temp>40)
 	    temp=255;
-	  red[x]=temp;
-	  blue[x]=temp;
-	  green[x]=temp;
-	  /*	  if (temp>30)
-	    green[x]=255;
-	  else
-	    green[x]=0;
-	  */
+	  src.at<Vec3b>(y,x)[0]=temp;
+	  src.at<Vec3b>(y,x)[1]=temp;
+	  src.at<Vec3b>(y,x)[2]=temp;	  
 	};
-      
     };
-  
-  //cv::merge(planes, src);
-  merge();
-};
-
-void paolMat::merge()
-{
-  if(planes.size() > 0)
-    cv::merge(planes, src);
-  else
-    std::cout<<"Nothing to merge"<<std::endl;
 };
 
 void paolMat::createBackgroundImg(int kernalSize)
@@ -243,34 +205,29 @@ Ptr<paolMat> paolMat::returnCreateBackgroundImg(int kernalSize)
 
 void paolMat::improveInputImg(Ptr<paolMat> background)
 {
-  background->split();
-  split();
   int temp;
   int thresh = 5;
   
-  for (int channel = 0; channel <3; channel++)
-    for (int y = 0; y < src.rows; y++)
-      {
-	uchar* inputPtr = planes[channel].ptr<uchar>(y);
-	uchar* backgroundPtr = background->planes[channel].ptr<uchar>(y);
-	
-	for (int x = 0; x < src.cols; x++)
-	  {
-	    temp=backgroundPtr[x]-thresh;
-	    if(temp <= 0)
-	      backgroundPtr[x] = 1;
-	    else
-	      backgroundPtr[x] = temp;
-	    temp  = (inputPtr[x] * 255) / backgroundPtr[x];
-	    if(temp > 255)
-	      inputPtr[x] = 255;
-	    else
-	      inputPtr[x] = temp;
-	  };
-
-      };
   
-  merge();
+  for (int y = 0; y < src.rows; y++)
+    {
+      for (int x = 0; x < src.cols; x++)
+	{
+	  for (int channel = 0; channel <3; channel++)
+	    {
+	      temp=background->src.at<Vec3b>(y,x)[channel]-thresh;
+	      if(temp <= 0)
+		temp = 1;
+	      temp  = (src.at<Vec3b>(y,x)[channel] * 255) / temp;
+	      if(temp > 255)
+		src.at<Vec3b>(y,x)[channel] = 255;
+	      else
+		src.at<Vec3b>(y,x)[channel] = temp;
+	    };
+	};
+      
+    };
+  
   name = "improvedImage";
 };
 
@@ -295,50 +252,43 @@ Ptr<paolMat> paolMat::returnRemoveProf()
 };
 
 void paolMat::createContrast(){
-  split();
-  //int thresh;
   int temp;
   int ave;
   for (int y = 0; y < src.rows; y++)
     {
-      uchar* RInPtr = planes[0].ptr<uchar>(y);		
-      uchar* BInPtr = planes[1].ptr<uchar>(y);	
-      uchar* GInPtr = planes[2].ptr<uchar>(y);
-      
       for (int x = 0; x < src.cols; x++)
 	{
-	  ave = (RInPtr[x] + BInPtr[x] + GInPtr[x]) /3;
-	  if(ave <240 || ((RInPtr[x] < 220) || (BInPtr[x] < 220) || (GInPtr[x] < 220)))
+	  ave = (src.at<Vec3b>(y,x)[0] + src.at<Vec3b>(y,x)[1] + src.at<Vec3b>(y,x)[2]) /3;
+	  if(ave <240 ||
+	     ((src.at<Vec3b>(y,x)[0] < 220) ||
+	      (src.at<Vec3b>(y,x)[1] < 220) ||
+	      (src.at<Vec3b>(y,x)[2] < 220)))
 	    {
-	      temp = RInPtr[x]-(255-RInPtr[x]);
+	      temp = src.at<Vec3b>(y,x)[0]-(255-src.at<Vec3b>(y,x)[0]);
 	      if (temp < 0)
 		temp = 0;
-	      //else if (temp > 188)
-	      //  temp = 255;
-	      RInPtr[x] = temp;
 	      
-	      temp = BInPtr[x]-(255-BInPtr[x]);
-	      if (temp < 0)
-		temp = 0;
-	      //else if (temp > 188)
-	      //  temp = 255;
-	      BInPtr[x] = temp;
+	      src.at<Vec3b>(y,x)[0] = temp;
 	      
-	      temp = GInPtr[x]-(255-GInPtr[x]);
+	      temp = src.at<Vec3b>(y,x)[1]-(255-src.at<Vec3b>(y,x)[1]);
 	      if (temp < 0)
 		temp = 0;
-	      //else if (temp > 188)
-	      //  temp = 255;
-	      GInPtr[x] = temp;  
+	      
+	      src.at<Vec3b>(y,x)[1] = temp;
+	      
+	      temp = src.at<Vec3b>(y,x)[2]-(255-src.at<Vec3b>(y,x)[2]);
+	      if (temp < 0)
+		temp = 0;
+	      
+	      src.at<Vec3b>(y,x)[2] = temp;  
 	    }else
 	    {
-	      RInPtr[x] = 255;
-	      GInPtr[x] = 255;
-	      BInPtr[x] = 255;
+	      src.at<Vec3b>(y,x)[0] = 255;
+	      src.at<Vec3b>(y,x)[2] = 255;
+	      src.at<Vec3b>(y,x)[1] = 255;
 	    };
 	};
     };
-  merge();
   name = "ContrastImg";
 };
 
@@ -355,38 +305,37 @@ Ptr<paolMat> paolMat::returnSharpen()
   
   Ptr<paolMat> img;
   img = new paolMat(this);
-  img->split();
-  
-  split();
-  
+    
   int v, temp;
   double kSharp;
   kSharp = 0.75;
   v =2;
   
-  for (int channel = 0; channel <3; channel++)
-    for (int y = v; y < (src.rows -v); y++)
-      {
-	uchar* topOldPtr = planes[channel].ptr<uchar>(y-v);
-	uchar* middleOldPtr = planes[channel].ptr<uchar>(y);
-	uchar* bottomOldPtr = planes[channel].ptr<uchar>(y+v);
-	uchar* newPtr = img->planes[channel].ptr<uchar>(y);
-	for (int x = v; x < (src.cols -v); x++)
-	  {
-	    temp = (int)(((double)middleOldPtr[x] - ( (kSharp/4) * (double)(topOldPtr[x]+middleOldPtr[x-v]+middleOldPtr[x+v]+bottomOldPtr[x])))/(1.0-kSharp));
-	    if(temp > 255)
-	      newPtr[x] = 255;
-	    else if(temp < 0)
-	      newPtr[x] = 0;
-	    else
-	      newPtr[x] = temp;	    
-	  };
-
-      };
-
-  img->merge();
+  
+  for (int y = v; y < (src.rows -v); y++)
+    {
+      for (int x = v; x < (src.cols -v); x++)
+	{
+	  for (int channel = 0; channel <3; channel++)
+	    {
+	      temp = (int)(((double)src.at<Vec3b>(y,x)[channel] -
+			    ( (kSharp/4) * (double)(src.at<Vec3b>((y-v),x)[channel] +
+						    src.at<Vec3b>(y,(x-v))[channel] +
+						    src.at<Vec3b>(y,(x+v))[channel] +
+						    src.at<Vec3b>((y+v),x)[channel] )))/
+			   (1.0-kSharp));
+	      
+	      if(temp > 255)
+		img->src.at<Vec3b>(y,x)[channel] = 255;
+	      else if(temp < 0)
+		img->src.at<Vec3b>(y,x)[channel] = 0;
+	      else
+		img->src.at<Vec3b>(y,x)[channel] = temp;	    
+	    };
+	  
+	};
+    };
   img->name = "Sharp";
-  //img->sharpen();
   return img;
 };
 
@@ -402,41 +351,31 @@ Ptr<paolMat> paolMat::returnShrink()
   Ptr<paolMat> img;
   img = new paolMat(this);
   
-  img->src = Scalar(0,0,0);
-  img->split();
-  split();
+  img->src = Scalar(255,255,255);
+  
   int total;
   
-  for (int channel = 0; channel <3; channel++)
-    for (int y = 1; y < (src.rows -1); y++)
-      {
-	uchar* topOldPtr = planes[channel].ptr<uchar>(y-1);
-	uchar* middleOldPtr = planes[channel].ptr<uchar>(y);
-	uchar* bottomOldPtr = planes[channel].ptr<uchar>(y+1);
-	uchar* newPtr = img->planes[channel].ptr<uchar>(y);
-	
-	for (int x = 1; x < (src.cols -1); x++)
+  
+  for (int y = 1; y < (src.rows -1); y++)
+    for (int x = 1; x < (src.cols -1); x++)
+      for (int channel = 0; channel <3; channel++)
+	if(src.at<Vec3b>(y,x)[channel]<255)
 	  {
-	    if(middleOldPtr[x]>0)
-	      {
-		total = topOldPtr[x-1];
-		total += topOldPtr[x];
-		total += topOldPtr[x+1];
-		
-		total += middleOldPtr[x-1];
-		total += middleOldPtr[x+1];
-		
-		total += bottomOldPtr[x-1];
-		total += bottomOldPtr[x];
-		total += bottomOldPtr[x+1];
-		
-		if(total>=1530)
-		  newPtr[x] = 255; 
-	      };
+	    
+	    total = src.at<Vec3b>((y-1),(x-1))[channel];
+	    total += src.at<Vec3b>((y-1),x)[channel];
+	    total += src.at<Vec3b>((y-1),(x+1))[channel];
+	    
+	    total += src.at<Vec3b>(y,(x-1))[channel];
+	    total += src.at<Vec3b>(y,(x+1))[channel];
+	    
+	    total += src.at<Vec3b>((y+1),(x-1))[channel];
+	    total += src.at<Vec3b>((y+1),x)[channel];
+	    total += src.at<Vec3b>((y+1),(x+1))[channel];
+	    
+	    if(total>=1530)
+	      img->src.at<Vec3b>(y,x)[channel] = 255; 
 	  };
-	
-      };
-  img->merge();
   img->name = "Shrink";
   return img;
 };
@@ -447,7 +386,7 @@ void paolMat::shrink(){
   copy(img);
 };
 
-Ptr<paolMat> paolMat::returnDifference(Ptr<paolMat> img, int thresh, int size, int mask)
+void paolMat::difference(Ptr<paolMat> img, int thresh, int size, int maskBottom)
 {
   bool diff;
   int numDiff;
@@ -456,21 +395,13 @@ Ptr<paolMat> paolMat::returnDifference(Ptr<paolMat> img, int thresh, int size, i
   bool first;
   int cenx;
   int ceny;
-  Ptr<paolMat> diffImg;
-  diffImg = new paolMat(this);
+    
+  mask = Scalar(0,0,0);
   
-  diffImg->src = Scalar(0,0,0);
-  diffImg->split();
-
-  split();
-  img->split();
-
-  //img->at<double>(x,y,c)
-
   numDiff = 0;
   first = true;
   dist = 0;
-  for (int y = size; y < (src.rows-(size+1+mask)); y++)
+  for (int y = size; y < (src.rows-(size+1+maskBottom)); y++)
     {	
       for (int x = size; x < (src.cols-(size+1)); x++)
 	{
@@ -482,16 +413,16 @@ Ptr<paolMat> paolMat::returnDifference(Ptr<paolMat> img, int thresh, int size, i
 	    };
 	  if(diff)
 	    {
-	      diffImg->src.at<Vec3b>(y,x)[1]=255;
+	      mask.at<Vec3b>(y,x)[1]=255;
 	      for(int yy = y-size; yy < y+size; yy++)
 		{
 		  for(int xx = x-size; xx < x+size; xx++)
 		    {
 		      for(int ii = 0; ii < 3; ii++)
 			{
-			  if(abs(((double)(src.at<Vec3b>(y,x)[ii]))-(((double)(src.at<Vec3b>((x+1),y)[ii])))>surroundThresh))
+			  if(abs(((double)(img->src.at<Vec3b>(y,x)[ii]))-(((double)(img->src.at<Vec3b>((x+1),y)[ii])))>surroundThresh))
 			    diff = false;
-			  if(abs(((double)(src.at<Vec3b>(y,x)[ii]))-(((double)(src.at<Vec3b>(x,(y+1))[ii])))>surroundThresh))
+			  if(abs(((double)(img->src.at<Vec3b>(y,x)[ii]))-(((double)(img->src.at<Vec3b>(x,(y+1))[ii])))>surroundThresh))
 			    diff = false;
 			};
 		    };
@@ -500,8 +431,8 @@ Ptr<paolMat> paolMat::returnDifference(Ptr<paolMat> img, int thresh, int size, i
 	  if(diff)
 	    {
 	      numDiff++;
-	      diffImg->src.at<Vec3b>(y,x)[1]=0;
-	      diffImg->src.at<Vec3b>(y,x)[2]=255;
+	      mask.at<Vec3b>(y,x)[1]=0;
+	      mask.at<Vec3b>(y,x)[2]=255;
 	      if(first)
 		{
 		  first = false;
@@ -512,10 +443,9 @@ Ptr<paolMat> paolMat::returnDifference(Ptr<paolMat> img, int thresh, int size, i
 	    };
 	};
     };
-  diffImg->name = "diff";
-  if((dist<10000)&&(mask>0))
-    diffImg->difs = 0;
+  
+  if((dist<10000)&&(maskBottom>0))
+    difs = 0;
   else
-    diffImg->difs = numDiff;
-  return diffImg;
+    difs = numDiff;
 };

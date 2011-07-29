@@ -8,7 +8,7 @@ class paolMat
 {
  public:
   cv::Mat src;
-  cv::vector<cv::Mat> planes;
+  cv::Mat mask;
   int count;
   int time;
   int difs;
@@ -23,11 +23,10 @@ class paolMat
   void copy(Ptr<paolMat> m);
   void read(std::string fullName, std::string fileName, int countIn, int timeIn);
   void write();
+  void writeMask();
   void print();
   void edges();
   void invert();
-  void split(){cv::split(src, planes);};
-  void merge();
   void createBackgroundImg(int kernalSize);
   Ptr<paolMat> returnCreateBackgroundImg(int kernalSize);
   void improveInputImg(Ptr<paolMat> background);
@@ -40,7 +39,7 @@ class paolMat
   Ptr<paolMat> returnSharpen();
   void shrink();
   Ptr<paolMat> returnShrink();
-  Ptr<paolMat> returnDifference(Ptr<paolMat> img, int thresh, int size, int mask);
+  void difference(Ptr<paolMat> img, int thresh, int size, int maskBottom);
   
   
 };

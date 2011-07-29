@@ -50,10 +50,10 @@ void WhiteBoardProcess::run()
 #ifdef _debug_
       img->write();
 #endif
-      difference=lastImg->returnDifference(img,50,5,0);
+      img->difference(lastImg,50,5,0);
       lastImg->copy(img);
 #ifdef _debug_
-      difference->write();
+      img->writeMask();
 #endif
       img->createContrast();
 #ifdef _debug_
