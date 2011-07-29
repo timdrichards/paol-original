@@ -9,6 +9,8 @@ class GenericProcess : public Module
  public:
  GenericProcess(Buffer* in, Buffer* out) : Module(in,out, 150){};
   void run();
+  void speedtest1();
+  void speedtest2();
 
 };
 

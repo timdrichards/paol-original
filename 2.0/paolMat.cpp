@@ -120,7 +120,7 @@ void paolMat::write()
       sprintf(temp,"%06d-%010d.png",count,time);
       longName.append(temp);
       cv::imwrite(longName, src);
-      std::cout<<longName<<std::endl;
+      //std::cout<<longName<<std::endl;
     }else
     {
       std::cout<<"   Tried to write a empty src"<<std::endl;
