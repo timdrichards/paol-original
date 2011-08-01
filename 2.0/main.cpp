@@ -22,11 +22,15 @@
 #include "module.h"
 #include "whiteBoard.h"
 #include "genericProcess.h"
+#include "locateSpeaker.h"
+#include "ac.h"
 
 using namespace cv;
 
 int main(int argc, char** argv)
 {
+  argc++;
+  argc--;
   Ptr<paolMat> img;
   Ptr<paolMat> bg;
   
@@ -35,22 +39,35 @@ int main(int argc, char** argv)
 
   Buffer* readBuffer;
   readBuffer = new Buffer;
+  Buffer* wbBuffer;
+  wbBuffer = new Buffer;
   Buffer* writeBuffer;
   writeBuffer = new Buffer;
 
   WriteMod writer(writeBuffer);
-  WhiteBoardProcess wbProcesor(readBuffer, writeBuffer);
+  WhiteBoardProcess wbproc(wbBuffer, writeBuffer);
+  //AC acMod(wbBuffer, writeBuffer);
+  LocateSpeaker speaker(readBuffer, wbBuffer);
+  //GenericProcess gen(readBuffer, writeBuffer);
   ReadMod reader(readBuffer);
-
+  
+  
   boost::thread writerThread(&WriteMod::WriteMats, &writer);
-  boost::thread wbProcesorThread(&WhiteBoardProcess::run, &wbProcesor);
+  boost::thread wbprocThread(&WhiteBoardProcess::run, &wbproc);
+  //boost::thread acModThread(&AC::run, &acMod);
+  boost::thread speakerThread(&LocateSpeaker::run, &speaker);
+  //boost::thread genThread(&GenericProcess::run, &gen);
   boost::thread readerThread(&ReadMod::ReadFromPattern, &reader, argv[1], argv[2]);
   
   readerThread.join();
-  wbProcesorThread.join();
+  //genThread.join();
+  speakerThread.join();
+  wbprocThread.join();
+  //acModThread.join();
   writerThread.join();
 
   delete readBuffer;
+  delete wbBuffer;
   delete writeBuffer;
 
   return 0;

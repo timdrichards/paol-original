@@ -29,42 +29,54 @@ void WhiteBoardProcess::run()
 {
   Ptr<paolMat> img;
   Ptr<paolMat> bgImg;
-  Ptr<paolMat> lastImg;
-  Ptr<paolMat> difference;
+  Ptr<paolMat> oldCleanImg;
+  Ptr<paolMat> oldOrigImg;
+  Ptr<paolMat> oldTemp;
+  std::vector< Ptr<paolMat> > frames;
   img = pop();
   if(img != NULL){
-    lastImg = new paolMat(img);
-    bgImg = lastImg->returnCreateBackgroundImg(25);
-    lastImg->improveInputImg(bgImg);
-    lastImg->removeProf();
+    oldCleanImg = new paolMat(img);
+    oldTemp = new paolMat(img);
+    oldOrigImg = new paolMat(img);
+    //oldCleanImg->src = Mat(img->src.size(), img->src.type(), Scalar(255,255,255));
+    bgImg = oldCleanImg->returnCreateBackgroundImg(25);
+    oldCleanImg->improveInputImg(bgImg);
   };
   while(img != NULL)
     {
-      bgImg = img->returnCreateBackgroundImg(25);
-      img->improveInputImg(bgImg);
+      if(img->prof.x != -1 && img->prof.y != -1)
+	{
+	  oldTemp->copy(img);
+	  img->removeProf(oldOrigImg);
 #ifdef _debug_
-      bgImg->write();
-      img->write();
+	  //img->decimateMask();
+	  img->connected();
+	  //img->writeMask();
+	  //img->write();
 #endif
-      img->removeProf();
+	  bgImg = img->returnCreateBackgroundImg(25);
+	  img->improveInputImg(bgImg);
 #ifdef _debug_
-      img->write();
+	  //bgImg->write();
+	  //img->write();
 #endif
-      img->difference(lastImg,50,5,0);
-      lastImg->copy(img);
+	  img->difference(oldCleanImg, 50, 0, 0);
+	  if(img->difs > 30)
+	    {
+	      oldOrigImg->copy(oldTemp);
+	      oldCleanImg->copy(img);
+	      img->createContrast();
 #ifdef _debug_
-      img->writeMask();
+	      //img->write();
 #endif
-      img->createContrast();
+	      img->sharpen();
 #ifdef _debug_
-      img->write();
+	      //img->write();
 #endif
-      img->sharpen();
-#ifdef _debug_
-      img->write();
-#endif
-      
-      push(img);
+	      
+	      push(img);
+	    };
+	};
       img = pop();
     };
   stop();

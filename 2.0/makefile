@@ -6,7 +6,7 @@ FLAGS=`pkg-config --cflags --libs opencv` \
 	-lboost_regex \
 	-g
 
-OBJ1=paolMat.cpp buffer.cpp module.cpp whiteBoard.cpp genericProcess.cpp main.cpp #consumer.o producer.o writeToDisk.o \
+OBJ1=paolMat.cpp buffer.cpp module.cpp whiteBoard.cpp genericProcess.cpp locateSpeaker.cpp ac.cpp main.cpp #consumer.o producer.o writeToDisk.o \
 	process.o whiteBoardProcess.o gige.o locateProf.o main.o
 
 all: everything

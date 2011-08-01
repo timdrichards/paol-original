@@ -26,6 +26,8 @@ using namespace cv;
 
 Module::Module(Buffer* in, Buffer* out, int arraySize)
 {
+  arraySize++;
+  arraySize--;
   if(in != NULL)
     {
       input = in;
