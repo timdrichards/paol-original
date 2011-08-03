@@ -20,7 +20,7 @@
 #include "module.h"
 #include "whiteBoard.h"
 
-#define _debug_
+//#define _debug_
 
 using namespace cv;
 
@@ -44,7 +44,7 @@ void WhiteBoardProcess::run()
   };
   while(img != NULL)
     {
-      if(img->prof.x != -1 && img->prof.y != -1)
+      if(img->difs > 2000)
 	{
 	  
 	  //img->connected();

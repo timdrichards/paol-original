@@ -455,6 +455,7 @@ void paolMat::difference(Ptr<paolMat> img, int thresh, int size, int maskBottom)
 	    };
 	  if(diff)
 	    {
+	      std::cout<<"First if dif size: "<<size<<std::endl;
 	      //mask.at<Vec3b>(y,x)[1]=255;
 	      for(int yy = y-size; yy < y+size; yy++)
 		{
@@ -472,6 +473,7 @@ void paolMat::difference(Ptr<paolMat> img, int thresh, int size, int maskBottom)
 	    };
 	  if(diff)
 	    {
+	      std::cout<<"Second if diff"<<std::endl;
 	      //numDiff++;
 	      total = abs((double)img->src.at<Vec3b>(y,x)[0]-(double)src.at<Vec3b>(y,x)[0]) +
 		abs((double)img->src.at<Vec3b>(y,x)[1]-(double)src.at<Vec3b>(y,x)[1]) +
@@ -492,11 +494,12 @@ void paolMat::difference(Ptr<paolMat> img, int thresh, int size, int maskBottom)
 		  cenx = x;
 		  ceny = y;
 		};
+	      std::cout<<"Difference x: "<<x<<" cenx: "<<cenx<<" y:"<<y<<" ceny: "<<ceny<<std::endl;
 	      dist+=sqrt(((x-cenx)*(x-cenx))+((y-ceny)*(y-ceny)));
 	    };
 	};
     };
-  
+  std::cout<<"Difference dist: "<<dist<<std::endl;
   if((dist<10000)&&(maskBottom>0))
     difs = 0;
   else
@@ -757,9 +760,10 @@ void paolMat::connected(){
 	connect->src.at<Vec3b>(y,x)[1]=(col/256)%256;
 	connect->src.at<Vec3b>(y,x)[2]=(col/(256*256))%256;
       };
-
+#ifdef _debug_
   connect->name="connect";
   connect->write();
+#endif
   for(int i=1;i<current;i++){
     cor[i]=0;
   };
@@ -785,8 +789,10 @@ void paolMat::connected(){
 	connect->src.at<Vec3b>(y,x)[1]=(col/256)%256;
 	connect->src.at<Vec3b>(y,x)[2]=(col/(256*256))%256;
       };
+#ifdef _debug_
   connect->name="connect2";
   connect->write();
+#endif
   connect->src.copyTo(mask);
 };
 
@@ -831,9 +837,10 @@ void paolMat::lectArea(){
 	    profile->mask.at<Vec3b>(y,x)[0]=255;
 	};
     }; 
+#ifdef _debug_
   profile->name="profile";
   profile->writeMask();
-  
+#endif
   for(x = 0; x < src.cols; x++)
     for(y = 0; y < src.rows; y++)
       {
@@ -851,8 +858,10 @@ void paolMat::lectArea(){
 	    profile->mask.at<Vec3b>(y,x)[2] = 0;//src.at<Vec3b>(y,x)[2];
 	  };
       }; 
+#ifdef _debug_
   profile->name="profileA";
   profile->writeMask();
+#endif
   for(x = 0; x < src.cols; x++)
     {
       //from top
@@ -904,8 +913,10 @@ void paolMat::lectArea(){
 	    profile->mask.at<Vec3b>(y,x)[2] = src.at<Vec3b>(y,x)[2];
 	  };
 	  }; */
+#ifdef _debug_
   profile->name="profileB";
   profile->writeMask();
+#endif
   profile->mask.copyTo(mask);
 };
 

@@ -27,6 +27,12 @@
 
 using namespace cv;
 
+ComputerDistribute::ComputerDistribute(Buffer* in, Buffer* compProcIn, Buffer* compMovieIn, Buffer* tempDisplayIn) : Module(in,compProc,150)
+{
+  compProc = compProcIn;
+  compMovie = compMovieIn;
+  tempDisplay = tempDisplayIn;
+};
 
 void ComputerDistribute::run()
 {
@@ -43,22 +49,32 @@ void ComputerDistribute::run()
   
   while(current != NULL)
     {
-      if(previous.rows==current.rows && previous.cols=current.cols)
+      if(previous->src.rows==current->src.rows &&
+	 previous->src.cols==current->src.cols)
 	{
 	  current->difference(previous, 100, 0, bottomMask); 
-	  percentDifference=current->difs/(current.rows*current.cols);
+	  percentDifference=(double)current->difs/(double)(current->src.rows*current->src.cols);
 	} else
 	{
-	  percentDifference=1;
+	  percentDifference=1.0;
 	};
-   
-      if(percentDif>=thresholdDiff)
+#ifdef _debug_
+      //percentDifference = 0.5;
+      std::cout<<"Dif% :"<<percentDifference<<" countStable: "<<countStable<<" current->difs: "<<current->difs<<std::endl;
+#endif
+      if(percentDifference>=thresholdDiff)
 	{
 	  if(countStable>repeat)//was stable going to unstable
 	    {
+#ifdef _debug_
+	      previous->name = "ForCompProc";
+#endif
 	      compProc->push(previous);//send to computer process
 	    } else
 	    {//there was a change
+#ifdef _debug_
+	      current->name = "ForCompMovie";
+#endif
 	      compMovie->push(current);//send to movie creation
 	    };
 	  countStable=0;
@@ -66,13 +82,26 @@ void ComputerDistribute::run()
 	countStable++;
 	if(countStable==repeat)
 	  {//if it is stable but just started stable
+#ifdef _debug_
+	    current->name = "ForTempDisplay";
+#endif
 	    tempDisplay->push(current);//send to real time display
 	  }
       };
-      previous=current;
+      previous->copy(current);
       current=pop();
     };
   //save last image
+#ifdef _debug_
+  previous->name = "ForCompProc";
+#endif
   compProc->push(previous);
-  stop();
+  {
+    boost::mutex::scoped_lock lock(modLock);
+    keepRunning = false;
+  }
+  //stop();
+  compProc->stop();
+  compMovie->stop();
+  tempDisplay->stop();
 };

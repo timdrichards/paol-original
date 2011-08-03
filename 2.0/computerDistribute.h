@@ -7,9 +7,12 @@ using namespace cv;
 class ComputerDistribute : public Module
 {
  public:
-  ComputerDistribute(Buffer* in, Buffer* out) : Module(in,out,150){};
+  ComputerDistribute(Buffer* in, Buffer* compProcIn, Buffer* compMovieIn, Buffer* tempDisplayIn);
   void run();
-
+  
+  Buffer* compProc;
+  Buffer* compMovie;
+  Buffer* tempDisplay;
 };
 
 #endif

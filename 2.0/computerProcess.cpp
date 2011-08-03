@@ -43,23 +43,27 @@ void ComputerProcess::run()
   
   while(current != NULL)
     {
-      if(previous.rows==current.rows && previous.cols=current.cols)
+      if(previous->src.rows==current->src.rows && previous->src.cols==current->src.cols)
 	{
 	  current->difference(previous, 100, 0, bottomMask); 
-	  percentDifference=current->difs/(current.rows*current.cols);
+	  percentDifference=(double)current->difs/(double)(current->src.rows*current->src.cols);
 	} else
 	{
 	  percentDifference=1;
 	};
-   
-      if(percentDif>=thresholdDiff)
+      
+#ifdef _debug_
+      std::cout<<"compProc PercentDifference: "<<percentDifference<<" threshold: "<<thresholdDiff<<std::endl;
+#endif
+      if(percentDifference>=thresholdDiff)
 	{
 	  push(previous);//send to write
 	}; 
-      previous=current;
+      previous->copy(current);
       current=pop();
     };
   //save last image
-  push(previous);
+  if(previous != NULL)
+    push(previous);
   stop();
 };

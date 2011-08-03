@@ -24,54 +24,100 @@
 #include "genericProcess.h"
 #include "locateSpeaker.h"
 #include "ac.h"
+#include "lectVideoFrameCreate.h"
+#include "computerDistribute.h"
+#include "computerProcess.h"
+
 
 using namespace cv;
 
 int main(int argc, char** argv)
 {
+  //Hack to avoid unused var warning
   argc++;
   argc--;
-  Ptr<paolMat> img;
-  Ptr<paolMat> bg;
-  
-  img = new paolMat;
-  img->read("test.ppm","test.ppm",1,1);
 
+  /*
+  
   Buffer* readBuffer;
   readBuffer = new Buffer;
-  Buffer* wbBuffer;
-  wbBuffer = new Buffer;
-  Buffer* writeBuffer;
-  writeBuffer = new Buffer;
+  //Buffer* wbBuffer;
+  //wbBuffer = new Buffer;
+  //Buffer* lectVideoBuffer;
+  //lectVideoBuffer = new Buffer;
+  Buffer* tempWriterBuffer;
+  tempWriterBuffer = new Buffer;
+  
+  Buffer* compSlidesProcBuffer;
+  compSlidesProcBuffer = new Buffer;
+  
+  Buffer* compMovieWriterBuffer;
+  compMovieWriterBuffer = new Buffer;
+  
+  Buffer* compSlidesWriterBuffer;
+  compSlidesWriterBuffer = new Buffer;
+  //Buffer* writeBuffer;
+  //writeBuffer = new Buffer;
 
-  WriteMod writer(writeBuffer);
-  WhiteBoardProcess wbproc(wbBuffer, writeBuffer);
-  //AC acMod(wbBuffer, writeBuffer);
-  WriteMod videoWriter(wbBuffer);
-  LocateSpeaker speaker(readBuffer, wbBuffer);
-  //GenericProcess gen(readBuffer, writeBuffer);
+  //Create in reverse order;
+  //WriteMod writer(writeBuffer);
+  //WhiteBoardProcess wbproc(wbBuffer, writeBuffer);
+  //WriteMod videoWriter(lectVideoBuffer);
+  //LectVideoFrameCreate lectFrameCreator(wbBuffer, lectVideoBuffer);
+  //LocateSpeaker speaker(readBuffer, wbBuffer);
+  WriteMod compMovieWriter(compMovieWriterBuffer);
+  WriteMod compTempWriter(tempWriterBuffer);
+  WriteMod compSlidesWriter(compSlidesWriterBuffer);
+  ComputerProcess compSlidesProc(compSlidesProcBuffer, compSlidesWriterBuffer);
+  //Module null1(compSlidesWriterBuffer, NULL, 150);
+  //Module null2(compMovieWriterBuffer, NULL, 150);
+  //Module null3(tempWriterBuffer, NULL, 150);
+  ComputerDistribute compDistribute(readBuffer, compSlidesProcBuffer, compMovieWriterBuffer, tempWriterBuffer);
   ReadMod reader(readBuffer);
   
-  
-  boost::thread writerThread(&WriteMod::WriteMats, &writer);
-  boost::thread wbprocThread(&WhiteBoardProcess::run, &wbproc);
-  boost::thread videoWriterThread(&WriteMod::WriteVideo, &videoWriter);
-  //boost::thread acModThread(&AC::run, &acMod);
-  boost::thread speakerThread(&LocateSpeaker::run, &speaker);
-  //boost::thread genThread(&GenericProcess::run, &gen);
+  //Launch in reverse order;
+  //boost::thread writerThread(&WriteMod::WriteMats, &writer);
+  //boost::thread wbprocThread(&WhiteBoardProcess::run, &wbproc);
+  //boost::thread videoWriterThread(&WriteMod::WriteVideo, &videoWriter);
+  //boost::thread lectFrameCreatorThread(&LectVideoFrameCreate::run, &lectFrameCreator);
+  //boost::thread speakerThread(&LocateSpeaker::run, &speaker);
+  boost::thread compMovieWriterThread(&WriteMod::WriteVideo, &compMovieWriter);
+  boost::thread compTempWriterThread(&WriteMod::WriteMats, &compTempWriter);
+  boost::thread compSlidesWriterThread(&WriteMod::WriteMats, &compSlidesWriter);
+  boost::thread compSlidesProcThread(&ComputerProcess::run, &compSlidesProc);
+  //boost::thread null1Thread(&Module::nullRun, &null1);
+  //boost::thread null2Thread(&Module::nullRun, &null2);
+  //boost::thread null3Thread(&Module::nullRun, &null3);
+  boost::thread compDistributeThread(&ComputerDistribute::run, &compDistribute);
   boost::thread readerThread(&ReadMod::ReadFromPattern, &reader, argv[1], argv[2]);
   
+
+  //Close in order of operation completion; avoid deadlocks;
   readerThread.join();
-  //genThread.join();
-  speakerThread.join();
-  videoWriterThread.join();
-  wbprocThread.join();
-  //acModThread.join();
-  writerThread.join();
+  compDistributeThread.join();
+  compSlidesProcThread.join();
+  //null1Thread.join();
+  //null2Thread.join();
+  //null3Thread.join();
+  compSlidesWriterThread.join();
+  compTempWriterThread.join();
+  //compMovieWriterThread.join();
+  //speakerThread.join();
+  //lectFrameCreatorThread.join();
+  //videoWriterThread.join();
+  //wbprocThread.join();
+  //writerThread.join();
 
   delete readBuffer;
-  delete wbBuffer;
-  delete writeBuffer;
+  delete tempWriterBuffer;
+  delete compMovieWriterBuffer;
+  delete compSlidesWriterBuffer;
+  delete compSlidesProcBuffer;
+  //delete lectVideoBuffer;
+  //delete wbBuffer;
+  //delete writeBuffer;
+
+  */
 
   return 0;
 

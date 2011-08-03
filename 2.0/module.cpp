@@ -106,6 +106,9 @@ void Module::nullRun()
       img = pop();
       while(img != NULL)
 	{
+#ifdef _debug_
+	  std::cout<<"NullMod Throwing out: "<<img->name<<img->count<<"-"<<img->time<<std::endl;
+#endif
 	  //delete img;
 	  img = pop();
 	};
@@ -121,7 +124,7 @@ void Module::nullRun()
 
 void ReadMod::ReadFromPattern(char* dir, char* firstImg)
 {
-  int count, seconds, lastLoaded;
+  int count, seconds, lastLoaded, tempCount, tempSeconds;
   char name[256];
   char fullName[256];
   
@@ -146,18 +149,23 @@ void ReadMod::ReadFromPattern(char* dir, char* firstImg)
 	}
       else
 	{
-	  sprintf(name,"image");
-	  sprintf(fullName,"%simage%06d-%10d.ppm",dir,count,seconds);
-	  img->read(fullName,name,count,seconds);
-	  if(img->src.data)
+	  tempCount=count;
+	  while(!img->src.data && tempCount-count<25)
 	    {
-	      push(img);
-	      lastLoaded=seconds;
-	      count+=2;
-	    }
-	  else
-	    seconds++;
-	}
+	      tempSeconds=seconds;
+	      while(!img->src.data && tempSeconds-seconds<25)
+		{
+		  tempSeconds++;
+		  sprintf(name,"image");
+		  sprintf(fullName,"%simage%06d-%10d.ppm",dir,tempCount,tempSeconds);
+		  img->read(fullName,name,tempCount,tempSeconds);
+		  tempSeconds++;
+		};
+	      tempCount++;
+	    };
+	  seconds=tempSeconds-1;
+	  count=tempCount-1;
+	};
       sprintf(name,"image");
       sprintf(fullName,"%simage%06d-%10d.ppm",dir,count,seconds);
     };
@@ -181,18 +189,22 @@ void WriteMod::WriteMats()
 void WriteMod::WriteVideo()
 {
   Ptr<paolMat> img;
-  Ptr<paolMat> cropped;
-  img = pop();
-  cropped = img->cropFrame(640,480);
-  VideoWriter outVideo("outMedia/lectVideo.mp4", CV_FOURCC('F','M','P','4'), 15,cropped->src.size(), true);
-  while(img!=NULL)
-    {
-      cropped = img->cropFrame(640,480);
-      outVideo << img->src;
-      //img->write();
-      //delete img;
-      img = pop();
-      
-    };
   
+  img = pop();
+  if(img !=NULL)
+    {
+      VideoWriter outVideo("outMedia/lectVideo.mp4", CV_FOURCC('F','M','P','4'), 15,img->src.size(), true);
+      while(img!=NULL)
+	{
+#ifdef _debug_
+	  img->name = "Frame";
+	  img->write();
+#endif
+	  outVideo << img->src;
+	  //img->write();
+	  //delete img;
+	  img = pop();
+	  
+	};
+    };
 };
