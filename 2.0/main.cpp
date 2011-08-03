@@ -27,7 +27,7 @@
 #include "lectVideoFrameCreate.h"
 #include "computerDistribute.h"
 #include "computerProcess.h"
-
+#include "epiphanCapture.h"
 
 using namespace cv;
 
@@ -36,6 +36,19 @@ int main(int argc, char** argv)
   //Hack to avoid unused var warning
   argc++;
   argc--;
+
+  Buffer* epiphanBuffer;
+  epiphanBuffer = new Buffer;
+
+  WriteMod compFramesWriter(epiphanBuffer);
+  EpiphanCapture compGrabber(epiphanBuffer);
+
+  boost::thread compFrameWriterThread(&WriteMod::WriteMats, &compFramesWriter);
+  boost::thread compGrabberThread(&EpiphanCapture::run, &compGrabber);
+
+  compGrabberThread.join();
+  compFrameWriterThread.join();
+
 
   /*
   
