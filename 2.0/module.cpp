@@ -178,64 +178,21 @@ void WriteMod::WriteMats()
 };
 
 
-
-
-/*
-ReadFromPattern::ReadFromPattern(Buffer* buffer, char* dirIn, char* firstImgIn) : Module(NULL, buffer, 0)
+void WriteMod::WriteVideo()
 {
-  dir = dirIn;
-  firstImg = firstImgIn;
-};
-
-ReadFromPattern::~ReadFromPattern()
-{
-  delete dir;
-  delete firstImg;
-};
-
-void ReadFromPattern::run()
-{
-  int count, seconds, lastLoaded;
-  char name[256];
-
-  
-  boost::posix_time::millisec sleepTime(100);
-
-  sscanf(firstImg,"image%06d-%10d.ppm",&count,&seconds);
-  lastLoaded = seconds;
-
-  sprintf(name,"%simage%06d-%10d.ppm",dir,count,seconds);
-
-  while((seconds-lastLoaded)<20)
+  Ptr<paolMat> img;
+  Ptr<paolMat> cropped;
+  img = pop();
+  cropped = img->cropFrame(640,480);
+  VideoWriter outVideo("outMedia/lectVideo.mp4", CV_FOURCC('F','M','P','4'), 15,cropped->src.size(), true);
+  while(img!=NULL)
     {
-      Ptr<paolMat> img;
-      boost::this_thread::sleep(sleepTime);
-      img = new paolMat();
-      img->read(name,count,seconds);
-      if(img->src.data)
-	{
-	  push(img);
-	  lastLoaded=seconds;
-	  count++;
-	}
-      else
-	{
-	  sprintf(name,"%simage%06d-%10d.ppm",dir,count+1,seconds);
-	  img->read(name,count,seconds);
-	  if(img->src.data)
-	    {
-	      push(img);
-	      lastLoaded=seconds;
-	      count+=2;
-	    }
-	  else
-	    seconds++;
-	}
-      sprintf(name,"%simage%06d-%10d.ppm",dir,count,seconds);
+      cropped = img->cropFrame(640,480);
+      outVideo << img->src;
+      //img->write();
       //delete img;
+      img = pop();
+      
     };
-  stop();
+  
 };
-
-*/
-

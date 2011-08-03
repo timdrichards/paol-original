@@ -52,6 +52,9 @@ void LocateSpeaker::run()
 	img->write();
 #endif
 
+	img->camera = img->prof;
+	img->cropFrame(640,480);
+
 	cleanImg->copyNoSrc(img);
 	push(cleanImg);
 	

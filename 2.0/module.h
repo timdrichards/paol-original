@@ -40,6 +40,7 @@ class WriteMod : public Module
   WriteMod(Buffer* in) : Module(in, NULL, 150){};
   
   void WriteMats();
+  void WriteVideo();
 
 };
 #endif

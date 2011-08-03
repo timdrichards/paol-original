@@ -47,6 +47,7 @@ int main(int argc, char** argv)
   WriteMod writer(writeBuffer);
   WhiteBoardProcess wbproc(wbBuffer, writeBuffer);
   //AC acMod(wbBuffer, writeBuffer);
+  WriteMod videoWriter(wbBuffer);
   LocateSpeaker speaker(readBuffer, wbBuffer);
   //GenericProcess gen(readBuffer, writeBuffer);
   ReadMod reader(readBuffer);
@@ -54,6 +55,7 @@ int main(int argc, char** argv)
   
   boost::thread writerThread(&WriteMod::WriteMats, &writer);
   boost::thread wbprocThread(&WhiteBoardProcess::run, &wbproc);
+  boost::thread videoWriterThread(&WriteMod::WriteVideo, &videoWriter);
   //boost::thread acModThread(&AC::run, &acMod);
   boost::thread speakerThread(&LocateSpeaker::run, &speaker);
   //boost::thread genThread(&GenericProcess::run, &gen);
@@ -62,6 +64,7 @@ int main(int argc, char** argv)
   readerThread.join();
   //genThread.join();
   speakerThread.join();
+  videoWriterThread.join();
   wbprocThread.join();
   //acModThread.join();
   writerThread.join();

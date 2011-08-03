@@ -15,6 +15,7 @@ class paolMat
   std::string name;
   cv::Point camera;
   cv::Point prof;
+  bool lectFound;
 
   paolMat();
   ~paolMat();
@@ -45,7 +46,8 @@ class paolMat
   void localizeSpeaker();
   void decimateMask();
   void connected();
-  
+  void lectArea();
+  Ptr<paolMat> cropFrame(int width, int height);
 };
 
 

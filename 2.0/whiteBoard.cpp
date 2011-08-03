@@ -46,11 +46,14 @@ void WhiteBoardProcess::run()
     {
       if(img->prof.x != -1 && img->prof.y != -1)
 	{
-	  oldTemp->copy(img);
+	  
+	  //img->connected();
+	  //img->lectArea();
 	  img->removeProf(oldOrigImg);
+	  oldTemp->copy(img);
 #ifdef _debug_
 	  //img->decimateMask();
-	  img->connected();
+	  
 	  //img->writeMask();
 	  //img->write();
 #endif
