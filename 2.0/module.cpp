@@ -208,3 +208,26 @@ void WriteMod::WriteVideo()
 	};
     };
 };
+
+void WriteMod::WriteCompVideo()
+{
+  Ptr<paolMat> img;
+  
+  img = pop();
+  if(img !=NULL)
+    {
+      VideoWriter outVideo("outMedia/compVideo.mp4", CV_FOURCC('F','M','P','4'), 15,img->src.size(), true);
+      while(img!=NULL)
+	{
+#ifdef _debug_
+	  img->name = "Frame";
+	  img->write();
+#endif
+	  outVideo << img->src;
+	  //img->write();
+	  //delete img;
+	  img = pop();
+	  
+	};
+    };
+};

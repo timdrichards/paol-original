@@ -41,6 +41,7 @@ class WriteMod : public Module
   
   void WriteMats();
   void WriteVideo();
+  void WriteCompVideo();
 
 };
 #endif

@@ -25,7 +25,7 @@
 #define border 100
 #define maxMoveSpeed 40
 #define minMoveSpeed 5
-//#define _debug_
+#define _debug_
 
 using namespace cv;
 

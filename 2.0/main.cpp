@@ -28,109 +28,148 @@
 #include "computerDistribute.h"
 #include "computerProcess.h"
 #include "epiphanCapture.h"
+#include "WebCamCapture.h"
+
+//#define _wb_
+//#define _compCap_
+#define _usbCam_
+#define _live_
 
 using namespace cv;
 
+#ifdef _readFromDisk_
 int main(int argc, char** argv)
 {
   //Hack to avoid unused var warning
   argc++;
   argc--;
 
+#endif
+#ifdef _live_
+int main()
+{
+#endif
+
+#ifdef _wb_
+  ////////////////////////////////
+  /// Camera/WB Cap/Proc Buffers /
+  Buffer* webCamCaptureBuffer;
+  webCamCaptureBuffer = new Buffer;
+  Buffer* wbBuffer;
+  wbBuffer = new Buffer;
+  Buffer* lectVideoBuffer;
+  lectVideoBuffer = new Buffer;
+  Buffer* wbSlidesWriteBuffer;
+  lectVideoBuffer = new Buffer;
+  Buffer* wbReadBuffer;
+  wbReadBuffer = new Buffer;
+
+  //////////////////////////////////////
+  // WB Cap/Proc Modules
+  WriteMod presVideoWriter(lectVideoBuffer);
+  WriteMod wbSlidesWriter(wbSlidesWriteBuffer);
+  WhiteBoardProcess wbproc(wbBuffer, wbSlidesWriteBuffer);
+  LectVideoFrameCreate lectFrameCreator(wbBuffer, lectVideoBuffer);
+  LocateSpeaker locateSpeaker(webCamCaptureBuffer, wbBuffer);
+  WebCamCapture webcam(webCamCaptureBuffer);
+#endif  
+
+#ifdef _compCap_
+  ///////////////////////////////
+  /// Computer Cap/Proc Buffers /
   Buffer* epiphanBuffer;
   epiphanBuffer = new Buffer;
-
-  WriteMod compFramesWriter(epiphanBuffer);
-  EpiphanCapture compGrabber(epiphanBuffer);
-
-  boost::thread compFrameWriterThread(&WriteMod::WriteMats, &compFramesWriter);
-  boost::thread compGrabberThread(&EpiphanCapture::run, &compGrabber);
-
-  compGrabberThread.join();
-  compFrameWriterThread.join();
-
-
-  /*
-  
-  Buffer* readBuffer;
-  readBuffer = new Buffer;
-  //Buffer* wbBuffer;
-  //wbBuffer = new Buffer;
-  //Buffer* lectVideoBuffer;
-  //lectVideoBuffer = new Buffer;
   Buffer* tempWriterBuffer;
   tempWriterBuffer = new Buffer;
-  
   Buffer* compSlidesProcBuffer;
   compSlidesProcBuffer = new Buffer;
-  
   Buffer* compMovieWriterBuffer;
   compMovieWriterBuffer = new Buffer;
-  
   Buffer* compSlidesWriterBuffer;
   compSlidesWriterBuffer = new Buffer;
-  //Buffer* writeBuffer;
-  //writeBuffer = new Buffer;
 
-  //Create in reverse order;
-  //WriteMod writer(writeBuffer);
-  //WhiteBoardProcess wbproc(wbBuffer, writeBuffer);
-  //WriteMod videoWriter(lectVideoBuffer);
-  //LectVideoFrameCreate lectFrameCreator(wbBuffer, lectVideoBuffer);
-  //LocateSpeaker speaker(readBuffer, wbBuffer);
+  /////////////////////////////////////
+  // Computer Cap/Proc Modules
   WriteMod compMovieWriter(compMovieWriterBuffer);
   WriteMod compTempWriter(tempWriterBuffer);
   WriteMod compSlidesWriter(compSlidesWriterBuffer);
   ComputerProcess compSlidesProc(compSlidesProcBuffer, compSlidesWriterBuffer);
-  //Module null1(compSlidesWriterBuffer, NULL, 150);
-  //Module null2(compMovieWriterBuffer, NULL, 150);
-  //Module null3(tempWriterBuffer, NULL, 150);
-  ComputerDistribute compDistribute(readBuffer, compSlidesProcBuffer, compMovieWriterBuffer, tempWriterBuffer);
-  ReadMod reader(readBuffer);
-  
-  //Launch in reverse order;
-  //boost::thread writerThread(&WriteMod::WriteMats, &writer);
-  //boost::thread wbprocThread(&WhiteBoardProcess::run, &wbproc);
-  //boost::thread videoWriterThread(&WriteMod::WriteVideo, &videoWriter);
-  //boost::thread lectFrameCreatorThread(&LectVideoFrameCreate::run, &lectFrameCreator);
-  //boost::thread speakerThread(&LocateSpeaker::run, &speaker);
-  boost::thread compMovieWriterThread(&WriteMod::WriteVideo, &compMovieWriter);
+  ComputerDistribute compDistribute(epiphanBuffer, compSlidesProcBuffer, compMovieWriterBuffer, tempWriterBuffer);
+  EpiphanCapture compGrabber(epiphanBuffer);
+#endif
+
+#ifdef _usbCam_
+  Buffer* usbCamCapBuffer;
+  usbCamCapBuffer = new Buffer;
+
+  WriteMod usbCamFrameWriter(usbCamCapBuffer);
+  WebCamCapture webcam(usbCamCapBuffer);
+#endif
+
+#ifdef _wb_
+  ///////////////////////////////////////
+  // Launch WB mods in revers order /////
+  boost::thread presVideoWriterThread(&WriteMod::WriteVideo, &presVideoWriter);
+  boost::thread wbSlidesWriterThread(&WriteMod::WriteMats, &wbSlidesWriter);
+  boost::thread wbprocThread(&WhiteBoardProcess::run, &wbproc);
+  boost::thread lectFrameCreatorThread(&LectVideoFrameCreate::run, &lectFrameCreator);
+  boost::thread locateSpeakerThread(&LocateSpeaker::run, &locateSpeaker);
+  boost::thread webcamThread(&WebCamCapture::run, &webcam);
+#endif
+
+#ifdef _compCap_
+  ///////////////////////////////////////
+  // Launch Comp mods in reverse order
+  boost::thread compMovieWriterThread(&WriteMod::WriteCompVideo, &compMovieWriter);
   boost::thread compTempWriterThread(&WriteMod::WriteMats, &compTempWriter);
   boost::thread compSlidesWriterThread(&WriteMod::WriteMats, &compSlidesWriter);
   boost::thread compSlidesProcThread(&ComputerProcess::run, &compSlidesProc);
-  //boost::thread null1Thread(&Module::nullRun, &null1);
-  //boost::thread null2Thread(&Module::nullRun, &null2);
-  //boost::thread null3Thread(&Module::nullRun, &null3);
   boost::thread compDistributeThread(&ComputerDistribute::run, &compDistribute);
-  boost::thread readerThread(&ReadMod::ReadFromPattern, &reader, argv[1], argv[2]);
-  
+  boost::thread compGrabberThread(&EpiphanCapture::run, &compGrabber);
+#endif
 
-  //Close in order of operation completion; avoid deadlocks;
-  readerThread.join();
+#ifdef _usbCam_
+  boost::thread usbCamFrameWriterThread(&WriteMod::WriteMats, &usbCamFrameWriter);
+  boost::thread usbCamThread(&WebCamCapture::run, &webcam);
+#endif
+
+#ifdef _wb_
+  webcamThread.join();
+  locateSpeakerThread.join();
+  lectFrameCreatorThread.join();
+  wbprocThread.join();
+  wbSlidesWriterThread.join();
+  presVideoWriterThread.join();
+
+  delete webCamCaptureBuffer;
+  delete wbBuffer;
+  delete lectVideoBuffer;
+  delete lectVideoBuffer;
+  delete wbReadBuffer;
+#endif
+
+#ifdef _compCap_
+  compGrabberThread.join();
   compDistributeThread.join();
   compSlidesProcThread.join();
-  //null1Thread.join();
-  //null2Thread.join();
-  //null3Thread.join();
   compSlidesWriterThread.join();
   compTempWriterThread.join();
-  //compMovieWriterThread.join();
-  //speakerThread.join();
-  //lectFrameCreatorThread.join();
-  //videoWriterThread.join();
-  //wbprocThread.join();
-  //writerThread.join();
+  compMovieWriterThread.join();
 
-  delete readBuffer;
+  delete epiphanBuffer;
   delete tempWriterBuffer;
+  delete compSlidesProcBuffer;
   delete compMovieWriterBuffer;
   delete compSlidesWriterBuffer;
-  delete compSlidesProcBuffer;
-  //delete lectVideoBuffer;
-  //delete wbBuffer;
-  //delete writeBuffer;
+#endif
 
-  */
+#ifdef _usbCam_
+  usbCamThread.join();
+  usbCamFrameWriterThread.join();
+
+  delete usbCamCapBuffer;
+#endif
+ 
 
   return 0;
 

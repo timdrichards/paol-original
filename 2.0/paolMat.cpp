@@ -17,7 +17,7 @@
 
 #include "paolMat.h"
 
-//#define _debug_
+#define _debug_
 
 using namespace cv;
 
@@ -455,7 +455,7 @@ void paolMat::difference(Ptr<paolMat> img, int thresh, int size, int maskBottom)
 	    };
 	  if(diff)
 	    {
-	      std::cout<<"First if dif size: "<<size<<std::endl;
+	      //std::cout<<"First if dif size: "<<size<<std::endl;
 	      //mask.at<Vec3b>(y,x)[1]=255;
 	      for(int yy = y-size; yy < y+size; yy++)
 		{
@@ -473,7 +473,7 @@ void paolMat::difference(Ptr<paolMat> img, int thresh, int size, int maskBottom)
 	    };
 	  if(diff)
 	    {
-	      std::cout<<"Second if diff"<<std::endl;
+	      //std::cout<<"Second if diff"<<std::endl;
 	      //numDiff++;
 	      total = abs((double)img->src.at<Vec3b>(y,x)[0]-(double)src.at<Vec3b>(y,x)[0]) +
 		abs((double)img->src.at<Vec3b>(y,x)[1]-(double)src.at<Vec3b>(y,x)[1]) +
@@ -494,12 +494,12 @@ void paolMat::difference(Ptr<paolMat> img, int thresh, int size, int maskBottom)
 		  cenx = x;
 		  ceny = y;
 		};
-	      std::cout<<"Difference x: "<<x<<" cenx: "<<cenx<<" y:"<<y<<" ceny: "<<ceny<<std::endl;
+	      //std::cout<<"Difference x: "<<x<<" cenx: "<<cenx<<" y:"<<y<<" ceny: "<<ceny<<std::endl;
 	      dist+=sqrt(((x-cenx)*(x-cenx))+((y-ceny)*(y-ceny)));
 	    };
 	};
     };
-  std::cout<<"Difference dist: "<<dist<<std::endl;
+  //std::cout<<"Difference dist: "<<dist<<std::endl;
   if((dist<10000)&&(maskBottom>0))
     difs = 0;
   else
