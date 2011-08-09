@@ -1,13 +1,13 @@
 // ; -*-C++-*-
-#ifndef _genericProcess_h_
-#define _genericProcess_h_
+#ifndef _usbCam_h_
+#define _usbCam_h_
 
 using namespace cv;
 
-class GenericProcess : public Module
+class UsbCam : public Module
 {
  public:
- GenericProcess(Buffer* in, Buffer* out) : Module(in,out, 150){};
+ UsbCam(Buffer* out) : Module(NULL,out, 150){};
   void run();
   
 };

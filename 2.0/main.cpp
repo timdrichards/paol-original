@@ -29,12 +29,13 @@
 #include "computerProcess.h"
 #include "epiphanCapture.h"
 #include "WebCamCapture.h"
+#include "usbCam.h"
 
 //#define _wb_
 //#define _compCap_
 #define _usbCam_
 #define _live_
-
+//#define _readFromDisk_
 using namespace cv;
 
 #ifdef _readFromDisk_
@@ -60,7 +61,7 @@ int main()
   Buffer* lectVideoBuffer;
   lectVideoBuffer = new Buffer;
   Buffer* wbSlidesWriteBuffer;
-  lectVideoBuffer = new Buffer;
+  wbSlidesWriteBuffer = new Buffer;
   Buffer* wbReadBuffer;
   wbReadBuffer = new Buffer;
 
@@ -102,8 +103,8 @@ int main()
   Buffer* usbCamCapBuffer;
   usbCamCapBuffer = new Buffer;
 
-  WriteMod usbCamFrameWriter(usbCamCapBuffer);
-  WebCamCapture webcam(usbCamCapBuffer);
+  //WriteMod usbCamFrameWriter(usbCamCapBuffer);
+  UsbCam usbCam(usbCamCapBuffer);
 #endif
 
 #ifdef _wb_
@@ -129,8 +130,8 @@ int main()
 #endif
 
 #ifdef _usbCam_
-  boost::thread usbCamFrameWriterThread(&WriteMod::WriteMats, &usbCamFrameWriter);
-  boost::thread usbCamThread(&WebCamCapture::run, &webcam);
+  //boost::thread usbCamFrameWriterThread(&WriteMod::WriteMats, &usbCamFrameWriter);
+  boost::thread usbCamThread(&UsbCam::run, &usbCam);
 #endif
 
 #ifdef _wb_
@@ -165,7 +166,7 @@ int main()
 
 #ifdef _usbCam_
   usbCamThread.join();
-  usbCamFrameWriterThread.join();
+  //usbCamFrameWriterThread.join();
 
   delete usbCamCapBuffer;
 #endif
