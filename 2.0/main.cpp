@@ -30,6 +30,7 @@
 #include "epiphanCapture.h"
 #include "WebCamCapture.h"
 #include "usbCam.h"
+#include "sample-capture.h"
 
 //#define _wb_
 //#define _compCap_

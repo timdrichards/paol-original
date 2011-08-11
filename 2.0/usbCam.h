@@ -2,7 +2,7 @@
 #ifndef _usbCam_h_
 #define _usbCam_h_
 
-using namespace cv;
+//using namespace cv;
 
 class UsbCam : public Module
 {

@@ -6,20 +6,37 @@ FLAGS=`pkg-config --cflags --libs opencv` \
 	-lboost_regex \
 	-L/usr/local/lib \
 	-lgphoto2 \
-	-lm \
-	-g
-#-lgphoto2_port \
+	-L. \
+	-lSampleCapture \
+	-lm
 
-OBJ1=paolMat.cpp buffer.cpp module.cpp whiteBoard.cpp genericProcess.cpp locateSpeaker.cpp ac.cpp lectVideoFrameCreate.cpp computerDistribute.cpp computerProcess.cpp epiphanCapture.cpp WebCamCapture.cpp usbCamC.c usbCam.cpp main.cpp #consumer.o producer.o writeToDisk.o \
-	process.o whiteBoardProcess.o gige.o locateProf.o main.o
+PFLAGS=-g -w
 
-all: everything
+vpath %.o bin/
 
-everything: $(OBJ1)
-	      $(CXX) -g -ggdb -Wall -W -o paol-threads $(OBJ1) $(FLAGS)
+SOURCES= paolMat.cpp buffer.cpp module.cpp whiteBoard.cpp genericProcess.cpp locateSpeaker.cpp ac.cpp lectVideoFrameCreate.cpp computerDistribute.cpp computerProcess.cpp epiphanCapture.cpp WebCamCapture.cpp usbCam.cpp main.cpp
+
+LIBS= libSampleCapture.a libSampleCapture.so.1.0.1
+
+OBJECTS=$(SOURCES:.cpp=.o)
+
+EXECUTABLE=paol-threads
+
+all: $(LIBS) $(SOURCES) $(EXECUTABLE) 
+
+$(EXECUTABLE): $(OBJECTS)
+	$(CXX) $^ -o $@ $(FLAGS)
+
+.cpp.o:
+	$(CXX) $(PFLAGS) -c $< -o bin/$@ $(FLAGS)
+
+libSampleCapture.a libSampleCapture.so.1.0.1:
+	$(MAKE) -C gphotoSrc
+	cp gphotoSrc/libSampleCapture.so.1.0.1 .
+	cp gphotoSrc/libSampleCapture.a .
 
 clean:
-	rm -f paol-threads *.o outMedia/*
+	rm -f paol-threads *.o outMedia/* *.a *.so.*
 
 clean-all:
 	rm -f paol-threads *.o *~ *#	      
