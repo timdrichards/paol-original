@@ -31,11 +31,19 @@
 #include "WebCamCapture.h"
 #include "usbCam.h"
 #include "sample-capture.h"
+#include "gigE.h"
+#include "PvApi.h"
+#include <ImageLib.h>
+
 
 //#define _wb_
 //#define _compCap_
-#define _usbCam_
+//#define _usbCam_
 #define _live_
+#define _gigE2Disk_
+
+
+
 //#define _readFromDisk_
 using namespace cv;
 
@@ -108,6 +116,15 @@ int main()
   UsbCam usbCam(usbCamCapBuffer);
 #endif
 
+#ifdef _gigE2Disk_
+  Buffer* gigE2DiskBuffer;
+  gigE2DiskBuffer = new Buffer;
+  
+  WriteMod gigE2DiskWriter(gigE2DiskBuffer);
+  GigE gigE2DiskCam(gigE2DiskBuffer, 0);
+#endif
+
+
 #ifdef _wb_
   ///////////////////////////////////////
   // Launch WB mods in revers order /////
@@ -133,6 +150,12 @@ int main()
 #ifdef _usbCam_
   //boost::thread usbCamFrameWriterThread(&WriteMod::WriteMats, &usbCamFrameWriter);
   boost::thread usbCamThread(&UsbCam::run, &usbCam);
+#endif
+
+#ifdef _gigE2Disk_
+  std::cout<<"Main: Launching gigE2Disk"<<std::endl;
+  //boost::thread gigE2DiskWriterThread(&WriteMod::WriteMats, &gigE2DiskWriter);
+  boost::thread gigE2DiskCamThread(&GigE::run, &gigE2DiskCam);
 #endif
 
 #ifdef _wb_
@@ -170,6 +193,13 @@ int main()
   //usbCamFrameWriterThread.join();
 
   delete usbCamCapBuffer;
+#endif
+
+#ifdef _gigE2Disk
+  gigE2DiskWriterThread.join();
+  gigE2DiskCamThread.join();
+
+  delete gigE2DiskBuffer;
 #endif
  
 

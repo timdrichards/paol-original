@@ -7,6 +7,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <gphoto2/gphoto2.h>
+#include "opencv/cv.h"
 
 #include "usb.h"
 #include "sample-capture.h"
@@ -43,5 +44,6 @@ int main(int argc, char **argv) {
 	  };
 	capture_to_file(camera, context, fileName);
 	gp_camera_exit(camera, context);
+
 	return 0;
 }

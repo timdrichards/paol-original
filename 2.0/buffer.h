@@ -2,6 +2,12 @@
 #ifndef _buffer_h_
 #define _buffer_h_
 
+#include <boost/lambda/lambda.hpp>
+#include <boost/thread.hpp>
+#include <boost/date_time.hpp>
+#include <boost/interprocess/containers/vector.hpp>
+
+
 using namespace cv;
 
 //List of Paol Mats to be used by buffer//

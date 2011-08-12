@@ -33,23 +33,26 @@
 #include "genericProcess.h"
 
 //libSampleCapture for grabbing from gphoto usb cams
+#include "usbCam.h"
 #include "sample-capture.h"
 
-#include "usbCam.h"
+
 
 using namespace std;
 
 #define _debug_
 
 //These methods are from libSampleCapture, their sourcs is in gphotoSrc/
-extern "C"{
 
+extern "C"{
+  
   extern void errordumper(GPLogLevel level, const char *domain, const char *str, void *data);
   extern void capture_to_memory(Camera *camera, GPContext *context, const char **ptr, unsigned long int *size);
   extern void capture_to_file(Camera *camera, GPContext *context, char *fn);
   GPContext* sample_create_context();
+};
+  
 
-}
 
 
 void UsbCam::run()
