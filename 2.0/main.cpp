@@ -36,7 +36,7 @@
 #include <ImageLib.h>
 
 
-#define _wb_
+//#define _wb_
 //#define _compCap_
 //#define _usbCompCap_
 //#define _usbCam_

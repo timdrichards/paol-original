@@ -1,11 +1,39 @@
-## Executable
-EXE = Snap
-CC = g++-4.4
-PVAPIPATH = -Wl,--rpath -Wl,./ 
+#CXX=g++
+#FLAGS=-I /usr/local/include/opencv/ \
+	-L/user/local/lib/ \
+	-lopencv_core -lopencv_highgui \
+	-L /usr/lib/ \
+	-lboost_thread \
+	-lboost_filesystem-mt \
+	-lboost_regex
+#OBJ1=Snape.o
+#all: everything
+#everything: $(OBJ1)
+#	      $(CXX) -g -Wall -W -o snap $(OBJ1) $(FLAGS)
+#clean:
+#	rm -f snape *.o
+#clean-all:
+#	rm -f snap *.o *~ *#	      
 
-PVCFLAGS = -fno-strict-aliasing -fexceptions -I/usr/include -Wall -I./PvApi -D_REENTRANT -D_x64 -D_LINUX
-PVSOLIB = -lpthread -lrt -Bdynamic -lm -lc
+include ARCH
+
+
+## Executable
+EXE	= Snap
+
+$(OBJ_DIR)/%.o : %.cpp
+	$(CC) $(CFLAGS) $(VERSION) -c $< -o $@
+
+all:
+	sample
+
+clean: 
+	rm $(EXE)
 
 sample : $(EXE).cpp
-	$(CC) $(PVAPIPATH) $(PVCFLAGS) $(EXE).cpp -o $(EXE) $(PVSOLIB) -lPvAPI -Bstatic /usr/local/include/libImagelib.a -Bdynamic -ltiff
+	$(CC) $(RPATH) $(TARGET) $(CFLAGS) $(EXE).cpp -o $(EXE) $(SOLIB) $(PVLIB) $(IMLIB)
 
+sample-static : $(EXE).cpp
+	$(CC) $(RPATH) $(TARGET) $(CFLAGS) $(EXE).cpp $(SALIB) -o $(EXE) $(SOLIB) $(IMLIB)	
+install:
+	cp -f $(EXE) $(BIN_DIR)

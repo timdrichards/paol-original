@@ -22,9 +22,9 @@
 #include "epiphanCapture.h"
 
 #include <string.h>
-#include "frmgrab.h"
-#include "v2u_lib.h"
-#include "v2u_version.h"
+#include "epiphanBin/frmgrab.h"
+#include "epiphanBin/v2u_lib.h"
+#include "epiphanBin/v2u_version.h"
 
 #define _debug_
 
@@ -69,7 +69,7 @@ void EpiphanCapture::runEthCap()
 {
 
   
-  //FrmGrabNet_Open();
+  FrmGrabNet_Open();
   std::cout<<"I got here"<<std::endl;
   //stop();
 };
