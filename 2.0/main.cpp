@@ -36,11 +36,13 @@
 #include <ImageLib.h>
 
 
-//#define _wb_
+#define _wb_
 //#define _compCap_
+//#define _usbCompCap_
 //#define _usbCam_
 #define _live_
 #define _gigE2Disk_
+//define _ethCompCap_
 
 
 
@@ -105,7 +107,12 @@ int main()
   WriteMod compSlidesWriter(compSlidesWriterBuffer);
   ComputerProcess compSlidesProc(compSlidesProcBuffer, compSlidesWriterBuffer);
   ComputerDistribute compDistribute(epiphanBuffer, compSlidesProcBuffer, compMovieWriterBuffer, tempWriterBuffer);
+#ifdef _usbCompCap_
   EpiphanCapture compGrabber(epiphanBuffer);
+#endif
+#ifdef _ethCompCap_
+  EpiphanCapture compGrabber(epiphanBuffer);
+#endif
 #endif
 
 #ifdef _usbCam_
@@ -123,11 +130,12 @@ int main()
   WriteMod gigE2DiskWriter(gigE2DiskBuffer);
   GigE gigE2DiskCam(gigE2DiskBuffer, 0);
 #endif
-
-
+  
+  
 #ifdef _wb_
   ///////////////////////////////////////
   // Launch WB mods in revers order /////
+  
   boost::thread presVideoWriterThread(&WriteMod::WriteVideo, &presVideoWriter);
   boost::thread wbSlidesWriterThread(&WriteMod::WriteMats, &wbSlidesWriter);
   boost::thread wbprocThread(&WhiteBoardProcess::run, &wbproc);
@@ -144,7 +152,12 @@ int main()
   boost::thread compSlidesWriterThread(&WriteMod::WriteMats, &compSlidesWriter);
   boost::thread compSlidesProcThread(&ComputerProcess::run, &compSlidesProc);
   boost::thread compDistributeThread(&ComputerDistribute::run, &compDistribute);
+  #ifdef _usbCompCap_
   boost::thread compGrabberThread(&EpiphanCapture::run, &compGrabber);
+  #endif
+  #ifdef _ethCompCap_
+  boost::thread compGrabberThread(&EpiphanCapture::runEthCap, &compGrabber);
+  #endif
 #endif
 
 #ifdef _usbCam_

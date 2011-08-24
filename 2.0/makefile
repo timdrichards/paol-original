@@ -11,6 +11,7 @@ FLAGS=`pkg-config --cflags --libs opencv` \
 	-lpthread \
 	-lrt \
 	-lm \
+	-IepiphanBin \
 	-lc 
 
 

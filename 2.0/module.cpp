@@ -186,14 +186,31 @@ void WriteMod::WriteMats()
 };
 
 
-void WriteMod::WriteVideo()
+void WriteMod::WriteVideo(char* lable)
 {
   Ptr<paolMat> img;
+  char dir[256];
+  char fullPath[256];
+  char extention[5];
+  int lastImgCount;
+  int startTime;
+
+  strcpy(dir, "outMedia/");
+  strcpy(extention, "mp4");
+  startTime = 0;
+
+  
   
   img = pop();
   if(img !=NULL)
     {
-      VideoWriter outVideo("outMedia/lectVideo.mp4", CV_FOURCC('F','M','P','4'), 15,img->src.size(), true);
+      lastImgCount = img->count;
+      startTime = img->time;
+      if(startTime<0)
+	startTime = 0;
+      
+      sprintf(fullPath, "%s/%s%i06.%s", dir,lable,startTime,extention);
+      VideoWriter outVideo(fullPath, CV_FOURCC('F','M','P','4'), 15,img->src.size(), true);
       while(img!=NULL)
 	{
 #ifdef _debug_
@@ -203,31 +220,19 @@ void WriteMod::WriteVideo()
 	  outVideo << img->src;
 	  //img->write();
 	  //delete img;
+	  lastImgCount = img->count;
 	  img = pop();
 	  
 	};
     };
 };
 
+void WriteMod::WriteVideo()
+{
+  WriteVideo("unkown");
+};
+
 void WriteMod::WriteCompVideo()
 {
-  Ptr<paolMat> img;
-  
-  img = pop();
-  if(img !=NULL)
-    {
-      VideoWriter outVideo("outMedia/compVideo.mp4", CV_FOURCC('F','M','P','4'), 15,img->src.size(), true);
-      while(img!=NULL)
-	{
-#ifdef _debug_
-	  img->name = "Frame";
-	  img->write();
-#endif
-	  outVideo << img->src;
-	  //img->write();
-	  //delete img;
-	  img = pop();
-	  
-	};
-    };
+  WriteVideo("Computer");
 };

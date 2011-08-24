@@ -9,6 +9,7 @@ class EpiphanCapture : public Module
  public:
  EpiphanCapture(Buffer* out) : Module(NULL,out, 150){};
   void run();
+  void runEthCap();
   
 };
 

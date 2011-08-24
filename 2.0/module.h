@@ -37,10 +37,12 @@ class ReadMod : public Module
 class WriteMod : public Module
 {
  public:
+
   WriteMod(Buffer* in) : Module(in, NULL, 150){};
-  
+    
   void WriteMats();
   void WriteVideo();
+  void WriteVideo(char* label);
   void WriteCompVideo();
 
 };

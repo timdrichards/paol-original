@@ -21,7 +21,19 @@
 #include "genericProcess.h"
 #include "epiphanCapture.h"
 
+#include <string.h>
+#include "frmgrab.h"
+#include "v2u_lib.h"
+#include "v2u_version.h"
+
 #define _debug_
+
+extern "C"
+{
+  FrmGrabber* FrmGrabNet_Open(void);
+
+
+};
 
 using namespace cv;
 
@@ -53,3 +65,11 @@ void EpiphanCapture::run()
   stop();
 };
 
+void EpiphanCapture::runEthCap()
+{
+
+  
+  //FrmGrabNet_Open();
+  std::cout<<"I got here"<<std::endl;
+  //stop();
+};
