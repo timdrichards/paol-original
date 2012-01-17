@@ -27,21 +27,21 @@
 #include "lectVideoFrameCreate.h"
 #include "computerDistribute.h"
 #include "computerProcess.h"
-#include "epiphanCapture.h"
+//#include "epiphanCapture.h"
 #include "WebCamCapture.h"
 #include "usbCam.h"
 #include "sample-capture.h"
-#include "gigE.h"
-#include "PvApi.h"
-#include <ImageLib.h>
+//#include "gigE.h"
+//#include "PvApi.h"
+//#include <ImageLib.h>
 
 
-//#define _wb_
+#define _wb_
 //#define _compCap_
 //#define _usbCompCap_
 //#define _usbCam_
 #define _live_
-#define _gigE2Disk_
+//#define _gigE2Disk_
 //define _ethCompCap_
 
 

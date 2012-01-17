@@ -1,2 +1,0 @@
-bin_PROGRAMS = paolthreads
-paolthreads_SOURCES = paolMat.cpp buffer.cpp module.cpp whiteBoard.cpp genericProcess.cpp locateSpeaker.cpp ac.cpp lectVideoFrameCreate.cpp computerDistribute.cpp computerProcess.cpp epiphanCapture.cpp WebCamCapture.cpp usbCam.cpp gigE.cpp main.cpp

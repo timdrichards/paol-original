@@ -57,6 +57,7 @@ extern "C"{
 
 void UsbCam::run()
 {
+  /*
   Camera *camera;
   int retval;
   GPContext *context = sample_create_context();
@@ -70,6 +71,7 @@ void UsbCam::run()
    * is partly why it takes so long.
    * (Marcus: the ptp2 driver does this by default currently.)
    */
+  /*
   printf("Camera init.  Takes about 10 seconds.\n");
   retval = gp_camera_init(camera, context);
   if (retval != GP_OK) 
@@ -79,6 +81,7 @@ void UsbCam::run()
     };
   capture_to_file(camera, context, fileName);
   gp_camera_exit(camera, context);
+  */
   stop();
 };
 
