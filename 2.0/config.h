@@ -44,19 +44,19 @@
 #define PACKAGE_BUGREPORT "BUG-REPORT-ADDRESS"
 
 /* Define to the full name of this package. */
-#define PACKAGE_NAME "FULL-PACKAGE-NAME"
+#define PACKAGE_NAME "Paol-Threads"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "FULL-PACKAGE-NAME VERSION"
+#define PACKAGE_STRING "Paol-Threads 2.0"
 
 /* Define to the one symbol short name of this package. */
-#define PACKAGE_TARNAME "full-package-name"
+#define PACKAGE_TARNAME "paol-threads"
 
 /* Define to the home page for this package. */
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "VERSION"
+#define PACKAGE_VERSION "2.0"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
