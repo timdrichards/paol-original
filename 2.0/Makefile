@@ -2,10 +2,6 @@ SHELL = /bin/sh
 top_srcdir = .
 srcdir = .
 
-SUBDIRS = boost.m4
-AM_CPPFLAGS = -I$(srcdir)/boost.m4
-bin_PROGRAMS = boost.m4
-boost.m4_SOURCES = boost.m4/boost.m4
 
 .SUFFIXES:
 .SUFFIXES: .cpp .o
@@ -17,7 +13,7 @@ AR_FLAGS = rc
 RANLIB = ranlib
 
 CC = gcc
-CFLAGS = -I. -lboost-thread -g -O2
+CFLAGS = -I. -lboost-thread-mt -g -O2
 LDFLAGS = 
 LIBS = 
 #INSTALL = /usr/bin/install -c
