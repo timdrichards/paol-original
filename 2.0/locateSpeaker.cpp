@@ -21,7 +21,7 @@
 #include "genericProcess.h"
 #include "locateSpeaker.h"
 
-#define _debug_
+//#define _debug_
 
 using namespace cv;
 

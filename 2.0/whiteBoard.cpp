@@ -76,7 +76,7 @@ void WhiteBoardProcess::run()
 #ifdef _debug_
 	      //img->write();
 #endif
-	      
+	      img->name="WBSlide";
 	      push(img);
 	    };
 	};

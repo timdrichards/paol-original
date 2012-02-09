@@ -25,7 +25,7 @@
 #define border 100
 #define maxMoveSpeed 40
 #define minMoveSpeed 5
-#define _debug_
+//#define _debug_
 
 using namespace cv;
 
@@ -85,6 +85,7 @@ void LectVideoFrameCreate::run()
       std::cout<<"LectVideoFrameCreate prof x="<<current->prof.x<<" y="<<current->prof.y<<" camera x="<<current->camera.x<<" y="<<current->camera.y<<std::endl;      
 #endif
       cropped = current->cropFrame(outWidth, outHeight);
+      cropped->name = "videoFrame";
       push(cropped);
       previous->copy(current);
       current = pop();

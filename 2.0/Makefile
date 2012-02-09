@@ -13,8 +13,8 @@ AR_FLAGS = rc
 RANLIB = ranlib
 
 CC = gcc
-CFLAGS = -I. -lboost-thread-mt -g -O2
-LDFLAGS = 
+CFLAGS = `pkg-config opencv --cflags --libs` -I/opt/local/include -L/opt/local/lib -lboost_thread-mt -g -O2
+LDFLAGS =  
 LIBS = 
 #INSTALL = /usr/bin/install -c
 prefix = /usr/local
@@ -26,7 +26,7 @@ infodir = $(prefix)/info
 # Sources
 SOURCES=main.cpp whiteBoard.cpp WebCamCapture.cpp usbCam.cpp paolMat.cpp module.cpp locateSpeaker.cpp lectVideoFrameCreate.cpp genericProcess.cpp computerProcess.cpp computerDistribute.cpp buffer.cpp ac.cpp
 #gigE.cpp epiphanCapture.cpp
-DOCS=PaolThreads2.texi PaolThreads2.info
+DOCS=
 MISC=configure mkinstalldirs install-sh
 OBJS=main.o whiteBoard.o WebCamCapture.o usbCam.o paolMat.o module.o locateSpeaker.o lectVideoFrameCreate.o genericProcess.o computerProcess.o computerDistribute.o buffer.o ac.o
 #gigE.o epiphanCapture.o 
@@ -34,7 +34,7 @@ LIB_OBJS=whiteBoard.o WebCamCapture.o usbCam.o paolMat.o module.o locateSpeaker.
 #gigE.o epiphanCapture.o
 
 # Targets
-all: libPaolThreads2.a PaolThreads2 PaolThreads2.info
+all: libPaolThreads2.a PaolThreads2
 
 # Make the bindir, libdir and infodir directories; 
 #install: all
@@ -68,9 +68,6 @@ distclean: clean
 mostlyclean: clean
 
 maintainer-clean: clean
-
-PaolThreads2.info: PaolThreads2.texi
-	makeinfo PaolThreads2.texi
 
 # automatic re-running of configure if the ocnfigure.in file has changed
 ${srcdir}/configure: configure.in 

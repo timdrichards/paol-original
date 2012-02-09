@@ -17,7 +17,7 @@
 
 #include "paolMat.h"
 
-#define _debug_
+//#define _debug_
 
 using namespace cv;
 

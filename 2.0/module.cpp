@@ -130,11 +130,11 @@ void ReadMod::ReadFromPattern(char* dir, char* firstImg)
   
   boost::posix_time::millisec sleepTime(10);
 
-  sscanf(firstImg,"image%06d-%10d.ppm",&count,&seconds);
+  sscanf(firstImg,"frame%06d-%10d.ppm",&count,&seconds);
   lastLoaded = seconds;
 
-  sprintf(name,"image");
-  sprintf(fullName,"%simage%06d-%10d.ppm",dir,count,seconds);
+  sprintf(name,"frame");
+  sprintf(fullName,"%sframe%06d-%10d.ppm",dir,count,seconds);
   Ptr<paolMat> img;
   img = new paolMat();
   while((seconds-lastLoaded)<20)
@@ -156,8 +156,8 @@ void ReadMod::ReadFromPattern(char* dir, char* firstImg)
 	      while(!img->src.data && tempSeconds-seconds<25)
 		{
 		  tempSeconds++;
-		  sprintf(name,"image");
-		  sprintf(fullName,"%simage%06d-%10d.ppm",dir,tempCount,tempSeconds);
+		  sprintf(name,"frame");
+		  sprintf(fullName,"%sframe%06d-%10d.ppm",dir,tempCount,tempSeconds);
 		  img->read(fullName,name,tempCount,tempSeconds);
 		  tempSeconds++;
 		};
@@ -166,8 +166,8 @@ void ReadMod::ReadFromPattern(char* dir, char* firstImg)
 	  seconds=tempSeconds-1;
 	  count=tempCount-1;
 	};
-      sprintf(name,"image");
-      sprintf(fullName,"%simage%06d-%10d.ppm",dir,count,seconds);
+      sprintf(name,"frame");
+      sprintf(fullName,"%sframe%06d-%10d.ppm",dir,count,seconds);
     };
   stop();
   //delete img;
@@ -196,7 +196,7 @@ void WriteMod::WriteVideo(char* lable)
   int startTime;
 
   strcpy(dir, "outMedia/");
-  strcpy(extention, "mp4");
+  strcpy(extention, "mpeg");
   startTime = 0;
 
   
