@@ -173,6 +173,71 @@ void ReadMod::ReadFromPattern(char* dir, char* firstImg)
   //delete img;
 };
 
+void ReadMod::ReadFromPatternFlip(char* dir, char* firstImg)
+{
+  int count, seconds, lastLoaded, tempCount, tempSeconds;
+  char name[256];
+  char fullName[256];
+  
+  boost::posix_time::millisec sleepTime(10);
+
+  sscanf(firstImg,"frame%06d-%10d.ppm",&count,&seconds);
+  lastLoaded = seconds;
+
+  sprintf(name,"frame");
+  sprintf(fullName,"%sframe%06d-%10d.ppm",dir,count,seconds);
+  Ptr<paolMat> img;
+  img = new paolMat();
+  while((seconds-lastLoaded)<20)
+    {
+      boost::this_thread::sleep(sleepTime);
+      img->read(fullName,name,count,seconds);
+      if(img->src.data)
+	{
+	  
+
+	  Mat rot_mat(2, 3, CV_32FC1);
+	  Mat src, warp_rotate_dst;
+	  src = img->src;
+	  Point center = Point(src.cols/2, src.rows/2);
+	  double angle = 180.0;
+	  double scale = 1.0;
+
+	  rot_mat = getRotationMatrix2D(center, angle, scale);
+	  warpAffine(src, warp_rotate_dst, rot_mat, src.size());
+	  
+	  img->src = warp_rotate_dst;
+
+	  push(img);
+	  lastLoaded=seconds;
+	  count++;
+	}
+      else
+	{
+	  tempCount=count;
+	  while(!img->src.data && tempCount-count<25)
+	    {
+	      tempSeconds=seconds;
+	      while(!img->src.data && tempSeconds-seconds<25)
+		{
+		  tempSeconds++;
+		  sprintf(name,"frame");
+		  sprintf(fullName,"%sframe%06d-%10d.ppm",dir,tempCount,tempSeconds);
+		  img->read(fullName,name,tempCount,tempSeconds);
+		  tempSeconds++;
+		};
+	      tempCount++;
+	    };
+	  seconds=tempSeconds-1;
+	  count=tempCount-1;
+	};
+      sprintf(name,"frame");
+      sprintf(fullName,"%sframe%06d-%10d.ppm",dir,count,seconds);
+    };
+  stop();
+  //delete img;
+};
+
 void WriteMod::WriteMats()
 {
   Ptr<paolMat> img;
@@ -185,6 +250,17 @@ void WriteMod::WriteMats()
     };
 };
 
+void WriteMod::WriteMats(std::string outDir)
+{
+  Ptr<paolMat> img;
+  img = pop();
+  while(img!=NULL)
+    {
+      img->write(outDir);
+      //delete img;
+      img = pop();
+    };
+};
 
 void WriteMod::WriteVideo(char* lable)
 {

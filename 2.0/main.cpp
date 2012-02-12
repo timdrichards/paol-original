@@ -40,13 +40,13 @@
 //#define _compCap_
 //#define _usbCompCap_
 //#define _usbCam_
-#define _live_
+//#define _live_
 //#define _gigE2Disk_
 //define _ethCompCap_
 
 
 
-//#define _readFromDisk_
+#define _readFromDisk_
 using namespace cv;
 
 #ifdef _readFromDisk_
@@ -55,7 +55,13 @@ int main(int argc, char** argv)
   //Hack to avoid unused var warning
   argc++;
   argc--;
-
+  char outDir[1024];
+  strcpy(outDir, argv[1]);
+  char WBdir[1024];
+  //"/home/diw08/code/testData/"); "frame000000-1327327396.ppm");
+  strcpy(WBdir, argv[2]);
+  char WBfirst[1024];
+  strcpy(WBfirst, argv[3]);
 #endif
 #ifdef _live_
 int main()
@@ -136,16 +142,13 @@ int main()
   ///////////////////////////////////////
   // Launch WB mods in revers order /////
   
-  boost::thread presVideoFramesWriterThread(boost::bind(&WriteMod::WriteMats, &presVideoFramesWriter));
-  boost::thread wbSlidesWriterThread(&WriteMod::WriteMats, &wbSlidesWriter);
+  boost::thread presVideoFramesWriterThread(boost::bind(&WriteMod::WriteMats, &presVideoFramesWriter, outDir));
+  boost::thread wbSlidesWriterThread(boost::bind(&WriteMod::WriteMats, &wbSlidesWriter));
   boost::thread wbprocThread(&WhiteBoardProcess::run, &wbproc);
   boost::thread lectFrameCreatorThread(&LectVideoFrameCreate::run, &lectFrameCreator);
   boost::thread locateSpeakerThread(&LocateSpeaker::run, &locateSpeaker);
-  char dir[300];
-  strcpy(dir, "/home/diw08/code/testData/");
-  char first[300];
-  strcpy(first,"frame000000-1327327396.ppm");
-  boost::thread wbReadThread(&ReadMod::ReadFromPattern, &readFromDisk, dir,first);
+  
+  boost::thread wbReadThread(&ReadMod::ReadFromPatternFlip, &readFromDisk, WBdir,WBfirst);
 #endif
 
 #ifdef _compCap_

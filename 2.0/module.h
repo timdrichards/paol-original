@@ -31,6 +31,8 @@ class ReadMod : public Module
   ReadMod(Buffer* out) : Module(NULL, out, 150){};
   //~ReadMod();
   void ReadFromPattern(char* dir, char* firstImg);
+  //For reading in upside down images
+  void ReadFromPatternFlip(char* dir, char* firstImg);
   
 };
 
@@ -41,6 +43,7 @@ class WriteMod : public Module
   WriteMod(Buffer* in) : Module(in, NULL, 150){};
     
   void WriteMats();
+  void WriteMats(std::string outDir);
   void WriteVideo();
   void WriteVideo(char* label);
   void WriteCompVideo();
