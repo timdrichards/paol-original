@@ -143,11 +143,10 @@ int main()
   // Launch WB mods in revers order /////
   
   boost::thread presVideoFramesWriterThread(boost::bind(&WriteMod::WriteMats, &presVideoFramesWriter, outDir));
-  boost::thread wbSlidesWriterThread(boost::bind(&WriteMod::WriteMats, &wbSlidesWriter));
-  boost::thread wbprocThread(&WhiteBoardProcess::run, &wbproc);
+  boost::thread wbSlidesWriterThread(boost::bind(&WriteMod::WriteMats, &wbSlidesWriter, outDir));
+  boost::thread wbprocThread(boost::bind(&WhiteBoardProcess::run, &wbproc, 10));
   boost::thread lectFrameCreatorThread(&LectVideoFrameCreate::run, &lectFrameCreator);
   boost::thread locateSpeakerThread(&LocateSpeaker::run, &locateSpeaker);
-  
   boost::thread wbReadThread(&ReadMod::ReadFromPatternFlip, &readFromDisk, WBdir,WBfirst);
 #endif
 

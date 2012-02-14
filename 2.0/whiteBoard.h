@@ -8,7 +8,7 @@ class WhiteBoardProcess : public Module
 {
  public:
   WhiteBoardProcess(Buffer* in, Buffer* out) : Module(in,out,150){};
-  void run();
+  void run(int skip);
 
 };
 

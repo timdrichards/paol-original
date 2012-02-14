@@ -111,6 +111,8 @@ void paolMat::read(std::string fullName, std::string fileName,int countIn, int t
   mask = Mat::zeros(src.size(), src.type());
   count=countIn;
   time=timeIn;
+  if(src.data)
+    std::cout<<"PaolMat:: Read: "<<fullName<<std::endl;
 };
 
 void paolMat::write()
@@ -521,6 +523,53 @@ void paolMat::difference(Ptr<paolMat> img, int thresh, int size, int maskBottom)
     difs = 0;
   else
     difs = numDiff;
+};
+
+void paolMat::differenceLect(Ptr<paolMat> inImg,int thresh, int size)
+{
+  bool diff;
+  int numDiff;
+  int surroundThresh = 50;
+  int dist;
+  bool first;
+  int cenx;
+  int ceny;
+  int total;
+  
+  mask = Mat::zeros(src.size(), src.type());
+  
+  numDiff = 0;
+  first = true;
+  dist = 0;
+  for (int y = 0; y < (src.rows-size-1); y+= size)
+    for (int x = 0; x < (src.cols-size-1); x+=size)
+      {
+	diff = false;
+	for(int i = 0; i < 3; i++)
+	  if(abs((double)inImg->src.at<Vec3b>(y,x)[i]-(double)src.at<Vec3b>(y,x)[i])>thresh)
+	    diff = true;
+	
+	if(diff)
+	  {
+	    
+	    for(int a = 0; a <= size; a++)
+	      for(int b = 0; b <= size; b++)
+		mask.at<Vec3b>(y+a,x+b)[1]=255;
+	    numDiff++;
+	    dist+=sqrt(((x-cenx)*(x-cenx))+((y-ceny)*(y-ceny)));
+	  }
+	if(first)
+	  {
+	    first = false;
+	    cenx = x;
+	    ceny = y;
+	  };
+
+	if(dist<10000)
+	  difs = 0;
+	else
+	  difs = numDiff;
+      };
 };
 
 void paolMat::localizeSpeaker()

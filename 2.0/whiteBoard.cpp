@@ -25,7 +25,7 @@
 using namespace cv;
 
 
-void WhiteBoardProcess::run()
+void WhiteBoardProcess::run(int skip)
 {
   Ptr<paolMat> img;
   Ptr<paolMat> bgImg;
@@ -44,6 +44,7 @@ void WhiteBoardProcess::run()
   };
   while(img != NULL)
     {
+      //std::cout<<"WhiteBoardProcess::run loop head"<<std::endl;
       if(img->difs > 2000)
 	{
 	  
@@ -63,9 +64,10 @@ void WhiteBoardProcess::run()
 	  //bgImg->write();
 	  //img->write();
 #endif
-	  img->difference(oldCleanImg, 50, 0, 0);
+	  img->differenceLect(oldCleanImg, 50, 10);
 	  if(img->difs > 30)
 	    {
+	      std::cout<<"WhiteBoardProc:: Enough diffs to make a slide"<<std::endl;
 	      oldOrigImg->copy(oldTemp);
 	      oldCleanImg->copy(img);
 	      img->createContrast();
@@ -78,9 +80,12 @@ void WhiteBoardProcess::run()
 #endif
 	      img->name="WBSlide";
 	      push(img);
+	      std::cout<<"WhiteBoardProc:: Pushed wb slide"<<std::endl;
 	    };
 	};
-      img = pop();
+
+      for(int i = 0; i < skip; i++)
+	img = pop();
     };
   stop();
 };

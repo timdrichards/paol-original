@@ -128,7 +128,7 @@ void ReadMod::ReadFromPattern(char* dir, char* firstImg)
   char name[256];
   char fullName[256];
   
-  boost::posix_time::millisec sleepTime(10);
+  //boost::posix_time::millisec sleepTime(1);
 
   sscanf(firstImg,"frame%06d-%10d.ppm",&count,&seconds);
   lastLoaded = seconds;
@@ -139,7 +139,7 @@ void ReadMod::ReadFromPattern(char* dir, char* firstImg)
   img = new paolMat();
   while((seconds-lastLoaded)<20)
     {
-      boost::this_thread::sleep(sleepTime);
+      //boost::this_thread::sleep(sleepTime);
       img->read(fullName,name,count,seconds);
       if(img->src.data)
 	{
@@ -179,7 +179,7 @@ void ReadMod::ReadFromPatternFlip(char* dir, char* firstImg)
   char name[256];
   char fullName[256];
   
-  boost::posix_time::millisec sleepTime(10);
+  boost::posix_time::millisec sleepTime(1);
 
   sscanf(firstImg,"frame%06d-%10d.ppm",&count,&seconds);
   lastLoaded = seconds;
@@ -190,7 +190,7 @@ void ReadMod::ReadFromPatternFlip(char* dir, char* firstImg)
   img = new paolMat();
   while((seconds-lastLoaded)<20)
     {
-      boost::this_thread::sleep(sleepTime);
+      //boost::this_thread::sleep(sleepTime);
       img->read(fullName,name,count,seconds);
       if(img->src.data)
 	{

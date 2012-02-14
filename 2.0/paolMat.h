@@ -44,6 +44,7 @@ class paolMat
   void shrink();
   Ptr<paolMat> returnShrink();
   void difference(Ptr<paolMat> img, int thresh, int size, int maskBottom);
+  void differenceLect(Ptr<paolMat> inImg, int thresh, int size);
   void localizeSpeaker();
   void decimateMask();
   void connected();

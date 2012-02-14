@@ -6,16 +6,16 @@ srcdir = .
 .SUFFIXES:
 .SUFFIXES: .cpp .o
 
-OPT=-g -O
+OPT= -O3
 
 AR = ar
 AR_FLAGS = rc
 RANLIB = ranlib
 
 CC = gcc
-CFLAGS = `pkg-config opencv --cflags --libs` -I/opt/local/include -L/opt/local/lib -lboost_thread-mt -g -O2
+CFLAGS =  -g -O2
 LDFLAGS =  
-LIBS = 
+LIBS = `pkg-config opencv --cflags --libs` -I/opt/local/include -L/opt/local/lib -lboost_thread-mt 
 #INSTALL = /usr/bin/install -c
 prefix = /usr/local
 exec_prefix = ${prefix}

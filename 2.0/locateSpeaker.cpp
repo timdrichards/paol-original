@@ -31,7 +31,7 @@ void LocateSpeaker::run()
   Ptr<paolMat> cleanImg;
   Ptr<paolMat> bgImg;
   Ptr<paolMat> lastImg;
-  
+
   lastImg = pop();
   
   if(lastImg != NULL){
@@ -44,7 +44,11 @@ void LocateSpeaker::run()
 	bgImg = img->returnCreateBackgroundImg(25);
 	img->improveInputImg(bgImg);
 	
-	img->difference(lastImg,10,0,0);
+	img->differenceLect(lastImg,10,10);
+#ifdef _debug_
+	img->name="diffSpeaker";
+	img->writeMask();
+#endif
 	img->localizeSpeaker();
 #ifdef _debug_
 	img->writeMask();
@@ -59,6 +63,7 @@ void LocateSpeaker::run()
 	push(cleanImg);
 	
 	lastImg = img;
+	std::cout<<"LocateSpeaker:: Frame :"<<img->count<<std::endl;
 	img = pop();
       };
   };
