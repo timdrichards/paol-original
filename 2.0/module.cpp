@@ -256,6 +256,7 @@ void WriteMod::WriteMats(std::string outDir)
   img = pop();
   while(img!=NULL)
     {
+      std::cout<<"WriteMod:: about to write: "<<outDir<<std::endl;
       img->write(outDir);
       //delete img;
       img = pop();
