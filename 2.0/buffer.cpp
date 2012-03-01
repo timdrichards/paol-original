@@ -25,7 +25,7 @@ using namespace cv;
 
 PMList::PMList()
 {
-  PaolMats.resize(90, NULL);
+  PaolMats.resize(20, NULL);
   producerRunning = true;
   size = 0;
   current = 0;
@@ -84,7 +84,7 @@ Ptr<paolMat> PMList::pop()
   else if(producerRunning)
     {
       lock.unlock();
-      boost::this_thread::sleep(boost::posix_time::millisec(1));
+      boost::this_thread::sleep(boost::posix_time::millisec(10));
       return pop();
     };
 

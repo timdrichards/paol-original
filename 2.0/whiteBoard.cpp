@@ -88,9 +88,11 @@ void WhiteBoardProcess::run(int skip)
 	      std::cout<<"WhiteBoardProc:: Pushed wb slide"<<std::endl;
 	    };
 	};
-
-      for(int i = 0; i < skip; i++)
-	img = pop();
+      
+      //for(int i = 0; i < skip; i++)
+      std::cout<<"WhiteBoardProc: about to pop"<<std::endl;
+      img = pop();
+      std::cout<<"WhiteBoardProc: popped"<<std::endl;
     };
   stop();
 };
