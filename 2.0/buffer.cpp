@@ -64,7 +64,7 @@ int PMList::push(Ptr<paolMat> inPM)
   else
     {
       listLock.unlock();
-      boost::this_thread::sleep(boost::posix_time::millisec(40));
+      boost::this_thread::sleep(boost::posix_time::seconds(1));
       push(inPM);
     };
   //listLock.unlock();
@@ -84,7 +84,7 @@ Ptr<paolMat> PMList::pop()
   else if(producerRunning)
     {
       lock.unlock();
-      boost::this_thread::sleep(boost::posix_time::millisec(80));
+      boost::this_thread::sleep(boost::posix_time::seconds(2));
       return pop();
     };
 
