@@ -26,6 +26,7 @@ class paolMat
   void read(std::string fullName, std::string fileName, int countIn, int timeIn);
   void write();
   void write(std::string outDir);
+  void writeByCount(std::string outDir);
   void writeMask();
   void print();
   void edges();

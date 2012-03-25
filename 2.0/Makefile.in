@@ -14,7 +14,7 @@ RANLIB = @RANLIB@
 
 CC = @CC@
 CFLAGS =  @CFLAGS@
-LDFLAGS =  @LDFLAGS@
+LDFLAGS = -Wno-write-strings @LDFLAGS@
 LIBS = `pkg-config opencv --cflags --libs` -I/opt/local/include -L/opt/local/lib -lboost_thread-mt @LIBS@
 #INSTALL = @INSTALL@
 prefix = @prefix@

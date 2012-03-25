@@ -335,6 +335,21 @@ void WriteMod::WriteMats(std::string outDir)
     };
 };
 
+void WriteMod::WriteMatsByCount(std::string outDir)
+{
+  Ptr<paolMat> img;
+  img = pop();
+  while(img!=NULL)
+    {
+      std::cout<<"WriteMod:: about to write: "<<outDir<<std::endl;
+      img->writeByCount(outDir);
+      //delete img;
+      img = pop();
+    };
+};
+
+
+
 void WriteMod::WriteVideo(char* lable)
 {
   Ptr<paolMat> img;
@@ -359,7 +374,7 @@ void WriteMod::WriteVideo(char* lable)
 	startTime = 0;
       
       sprintf(fullPath, "%s/%s%i06.%s", dir,lable,startTime,extention);
-      VideoWriter outVideo(fullPath, CV_FOURCC('F','M','P','4'), 15,img->src.size(), true);
+      VideoWriter outVideo(fullPath, CV_FOURCC('M','P','4','2'), 15,img->src.size(), true);
       while(img!=NULL)
 	{
 #ifdef _debug_

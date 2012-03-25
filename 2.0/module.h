@@ -45,6 +45,7 @@ class WriteMod : public Module
     
   void WriteMats();
   void WriteMats(std::string outDir);
+  void WriteMatsByCount(std::string outDir);
   void WriteVideo();
   void WriteVideo(char* label);
   void WriteCompVideo();

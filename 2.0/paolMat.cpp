@@ -149,6 +149,24 @@ void paolMat::write(std::string outDir)
     };
 };
 
+void paolMat::writeByCount(std::string outDir)
+{
+  if(!src.empty())
+    {
+      char temp[256];
+      std::string longName = outDir;
+      longName.append(name);
+      sprintf(temp,"%06d.ppm",count);
+      longName.append(temp);
+      cv::imwrite(longName, src);
+      std::cout<<longName<<std::endl;
+    }else
+    {
+      std::cout<<"   Tried to write a empty src"<<std::endl;
+    };
+};
+
+
 void paolMat::writeMask()
 {
   if(!src.empty())
