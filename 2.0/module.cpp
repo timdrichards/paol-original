@@ -340,17 +340,48 @@ void WriteMod::WriteMatsByCount(std::string outDir)
   Ptr<paolMat> img;
   img = pop();
   int count = 0;
+  int second;
+  //## Target FPS ////////////////////////////////////
+  int tFPS = 15;
+  //## Current FPS (reset every second) ///////////////
+  int cFPS = 0;
   img->count = count;
+  second = img->time;
   while(img!=NULL)
     {
-      std::cout<<"WriteMod:: about to write: "<<outDir<<std::endl;
-      img->writeByCount(outDir);
-      //delete img;
-      img = pop();
-      count++;
-      img->count = count;
-    };
-};
+      if( (second == img->time) && (cFPS >= tFPS) )
+	std::cout<<"WriteMod:: Dropping frame, to many this second"<<std::endl;
+      
+      if( (second == img->time) && (cFPS < tFPS) )
+	{
+	  std::cout<<"WriteMod:: about to write: "<<outDir<<std::endl;
+	  img->writeByCount(outDir);
+	  img = pop();
+	  if(img!=NULL)
+	    {
+	      count++;
+	      img->count = count;
+	      cFPS++;
+	    }
+	}else if(second < img->time)
+	{
+	  while(cFPS < tFPS)
+	    {
+	      std::cout<<"WriteMod:: CFPS < 15 second < time"<<std::endl;
+	      count++;
+	      img->count = count;
+	      std::cout<<"WriteMod:: about to write (duplicate): "<<outDir<<std::endl;
+	      img->writeByCount(outDir);
+	      cFPS++;
+	    }
+	  std::cout<<"WriteMod:: tFPS achieved moving to next second"<<std::endl;
+      
+	  second++;
+	  cFPS = 0;
+	};
+      
+    }
+}
 
 
 
