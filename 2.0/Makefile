@@ -13,7 +13,7 @@ AR_FLAGS = rc
 RANLIB = ranlib
 
 CC = gcc
-CFLAGS =  -g -O2
+CFLAGS =  -Wno-write-strings -g -O2
 LDFLAGS = -Wno-write-strings 
 LIBS = `pkg-config opencv --cflags --libs` -I/opt/local/include -L/opt/local/lib -lboost_thread-mt 
 #INSTALL = /usr/bin/install -c

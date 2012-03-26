@@ -339,12 +339,16 @@ void WriteMod::WriteMatsByCount(std::string outDir)
 {
   Ptr<paolMat> img;
   img = pop();
+  int count = 0;
+  img->count = count;
   while(img!=NULL)
     {
       std::cout<<"WriteMod:: about to write: "<<outDir<<std::endl;
       img->writeByCount(outDir);
       //delete img;
       img = pop();
+      count++;
+      img->count = count;
     };
 };
 
