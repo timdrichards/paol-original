@@ -339,7 +339,7 @@ void WriteMod::WriteMatsByCount(std::string outDir)
 {
   Ptr<paolMat> img;
   img = pop();
-  int count = 0;
+  int count = -1;
   int second;
   //## Target FPS ////////////////////////////////////
   int tFPS = 15;
@@ -351,19 +351,18 @@ void WriteMod::WriteMatsByCount(std::string outDir)
     {
       if( (second == img->time) && (cFPS >= tFPS) )
 	std::cout<<"WriteMod:: Dropping frame, to many this second"<<std::endl;
-      
-      if( (second == img->time) && (cFPS < tFPS) )
+      else if( (second == img->time) && (cFPS < tFPS) )
 	{
+	  count++;
 	  std::cout<<"WriteMod:: about to write: "<<outDir<<std::endl;
+	  img->count = count;
 	  img->writeByCount(outDir);
 	  img = pop();
-	  if(img!=NULL)
-	    {
-	      count++;
-	      img->count = count;
-	      cFPS++;
-	    }
-	}else if(second < img->time)
+	  
+	  
+	  cFPS++;
+	}
+      else if(second < img->time)
 	{
 	  while(cFPS < tFPS)
 	    {
