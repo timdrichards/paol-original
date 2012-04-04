@@ -880,6 +880,41 @@ void paolMat::connected(){
   connect->src.copyTo(mask);
 };
 
+
+void paolMat::connected(int size){
+  Ptr<paolMat> connect;
+  connect = new paolMat(this);
+  connect->src = Mat::zeros(src.size(), src.type());
+  for(int x = size+1; x < src.cols-(size+2); x+=size)
+    for(int y = size+1; y < src.rows-(size+2); y+=size)
+      {
+	int touch = 0;
+	touch += mask.at<Vec3b>(y-size,x)[1]%255;
+	touch += mask.at<Vec3b>(y+size,x)[1]%255;
+	touch += mask.at<Vec3b>(y,x-size)[1]%255;
+	touch += mask.at<Vec3b>(y,x+size)[1]%255;
+	touch += mask.at<Vec3b>(y-size,x-size)[1]%255;
+	touch += mask.at<Vec3b>(y-size,x+size)[1]%255;
+	touch += mask.at<Vec3b>(y+size,x-size)[1]%255;
+	touch += mask.at<Vec3b>(y+size,x+size)[1]%255;
+	for(int xx = x; xx < x+size; xx++)
+	    for(int yy = y; yy < y+size; yy++)
+	      if(touch >= 1)
+		{
+		  connect->src.at<Vec3b>(yy,xx)[1] = 255;
+		}
+      };
+	
+
+  //#ifdef _debug_
+  connect->name="connect2";
+  connect->write();
+  //#endif
+  connect->src.copyTo(mask);
+
+};
+
+
 void paolMat::lectArea(){
   Ptr<paolMat> profile;
   profile = new paolMat(this);

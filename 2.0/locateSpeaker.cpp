@@ -21,7 +21,7 @@
 #include "genericProcess.h"
 #include "locateSpeaker.h"
 
-//#define _debug_
+#define _debug_
 
 using namespace cv;
 
@@ -44,13 +44,17 @@ void LocateSpeaker::run()
 	bgImg = img->returnCreateBackgroundImg(25);
 	img->improveInputImg(bgImg);
 	
-	img->differenceLect(lastImg,10,10);
+	img->differenceLect(lastImg,95,10);
+	//img->name="differenceLect";
+	//img->writeMask();
+	//img->connected(10);
 #ifdef _debug_
-	img->name="diffSpeaker";
-	img->writeMask();
+	//img->name="connectedDiffSpeaker";
+	//img->writeMask();
 #endif
 	img->localizeSpeaker();
 #ifdef _debug_
+	img->name="localizeSpeaker";
 	img->writeMask();
 	img->name = "Speaker";
 	img->write();

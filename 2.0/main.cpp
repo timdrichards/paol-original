@@ -86,7 +86,6 @@ int main()
   // WB Cap/Proc Modules
   WriteMod presVideoFramesWriter(lectVideoBuffer);
   WriteMod wbSlidesWriter(wbSlidesWriteBuffer);
-  //WriteMod wbSlidesWriter(wbSlidesWriteBuffer);
   WhiteBoardProcess wbproc(wbBuffer, wbSlidesWriteBuffer);
   LectVideoFrameCreate lectFrameCreator(wbBuffer, lectVideoBuffer);
   LocateSpeaker locateSpeaker(wbReadBuffer, wbBuffer);

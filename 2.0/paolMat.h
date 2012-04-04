@@ -45,10 +45,13 @@ class paolMat
   void shrink();
   Ptr<paolMat> returnShrink();
   void difference(Ptr<paolMat> img, int thresh, int size, int maskBottom);
+  // thresh: old rgb - new rgb > thresh // size: downsample x/y+=size
   void differenceLect(Ptr<paolMat> inImg, int thresh, int size);
   void localizeSpeaker();
   void decimateMask();
   void connected();
+  //Must be the same size as differenceLect
+  void connected(int size);
   void lectArea();
   Ptr<paolMat> cropFrame(int width, int height);
 };
