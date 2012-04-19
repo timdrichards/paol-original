@@ -44,7 +44,7 @@ void LocateSpeaker::run()
 	bgImg = img->returnCreateBackgroundImg(25);
 	img->improveInputImg(bgImg);
 	
-	img->differenceLect(lastImg,95,10);
+	img->differenceLect(lastImg,110,10);
 	//img->name="differenceLect";
 	//img->writeMask();
 	//img->connected(10);

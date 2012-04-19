@@ -62,6 +62,8 @@ int main(int argc, char** argv)
   strcpy(WBdir, argv[2]);
   char WBfirst[1024];
   strcpy(WBfirst, argv[3]);
+  char WBpattern[512];
+  strcpy(WBpattern,argv[4]);
 #endif
 #ifdef _live_
 int main()
@@ -84,10 +86,10 @@ int main()
 
   //////////////////////////////////////
   // WB Cap/Proc Modules
-  WriteMod presVideoFramesWriter(lectVideoBuffer);
+  //  WriteMod presVideoFramesWriter(lectVideoBuffer);
   WriteMod wbSlidesWriter(wbSlidesWriteBuffer);
   WhiteBoardProcess wbproc(wbBuffer, wbSlidesWriteBuffer);
-  LectVideoFrameCreate lectFrameCreator(wbBuffer, lectVideoBuffer);
+  // LectVideoFrameCreate lectFrameCreator(wbBuffer, lectVideoBuffer);
   LocateSpeaker locateSpeaker(wbReadBuffer, wbBuffer);
   ReadMod readFromDisk(wbReadBuffer);
 #endif  
@@ -142,12 +144,12 @@ int main()
   ///////////////////////////////////////
   // Launch WB mods in revers order /////
   
-  boost::thread presVideoFramesWriterThread(boost::bind(&WriteMod::WriteMatsByCount, &presVideoFramesWriter, outDir));
+  //boost::thread presVideoFramesWriterThread(boost::bind(&WriteMod::WriteMatsByCount, &presVideoFramesWriter, outDir));
   boost::thread wbSlidesWriterThread(boost::bind(&WriteMod::WriteMats, &wbSlidesWriter, outDir));
   boost::thread wbprocThread(boost::bind(&WhiteBoardProcess::run, &wbproc, 1));
-  boost::thread lectFrameCreatorThread(&LectVideoFrameCreate::run, &lectFrameCreator);
+  // boost::thread lectFrameCreatorThread(&LectVideoFrameCreate::run, &lectFrameCreator);
   boost::thread locateSpeakerThread(&LocateSpeaker::run, &locateSpeaker);
-  boost::thread wbReadThread(&ReadMod::ReadFromPatternFlipTiff, &readFromDisk, WBdir,WBfirst);
+  boost::thread wbReadThread(&ReadMod::ReadFromPatternFlipExt, &readFromDisk, WBdir,WBfirst,WBpattern);
 #endif
 
 #ifdef _compCap_
@@ -180,10 +182,10 @@ int main()
 #ifdef _wb_
   wbReadThread.join();
   locateSpeakerThread.join();
-  lectFrameCreatorThread.join();
+  //lectFrameCreatorThread.join();
   wbprocThread.join();
   wbSlidesWriterThread.join();
-  presVideoFramesWriterThread.join();
+  // presVideoFramesWriterThread.join();
 
   std::cout<<"Main: about to begin deleting WB buffers"<<std::endl;
   //delete webCamCaptureBuffer;

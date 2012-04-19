@@ -564,7 +564,7 @@ void paolMat::differenceLect(Ptr<paolMat> inImg,int thresh, int size)
       {
 	diff = false;
 	for(int i = 0; i < 3; i++)
-	  if(abs((double)inImg->src.at<Vec3b>(y,x)[i]-(double)src.at<Vec3b>(y,x)[i])>thresh)
+	  if(abs((double)inImg->src.at<Vec3b>(y,x)[i]-(double)src.at<Vec3b>(y,x)[i])>(thresh*2))
 	    diff = true;
 	
 	if(diff)

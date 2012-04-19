@@ -25,7 +25,7 @@ using namespace cv;
 
 PMList::PMList()
 {
-  PaolMats.resize(40, NULL);
+  PaolMats.resize(5, NULL);
   producerRunning = true;
   size = 0;
   current = 0;
