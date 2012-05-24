@@ -20,7 +20,7 @@
 #include "module.h"
 #include "whiteBoard.h"
 
-//#define _debug_
+#define _debug_
 
 using namespace cv;
 
@@ -49,27 +49,10 @@ void WhiteBoardProcess::run(int skip)
       if(img->difs > 2000)
 	{
 	  
-	  //img->connected();
-	  //img->lectArea();
-	  std::cout<<"WhiteBoardProc:: about to remove prof"<<std::endl;
-	  img->removeProf(oldOrigImg);
-	  oldTemp->copy(img);
-#ifdef _debug_
-	  //img->decimateMask();
-	  
-	  //img->writeMask();
-	  //img->write();
-#endif
-	  std::cout<<"WhiteBoardProc:: about to create backgroundImg"<<std::endl;
-	  bgImg = img->returnCreateBackgroundImg(25);
-	  std::cout<<"WhiteBoardProc:: about to improveInputImg"<<std::endl;
-	  img->improveInputImg(bgImg);
-#ifdef _debug_
-	  //bgImg->write();
-	  //img->write();
-#endif
-	  std::cout<<"WhiteBoardProc:: about to differenceLect(oldCleanImg, 50,10)"<<std::endl;
-	  img->differenceLect(oldCleanImg, 50, 10);
+	  img->decimateMaskByHistogram(100,100);
+	  img->name = "HistoDecimated";
+	  img->writeMask();
+	 
 	  if(img->difs > 30)
 	    {
 	      std::cout<<"WhiteBoardProc:: Enough diffs to make a slide"<<std::endl;
@@ -96,3 +79,31 @@ void WhiteBoardProcess::run(int skip)
     };
   stop();
 };
+
+
+
+/*
+
+	  
+	  //img->connected();
+	  //img->lectArea();
+	  std::cout<<"WhiteBoardProc:: about to remove prof"<<std::endl;
+	  img->removeProf(oldOrigImg);
+	  oldTemp->copy(img);
+#ifdef _debug_
+	  //img->decimateMask();
+	  
+	  //img->writeMask();
+	  //img->write();
+#endif
+	  std::cout<<"WhiteBoardProc:: about to create backgroundImg"<<std::endl;
+	  bgImg = img->returnCreateBackgroundImg(25);
+	  std::cout<<"WhiteBoardProc:: about to improveInputImg"<<std::endl;
+	  img->improveInputImg(bgImg);
+#ifdef _debug_
+	  //bgImg->write();
+	  //img->write();
+#endif
+	  std::cout<<"WhiteBoardProc:: about to differenceLect(oldCleanImg, 50,10)"<<std::endl;
+	   img->differenceLect(oldCleanImg, 50, 10);
+*/

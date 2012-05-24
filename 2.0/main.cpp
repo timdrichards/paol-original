@@ -56,14 +56,15 @@ int main(int argc, char** argv)
   argc++;
   argc--;
   char outDir[1024];
-  strcpy(outDir, argv[1]);
+  std::strcpy(outDir, argv[1]);
   char WBdir[1024];
   //"/home/diw08/code/testData/"); "frame000000-1327327396.ppm");
-  strcpy(WBdir, argv[2]);
+  std::strcpy(WBdir, argv[2]);
   char WBfirst[1024];
-  strcpy(WBfirst, argv[3]);
+  std::strcpy(WBfirst, argv[3]);
   char WBpattern[512];
-  strcpy(WBpattern,argv[4]);
+  std::strcpy(WBpattern, argv[4]);
+  
 #endif
 #ifdef _live_
 int main()

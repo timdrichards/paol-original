@@ -54,6 +54,9 @@ class paolMat
   void connected(int size);
   void lectArea();
   Ptr<paolMat> cropFrame(int width, int height);
+  vector<int> vertMaskHistogram();
+  vector<int> horMaskHistogram();
+  void decimateMaskByHistogram(int hThresh, int vThresh);
 };
 
 

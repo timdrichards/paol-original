@@ -41,12 +41,13 @@ void LocateSpeaker::run()
     while(img != NULL)
       {
 	cleanImg->copy(img);
-	bgImg = img->returnCreateBackgroundImg(25);
-	img->improveInputImg(bgImg);
+	//bgImg = img->returnCreateBackgroundImg(25);
+	img->differenceLect(lastImg,150,1);
+	img->name="differenceLect";
+	img->writeMask();
+	//img->improveInputImg(bgImg);
 	
-	img->differenceLect(lastImg,110,10);
-	//img->name="differenceLect";
-	//img->writeMask();
+	
 	//img->connected(10);
 #ifdef _debug_
 	//img->name="connectedDiffSpeaker";
@@ -54,8 +55,8 @@ void LocateSpeaker::run()
 #endif
 	img->localizeSpeaker();
 #ifdef _debug_
-	img->name="localizeSpeaker";
-	img->writeMask();
+	//img->name="localizeSpeaker";
+	//img->writeMask();
 	img->name = "Speaker";
 	img->write();
 #endif

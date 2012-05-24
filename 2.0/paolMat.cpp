@@ -8,7 +8,7 @@
 #include <iostream>
 #include <iterator>
 #include <queue>
-//#include <algorithm>
+#include <algorithm>
 #include <cstdio>
 
 //Open CV
@@ -552,7 +552,7 @@ void paolMat::differenceLect(Ptr<paolMat> inImg,int thresh, int size)
   bool first;
   int cenx;
   int ceny;
-  int total;
+  int pixDif;
   
   mask = Mat::zeros(src.size(), src.type());
   
@@ -563,30 +563,33 @@ void paolMat::differenceLect(Ptr<paolMat> inImg,int thresh, int size)
     for (int x = 0; x < (src.cols-size-1); x+=size)
       {
 	diff = false;
-	for(int i = 0; i < 3; i++)
-	  if(abs((double)inImg->src.at<Vec3b>(y,x)[i]-(double)src.at<Vec3b>(y,x)[i])>(thresh*2))
+	pixDif=abs((double)inImg->src.at<Vec3b>(y,x)[0]-
+		   (double)src.at<Vec3b>(y,x)[0])+
+	  abs((double)inImg->src.at<Vec3b>(y,x)[1]-
+	      (double)src.at<Vec3b>(y,x)[1])+
+	  abs((double)inImg->src.at<Vec3b>(y,x)[2]-
+	      (double)src.at<Vec3b>(y,x)[2]);
+	if (pixDif>thresh)
+	  {
+	    mask.at<Vec3b>(y,x)[2] = 255;
 	    diff = true;
+	  }
+	if(pixDif > 255)
+	  pixDif = 255;
+	mask.at<Vec3b>(y,x)[1] = 0;//pixDif;
+	mask.at<Vec3b>(y,x)[0] = 0;
+	   
+	    
 	
 	if(diff)
 	  {
 	    
-	    for(int a = 0; a <= size; a++)
-	      for(int b = 0; b <= size; b++)
-		mask.at<Vec3b>(y+a,x+b)[1]=255;
+	    //  for(int a = 0; a <= size; a++)
+	    //  for(int b = 0; b <= size; b++)
+	    //mask.at<Vec3b>(y+a,x+b)[1]=255;
 	    numDiff++;
-	    dist+=sqrt(((x-cenx)*(x-cenx))+((y-ceny)*(y-ceny)));
 	  }
-	if(first)
-	  {
-	    first = false;
-	    cenx = x;
-	    ceny = y;
-	  };
-
-	if(dist<10000)
-	  difs = 0;
-	else
-	  difs = numDiff;
+	difs = numDiff;
       };
 };
 
@@ -1085,4 +1088,66 @@ Ptr<paolMat> paolMat::cropFrame(int width, int height){
   return outFrame;
 
   //now use upper and lower right to crop the frame
+};
+
+vector<int> paolMat::vertMaskHistogram()
+{
+  vector<int> hist;
+  int vertCount;
+
+
+  for(int x = 0; x < mask.cols; x++)
+    {
+      vertCount = 0;
+      for(int y = 0; y < mask.rows; y++)
+	{
+	  if(mask.at<Vec3b>(y,x)[2] == 255)
+	    vertCount ++;
+	}
+      hist.push_back(vertCount);
+    }
+  return hist;
+};
+
+vector<int> paolMat::horMaskHistogram()
+{
+  vector<int> hist;
+  int horCount;
+
+
+  for(int y = 0; y < mask.rows; y++)
+    {
+      horCount = 0;
+      for(int x = 0; x < mask.cols; x++)
+	{
+	  if(mask.at<Vec3b>(y,x)[2] == 255)
+	    horCount ++;
+	}
+      hist.push_back(horCount);
+    }
+  return hist;
+};
+
+void paolMat::decimateMaskByHistogram(int hThresh, int vThresh)
+{
+  vector<int> horHisto;
+  vector<int> vertHisto;
+
+  horHisto = horMaskHistogram();
+  vertHisto = vertMaskHistogram();
+
+  for(int x = 0; x < mask.cols; x++)
+    for(int y = 0; y < mask.rows; y++)
+      {
+	if( mask.at<Vec3b>(y,x)[2] == 255 && 
+	    ( (horHisto[y] > hThresh) && 
+	      (vertHisto[x] > vThresh)))
+	  mask.at<Vec3b>(y,x)[1] = 255;
+	else
+	  {
+	    //mask.at<Vec3b>(y,x)[1] = 0;
+	    //mask.at<Vec3b>(y,x)[0] = 0;
+	    //mask.at<Vec3b>(y,x)[2] = 0;
+	  }
+      }
 };

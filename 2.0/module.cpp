@@ -22,7 +22,7 @@
 #define _debug_
 
 using namespace cv;
-
+using namespace std;
 
 Module::Module(Buffer* in, Buffer* out, int arraySize)
 {
@@ -288,12 +288,14 @@ void ReadMod::ReadFromPatternFlipExt(char* dir, char* firstImg, char* pattern)
       else
 	{
 	  tempCount=count;
+	  
 	  while(!img->src.data && tempCount-count<25)
 	    {
 	      tempSeconds=seconds;
 	      while(!img->src.data && tempSeconds-seconds<25)
 		{
-		  tempSeconds++;
+		  //cout<<"Read: did not find image: wboardwboard "<<tempCount<<"-"<<tempSeconds<<endl;
+		  //tempSeconds++;
 		  sprintf(name,"frame");
 		  sprintf(fullName,"%swboardwboard%06d-%10d.%s",dir,tempCount,tempSeconds,ext);
 		  img->read(fullName,name,tempCount,tempSeconds);
