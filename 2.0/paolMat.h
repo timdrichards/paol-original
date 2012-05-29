@@ -57,6 +57,8 @@ class paolMat
   vector<int> vertMaskHistogram();
   vector<int> horMaskHistogram();
   void decimateMaskByHistogram(int hThresh, int vThresh);
+  void drift();
+  void sweepMask();
 };
 
 

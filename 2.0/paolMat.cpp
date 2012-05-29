@@ -1151,3 +1151,52 @@ void paolMat::decimateMaskByHistogram(int hThresh, int vThresh)
 	  }
       }
 };
+
+void paolMat::drift()
+{
+  int temp;
+  int total;
+  for(int x = 0; x < src.cols -1; x++)
+    for(int y = 0; y < src.rows -1; y++)
+      {
+	temp = abs( src.at<Vec3b>(y,x)[0] - src.at<Vec3b>(y,x+1)[0] )+
+	  abs( src.at<Vec3b>(y,x)[1] - src.at<Vec3b>(y,x+1)[1] )+
+	  abs( src.at<Vec3b>(y,x)[2] - src.at<Vec3b>(y,x+1)[2] );
+	total = temp;
+	if(temp > 255)
+	  temp = 255;
+	mask.at<Vec3b>(y,x)[0] = temp;
+	temp = abs( src.at<Vec3b>(y,x)[0] - src.at<Vec3b>(y+1,x)[0] )+
+	  abs( src.at<Vec3b>(y,x)[1] - src.at<Vec3b>(y+1,x)[1] )+
+	  abs( src.at<Vec3b>(y,x)[2] - src.at<Vec3b>(y+1,x)[2] );
+	total+=temp;
+	if(temp > 255)
+	  temp = 255;
+	if(total > 255)
+	  temp = 255;
+	mask.at<Vec3b>(y,x)[1]=temp;
+	mask.at<Vec3b>(y,x)[2]=total;
+      }
+};
+
+
+void paolMat::sweepMask()
+{
+  //Sweep down then up, then left, then right, filling in gaps smaller then thresh
+  //if the color of the source in gap matched the color of the source at the mask
+  
+  cv::Mat temp;
+  temp = src.clone();
+  temp = Mat::zeros(src.size(),src.type());
+  
+  
+  for(int x = 0; x < src.cols -1; x++)
+    {
+      int y = 0;
+      int last = 0;
+      while(y < src.rows)
+	{
+	  
+	}
+    }
+};

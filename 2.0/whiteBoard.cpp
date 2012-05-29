@@ -48,11 +48,17 @@ void WhiteBoardProcess::run(int skip)
       //std::cout<<"WhiteBoardProcess::run loop head"<<std::endl;
       if(img->difs > 2000)
 	{
-	  
-	  img->decimateMaskByHistogram(100,100);
-	  img->name = "HistoDecimated";
+	  blur(img->src,img->src,Size(2,2),Point(-1,-1),BORDER_DEFAULT);
+	  img->drift();
+	  img->name = "Drift";
 	  img->writeMask();
-	 
+	  img->sweepMask();
+	  img->name = "Sweep";
+	  img->writeMask();
+	  //img->decimateMaskByHistogram(100,100);
+	  //img->name = "HistoDecimated";
+	  //img->writeMask();
+	  /*
 	  if(img->difs > 30)
 	    {
 	      std::cout<<"WhiteBoardProc:: Enough diffs to make a slide"<<std::endl;
@@ -70,6 +76,7 @@ void WhiteBoardProcess::run(int skip)
 	      push(img);
 	      std::cout<<"WhiteBoardProc:: Pushed wb slide"<<std::endl;
 	    };
+	  */
 	};
       
       //for(int i = 0; i < skip; i++)
