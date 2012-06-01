@@ -16,6 +16,7 @@ class paolMat
   cv::Point camera;
   cv::Point prof;
   bool lectFound;
+  int r,g,b;
 
   paolMat();
   ~paolMat();
@@ -44,6 +45,11 @@ class paolMat
   Ptr<paolMat> returnSharpen();
   void shrink();
   Ptr<paolMat> returnShrink();
+  //One to One comparison of colors in each pixel of src
+  void difference(Ptr<paolMat> img);
+  //Ont to One comparison of the colors in each pixel of mask
+  void maskDifference(Ptr<paolMat> img);
+  //difference for computer proc
   void difference(Ptr<paolMat> img, int thresh, int size, int maskBottom);
   // thresh: old rgb - new rgb > thresh // size: downsample x/y+=size
   void differenceLect(Ptr<paolMat> inImg, int thresh, int size);
@@ -58,7 +64,13 @@ class paolMat
   vector<int> horMaskHistogram();
   void decimateMaskByHistogram(int hThresh, int vThresh);
   void drift();
+  void driftWAverage();
   void sweepMask();
+  //Scan left to right, top to botton toggling mask everytime the src color changes
+  void intensityMask(int thresh);
+  //Scan a rectangle around a pixel and change it to white,black, or red.
+  void maskToWhite(int thresh);
+  void average();
 };
 
 

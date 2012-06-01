@@ -30,8 +30,10 @@ paolMat::paolMat()
   prof = Point(0,0);
   camera = Point(0,0);
   lectFound = false;
-
-};
+  r =0;
+  g =0;
+  b =0;
+}
 
 paolMat::paolMat(Ptr<paolMat> m)
 {
@@ -47,7 +49,10 @@ paolMat::paolMat(Ptr<paolMat> m)
   prof.x = m->prof.x;
   prof.y = m->prof.y;
   lectFound = m->lectFound;
-};
+  r = m->r;
+  g = m->g;
+  b = m->b;
+}
 
 paolMat::paolMat(paolMat* m)
 {
@@ -63,7 +68,10 @@ paolMat::paolMat(paolMat* m)
   prof.x = m->prof.x;
   prof.y = m->prof.y;
   lectFound = m->lectFound;
-};
+  r = m->r;
+  g = m->g;
+  b = m->b;
+}
 
 paolMat::~paolMat()
 {
@@ -71,7 +79,7 @@ paolMat::~paolMat()
   mask.~Mat();
   camera.~Point();
   prof.~Point();
-};
+}
 
 void paolMat::copy(Ptr<paolMat> m)
 {
@@ -87,7 +95,10 @@ void paolMat::copy(Ptr<paolMat> m)
   prof.x = m->prof.x;
   prof.y = m->prof.y;
   lectFound = m->lectFound;
-};
+  r = m->r;
+  g = m->g;
+  b = m->b;
+}
 
 void paolMat::copyNoSrc(Ptr<paolMat> m)
 {
@@ -102,7 +113,10 @@ void paolMat::copyNoSrc(Ptr<paolMat> m)
   prof.x = m->prof.x;
   prof.y = m->prof.y;
   lectFound = m->lectFound;
-};
+  r = m->r;
+  g = m->g;
+  b = m->b;
+}
 
 void paolMat::read(std::string fullName, std::string fileName,int countIn, int timeIn)
 {
@@ -113,7 +127,7 @@ void paolMat::read(std::string fullName, std::string fileName,int countIn, int t
   time=timeIn;
   if(src.data)
     std::cout<<"PaolMat:: Read: "<<fullName<<std::endl;
-};
+}
 
 void paolMat::write()
 {
@@ -129,8 +143,8 @@ void paolMat::write()
     }else
     {
       std::cout<<"   Tried to write a empty src"<<std::endl;
-    };
-};
+    }
+}
 
 void paolMat::write(std::string outDir)
 {
@@ -146,8 +160,8 @@ void paolMat::write(std::string outDir)
     }else
     {
       std::cout<<"   Tried to write a empty src"<<std::endl;
-    };
-};
+    }
+}
 
 void paolMat::writeByCount(std::string outDir)
 {
@@ -163,8 +177,8 @@ void paolMat::writeByCount(std::string outDir)
     }else
     {
       std::cout<<"   Tried to write a empty src"<<std::endl;
-    };
-};
+    }
+}
 
 
 void paolMat::writeMask()
@@ -182,14 +196,14 @@ void paolMat::writeMask()
     }else
     {
       std::cout<<"   Tried to write a empty mask"<<std::endl;
-    };
-};
+    }
+}
 
 void paolMat::print()
 {
   std::cout<<"     "<<name<<" time "<<time<<" count "<<count<<std::endl;
 
-};
+}
 
 void paolMat::edges()
 {
@@ -212,7 +226,7 @@ void paolMat::edges()
 	      total+= 1*temp.at<Vec3b>((y+1),x)[i];
 	      total+= 1*temp.at<Vec3b>(y,(x+1))[i];
 	      
-	    };
+	    }
 
 	  total=abs(total);
 	  if(total>56)
@@ -221,10 +235,10 @@ void paolMat::edges()
 	  //  src.at<Vec3b>(y,x)[1]=255;
 	  //if(total>768)
 	  //  src.at<Vec3b>(y,x)[0]=255;
-	};
-    };
+	}
+    }
   name="edges";
-};
+}
 
 Ptr<paolMat> paolMat::returnEdges()
 {
@@ -233,7 +247,7 @@ Ptr<paolMat> paolMat::returnEdges()
   out->edges();
   return out;
 
-};
+}
 
 //This is a slow method for testing, not production//
 void paolMat::invert()
@@ -253,16 +267,16 @@ void paolMat::invert()
 	  src.at<Vec3b>(y,x)[0]=temp;
 	  src.at<Vec3b>(y,x)[1]=temp;
 	  src.at<Vec3b>(y,x)[2]=temp;	  
-	};
-    };
-};
+	}
+    }
+}
 
 void paolMat::createBackgroundImg(int kernalSize)
 {
   cv::Point centerPoint(-1,-1);
   cv::blur(src, src, cv::Size(kernalSize,kernalSize), centerPoint, 1);
   name = "backgroundImg";
-};
+}
 
 Ptr<paolMat> paolMat::returnCreateBackgroundImg(int kernalSize)
 {
@@ -270,7 +284,7 @@ Ptr<paolMat> paolMat::returnCreateBackgroundImg(int kernalSize)
   img = new paolMat(this);
   img->createBackgroundImg(kernalSize);
   return img;
-};
+}
 
 void paolMat::improveInputImg(Ptr<paolMat> background)
 {
@@ -292,13 +306,13 @@ void paolMat::improveInputImg(Ptr<paolMat> background)
 		src.at<Vec3b>(y,x)[channel] = 255;
 	      else
 		src.at<Vec3b>(y,x)[channel] = temp;
-	    };
-	};
+	    }
+	}
       
-    };
+    }
   
   name = "improvedImage";
-};
+}
 
 Ptr<paolMat> paolMat::returnImproveInputImg(Ptr<paolMat> background)
 {
@@ -306,7 +320,7 @@ Ptr<paolMat> paolMat::returnImproveInputImg(Ptr<paolMat> background)
   img = new paolMat(this);
   img->improveInputImg(background);
   return img;
-};
+}
 
 void paolMat::removeProf(Ptr<paolMat> oldImg){
   //int totalDiff;
@@ -319,7 +333,7 @@ void paolMat::removeProf(Ptr<paolMat> oldImg){
 	for(int i = 0; i < 3; i++)
 	  src.at<Vec3b>(y,x)[i] = oldImg->src.at<Vec3b>(y,x)[i];
   
-};
+}
 
 Ptr<paolMat> paolMat::returnRemoveProf(Ptr<paolMat> oldImg)
 {
@@ -327,7 +341,7 @@ Ptr<paolMat> paolMat::returnRemoveProf(Ptr<paolMat> oldImg)
   img = new paolMat(this);
   img->removeProf(oldImg);
   return img;
-};
+}
 
 void paolMat::createContrast(){
   int temp;
@@ -364,11 +378,11 @@ void paolMat::createContrast(){
 	      src.at<Vec3b>(y,x)[0] = 255;
 	      src.at<Vec3b>(y,x)[2] = 255;
 	      src.at<Vec3b>(y,x)[1] = 255;
-	    };
-	};
-    };
+	    }
+	}
+    }
   name = "ContrastImg";
-};
+}
 
 Ptr<paolMat> paolMat::returnCreateContrast()
 {
@@ -376,7 +390,7 @@ Ptr<paolMat> paolMat::returnCreateContrast()
   img = new paolMat(this);
   img->createContrast();
   return img;
-};
+}
 
 Ptr<paolMat> paolMat::returnSharpen()
 {
@@ -409,20 +423,20 @@ Ptr<paolMat> paolMat::returnSharpen()
 		img->src.at<Vec3b>(y,x)[channel] = 0;
 	      else
 		img->src.at<Vec3b>(y,x)[channel] = temp;	    
-	    };
+	    }
 	  
-	};
-    };
+	}
+    }
   img->name = "Sharp";
   return img;
-};
+}
 
 void paolMat::sharpen(){
   Ptr<paolMat> img;
   img = this->returnSharpen();
   copy(img);
  
-};
+}
 
 Ptr<paolMat> paolMat::returnShrink()
 {
@@ -453,16 +467,16 @@ Ptr<paolMat> paolMat::returnShrink()
 	    
 	    if(total>=1530)
 	      img->src.at<Vec3b>(y,x)[channel] = 255; 
-	  };
+	  }
   img->name = "Shrink";
   return img;
-};
+}
 
 void paolMat::shrink(){
   Ptr<paolMat> img;
   img = returnShrink();
   copy(img);
-};
+}
 
 void paolMat::difference(Ptr<paolMat> img, int thresh, int size, int maskBottom)
 {
@@ -489,7 +503,7 @@ void paolMat::difference(Ptr<paolMat> img, int thresh, int size, int maskBottom)
 	    {
 	      if(abs((double)img->src.at<Vec3b>(y,x)[i]-(double)src.at<Vec3b>(y,x)[i])>thresh)
 		diff = true;
-	    };
+	    }
 	  if(diff)
 	    {
 	      //std::cout<<"First if dif size: "<<size<<std::endl;
@@ -504,10 +518,10 @@ void paolMat::difference(Ptr<paolMat> img, int thresh, int size, int maskBottom)
 			    diff = false;
 			  if(abs(((double)(img->src.at<Vec3b>(yy,xx)[ii]))-(((double)(img->src.at<Vec3b>(yy,(xx+1))[ii])))>surroundThresh))
 			    diff = false;
-			};
-		    };
-		};
-	    };
+			}
+		    }
+		}
+	    }
 	  if(diff)
 	    {
 	      //std::cout<<"Second if diff"<<std::endl;
@@ -518,30 +532,30 @@ void paolMat::difference(Ptr<paolMat> img, int thresh, int size, int maskBottom)
 	      if(total > 512)
 		{
 		  mask.at<Vec3b>(y,x)[0] = 255;
-		};
+		}
 	      if(total > 255)
 		{
 		  mask.at<Vec3b>(y,x)[1] = 255;
 		  numDiff++;
-		};
+		}
 	      mask.at<Vec3b>(y,x)[2]=255;
 	      if(first)
 		{
 		  first = false;
 		  cenx = x;
 		  ceny = y;
-		};
+		}
 	      //std::cout<<"Difference x: "<<x<<" cenx: "<<cenx<<" y:"<<y<<" ceny: "<<ceny<<std::endl;
 	      dist+=sqrt(((x-cenx)*(x-cenx))+((y-ceny)*(y-ceny)));
-	    };
-	};
-    };
+	    }
+	}
+    }
   //std::cout<<"Difference dist: "<<dist<<std::endl;
   if((dist<10000)&&(maskBottom>0))
     difs = 0;
   else
     difs = numDiff;
-};
+}
 
 void paolMat::differenceLect(Ptr<paolMat> inImg,int thresh, int size)
 {
@@ -590,8 +604,8 @@ void paolMat::differenceLect(Ptr<paolMat> inImg,int thresh, int size)
 	    numDiff++;
 	  }
 	difs = numDiff;
-      };
-};
+      }
+}
 
 void paolMat::localizeSpeaker()
 {
@@ -615,10 +629,10 @@ void paolMat::localizeSpeaker()
 		{
 		  count--;
 		  left = x;
-		};
-	    };
+		}
+	    }
 	  x++;
-	};
+	}
       
       x = mask.cols-1;
       count = countIgnore;
@@ -630,10 +644,10 @@ void paolMat::localizeSpeaker()
 		{
 		  count--;
 		  right = x;
-		};
-	    };
+		}
+	    }
 	  x--;
-	};
+	}
       
       y=0;
       count = countIgnore;
@@ -645,10 +659,10 @@ void paolMat::localizeSpeaker()
 		{
 		  count--;
 		  top = y;
-		};
-	    };
+		}
+	    }
 	  y++;
-	};
+	}
       
       
       prof.x = (left+right) / 2;
@@ -683,8 +697,8 @@ void paolMat::localizeSpeaker()
       sprintf(difString, "%d", difs);
       //putText(mask, difString, Point(100,100), CV_FONT_HERSHEY_SIMPLEX, 1, Scalar(255,0,0), 5, 8);
 #endif
-    };
-};
+    }
+}
 
 void paolMat::decimateMask()
 {
@@ -704,15 +718,15 @@ void paolMat::decimateMask()
 		  if(mask.at<Vec3b>(y,x)[0]>0 || mask.at<Vec3b>(y,x)[2]>0)
 		    mask.at<Vec3b>(y,x)[2]=128;
 		}
-	  };
-      };
+	  }
+      }
   for(int x = 0; x < src.cols-1; x++)
     for(int y = 0; y < src.rows-1; y++)
       {
 	if(mask.at<Vec3b>(y,x)[2]==128)
 	  mask.at<Vec3b>(y,x)[1]=255;
-      };
-};
+      }
+}
 
 
 void paolMat::connected(){
@@ -749,7 +763,7 @@ void paolMat::connected(){
 	      connect->src.at<Vec3b>(y,x)[2]=(current/(256*256))%256;
 	      current++;
 	      cor[current]=current;
-	    };
+	    }
 	  } else if(y==0){
 	    if (connect->src.at<Vec3b>(y,x-1)[0]>0 ||
 		connect->src.at<Vec3b>(y,x-1)[1]>0 ||
@@ -763,7 +777,7 @@ void paolMat::connected(){
 	      connect->src.at<Vec3b>(y,x)[2]=(current/(256*256))%256;
 	      current++;
 	      cor[current]=current;
-	    };
+	    }
 	  } else {
 	    if((connect->src.at<Vec3b>(y-1,x)[0]>0 ||
 		connect->src.at<Vec3b>(y-1,x)[1]>0 ||
@@ -806,19 +820,19 @@ void paolMat::connected(){
 	      connect->src.at<Vec3b>(y,x)[2]=(current/(256*256))%256;
 	      current++;
 	      cor[current]=current;
-	    };
-	  };
+	    }
+	  }
 	}else{
 	  connect->src.at<Vec3b>(y,x)[0]=0;
 	  connect->src.at<Vec3b>(y,x)[1]=0;
 	  connect->src.at<Vec3b>(y,x)[2]=0;
 	  
-	};
-      };
+	}
+      }
 
   for(int i=1;i<current;i++){
     cor[i]=cor[cor[i]];
-  };
+  }
   for(int x = 0; x < src.cols; x++)
     for(int y = 0; y < src.rows; y++)
       {
@@ -830,12 +844,12 @@ void paolMat::connected(){
 	connect->src.at<Vec3b>(y,x)[0]=col%256;
 	connect->src.at<Vec3b>(y,x)[1]=(col/256)%256;
 	connect->src.at<Vec3b>(y,x)[2]=(col/(256*256))%256;
-      };
+      }
 
   for(int i=1;i<current;i++){
     if(corCount[i]<10)
       cor[i]=0;
-  };
+  }
   for(int x = 0; x < src.cols; x++)
     for(int y = 0; y < src.rows; y++)
       {
@@ -846,14 +860,14 @@ void paolMat::connected(){
 	connect->src.at<Vec3b>(y,x)[0]=col%256;
 	connect->src.at<Vec3b>(y,x)[1]=(col/256)%256;
 	connect->src.at<Vec3b>(y,x)[2]=(col/(256*256))%256;
-      };
+      }
 #ifdef _debug_
   connect->name="connect";
   connect->write();
 #endif
   for(int i=1;i<current;i++){
     cor[i]=0;
-  };
+  }
   for(int x = 0; x < src.cols; x++)
     for(int y = 0; y < src.rows; y++)
       {
@@ -863,8 +877,8 @@ void paolMat::connected(){
 	    col+=connect->src.at<Vec3b>(y,x)[1]*256;
 	    col+=connect->src.at<Vec3b>(y,x)[2]*256*256;
 	    cor[col]=255;
-	  };
-      };
+	  }
+      }
   for(int x = 0; x < src.cols; x++)
     for(int y = 0; y < src.rows; y++)
       {
@@ -875,13 +889,13 @@ void paolMat::connected(){
 	connect->src.at<Vec3b>(y,x)[0]=col%256;
 	connect->src.at<Vec3b>(y,x)[1]=(col/256)%256;
 	connect->src.at<Vec3b>(y,x)[2]=(col/(256*256))%256;
-      };
+      }
 #ifdef _debug_
   connect->name="connect2";
   connect->write();
 #endif
   connect->src.copyTo(mask);
-};
+}
 
 
 void paolMat::connected(int size){
@@ -906,7 +920,7 @@ void paolMat::connected(int size){
 		{
 		  connect->src.at<Vec3b>(yy,xx)[1] = 255;
 		}
-      };
+      }
 	
 
   //#ifdef _debug_
@@ -915,7 +929,7 @@ void paolMat::connected(int size){
   //#endif
   connect->src.copyTo(mask);
 
-};
+}
 
 
 void paolMat::lectArea(){
@@ -935,7 +949,7 @@ void paolMat::lectArea(){
 	//x=(x-border<0)? 0:x-border;
 	for(;x<src.cols;x++)
 	  profile->mask.at<Vec3b>(y,x)[2]=255;
-      };
+      }
     //from right
     for(x = src.cols-1; (x >= 0) && (mask.at<Vec3b>(y,x)[0]==0); x--)
       profile->mask.at<Vec3b>(y,x)[1]=0;
@@ -945,8 +959,8 @@ void paolMat::lectArea(){
 	//x=(x+border>=src.cols)? src.cols-1:x+border;
 	for(;x>0;x--)
 	  profile->mask.at<Vec3b>(y,x)[1]=255;
-      };
-  };
+      }
+  }
   for(x = 0; x < src.cols; x++)
     {
       //from top
@@ -957,8 +971,8 @@ void paolMat::lectArea(){
 	  //	  y=(y-border<0)? 0:y-border;
 	  for(;y<src.rows;y++)
 	    profile->mask.at<Vec3b>(y,x)[0]=255;
-	};
-    }; 
+	}
+    } 
 #ifdef _debug_
   profile->name="profile";
   profile->writeMask();
@@ -978,8 +992,8 @@ void paolMat::lectArea(){
 	    profile->mask.at<Vec3b>(y,x)[0] = 0;//src.at<Vec3b>(y,x)[0];
 	    profile->mask.at<Vec3b>(y,x)[1] = 0;//src.at<Vec3b>(y,x)[1];
 	    profile->mask.at<Vec3b>(y,x)[2] = 0;//src.at<Vec3b>(y,x)[2];
-	  };
-      }; 
+	  }
+      } 
 #ifdef _debug_
   profile->name="profileA";
   profile->writeMask();
@@ -994,8 +1008,8 @@ void paolMat::lectArea(){
 	  y=(y-border<0)? 0:y-border;
 	  for(;y<src.rows;y++)
 	    profile->mask.at<Vec3b>(y,x)[2]=255;
-	};
-    }; 
+	}
+    } 
   
   for(y = 0; y < src.rows; y++){
     //from left
@@ -1015,9 +1029,9 @@ void paolMat::lectArea(){
 	    right=(x+border>=src.cols)? src.cols-1:x+border;
 	    for(x=left;x<right;x++)
 	      profile->mask.at<Vec3b>(y,x)[2]=255;
-	  };
-      };
-  };
+	  }
+      }
+  }
   
   /*
   for(x = 0; x < src.cols; x++)
@@ -1033,14 +1047,14 @@ void paolMat::lectArea(){
 	    profile->mask.at<Vec3b>(y,x)[0] = src.at<Vec3b>(y,x)[0];
 	    profile->mask.at<Vec3b>(y,x)[1] = src.at<Vec3b>(y,x)[1];
 	    profile->mask.at<Vec3b>(y,x)[2] = src.at<Vec3b>(y,x)[2];
-	  };
-	  }; */
+	  }
+	  } */
 #ifdef _debug_
   profile->name="profileB";
   profile->writeMask();
 #endif
   profile->mask.copyTo(mask);
-};
+}
 
 Ptr<paolMat> paolMat::cropFrame(int width, int height){
   Ptr<paolMat> outFrame;
@@ -1059,25 +1073,25 @@ Ptr<paolMat> paolMat::cropFrame(int width, int height){
       temp=0-upperLeft.x;
       upperLeft.x+=temp;
       lowerRight.x+=temp;
-    };
+    }
   if(lowerRight.x>src.cols-1)
     {
       temp=src.cols-1-lowerRight.x;
       upperLeft.x+=temp;
       lowerRight.x+=temp;
-    };
+    }
   if(upperLeft.y<0)
     {
       temp=0-upperLeft.y;
       upperLeft.y+=temp;
       lowerRight.y+=temp;
-    };
+    }
   if(lowerRight.y>src.rows-1)
     {
       temp=src.rows-1-lowerRight.y;
       upperLeft.y+=temp;
       lowerRight.y+=temp;
-    };
+    }
 
   outFrame->src = Mat(src, Rect(upperLeft.x, upperLeft.y, lowerRight.x-upperLeft.x, lowerRight.y - upperLeft.y));
 
@@ -1088,7 +1102,7 @@ Ptr<paolMat> paolMat::cropFrame(int width, int height){
   return outFrame;
 
   //now use upper and lower right to crop the frame
-};
+}
 
 vector<int> paolMat::vertMaskHistogram()
 {
@@ -1107,7 +1121,7 @@ vector<int> paolMat::vertMaskHistogram()
       hist.push_back(vertCount);
     }
   return hist;
-};
+}
 
 vector<int> paolMat::horMaskHistogram()
 {
@@ -1126,7 +1140,7 @@ vector<int> paolMat::horMaskHistogram()
       hist.push_back(horCount);
     }
   return hist;
-};
+}
 
 void paolMat::decimateMaskByHistogram(int hThresh, int vThresh)
 {
@@ -1150,7 +1164,7 @@ void paolMat::decimateMaskByHistogram(int hThresh, int vThresh)
 	    //mask.at<Vec3b>(y,x)[2] = 0;
 	  }
       }
-};
+}
 
 void paolMat::drift()
 {
@@ -1172,12 +1186,62 @@ void paolMat::drift()
 	total+=temp;
 	if(temp > 255)
 	  temp = 255;
-	if(total > 255)
-	  temp = 255;
+	//Threshold for differences from previous pixel
+	if(total > 20)
+	  total = 255;
 	mask.at<Vec3b>(y,x)[1]=temp;
 	mask.at<Vec3b>(y,x)[2]=total;
       }
-};
+}
+
+void paolMat::driftWAverage()
+{
+  average();
+  int temp;
+  int total;
+  for(int x = 0; x < src.cols -1; x++)
+    for(int y = 0; y < src.rows -1; y++)
+      {
+	temp = abs( src.at<Vec3b>(y,x)[0] - src.at<Vec3b>(y,x+1)[0] )+
+	  abs( src.at<Vec3b>(y,x)[1] - src.at<Vec3b>(y,x+1)[1] )+
+	  abs( src.at<Vec3b>(y,x)[2] - src.at<Vec3b>(y,x+1)[2] );
+	total = temp;
+	if(temp > 255)
+	  temp = 255;
+	if(
+	   (abs( src.at<Vec3b>(y,x)[0] - b) < abs(src.at<Vec3b>(y,x+1)[0] -b)) &&
+	   (abs( src.at<Vec3b>(y,x)[1] - g) < abs(src.at<Vec3b>(y,x+1)[1] -g)) &&
+	   (abs( src.at<Vec3b>(y,x)[2] - r) < abs(src.at<Vec3b>(y,x+1)[2] -r)) )
+	  mask.at<Vec3b>(y,x)[0] = temp;
+	else
+	  {
+	    mask.at<Vec3b>(y,x)[0] = temp;
+	    mask.at<Vec3b>(y,x+1)[0] = temp;
+	  } 
+	
+	temp = abs( src.at<Vec3b>(y,x)[0] - src.at<Vec3b>(y+1,x)[0] )+
+	  abs( src.at<Vec3b>(y,x)[1] - src.at<Vec3b>(y+1,x)[1] )+
+	  abs( src.at<Vec3b>(y,x)[2] - src.at<Vec3b>(y+1,x)[2] );
+	total+=temp;
+	if(temp > 255)
+	  temp = 255;
+	//Threshold for differences from previous pixel
+	if(total > 50)
+	  total = 255;
+	
+	if(
+	   (abs( src.at<Vec3b>(y,x)[0] - b) < abs(src.at<Vec3b>(y+1,x)[0] -b)) &&
+	   (abs( src.at<Vec3b>(y,x)[1] - g) < abs(src.at<Vec3b>(y+1,x)[1] -g)) &&
+	   (abs( src.at<Vec3b>(y,x)[2] - r) < abs(src.at<Vec3b>(y+1,x)[2] -r)) )
+	  mask.at<Vec3b>(y,x)[1] = temp;
+	else
+	  {
+	    mask.at<Vec3b>(y,x)[1] = temp;
+	    mask.at<Vec3b>(y+1,x)[1] = temp;
+	  }
+	mask.at<Vec3b>(y,x)[2]=total;
+      }
+}
 
 
 void paolMat::sweepMask()
@@ -1188,15 +1252,223 @@ void paolMat::sweepMask()
   cv::Mat temp;
   temp = src.clone();
   temp = Mat::zeros(src.size(),src.type());
+  int thresh;
+  thresh = 5;
   
   
   for(int x = 0; x < src.cols -1; x++)
     {
       int y = 0;
       int last = 0;
-      while(y < src.rows)
+      while(y < src.rows-1)
 	{
+	  if(last == 0)
+	    {
+	      if(mask.at<Vec3b>(y,x)[2] > 20)
+		last = 1;
+	    }
+	  else if((last > 0) && (last < thresh))
+	    {
+	      if( (
+		   abs(src.at<Vec3b>(y-last,x)[0] - src.at<Vec3b>(y,x)[0])+
+		   abs(src.at<Vec3b>(y-last,x)[1] - src.at<Vec3b>(y,x)[1])+
+		   abs(src.at<Vec3b>(y-last,x)[2] - src.at<Vec3b>(y,x)[2]) )< 100 )
+		{
+		  for(int i = 0; i < last; i++)
+		    {
+		      //std::cout<<"Found something to sweep"<<std::endl;
+		      mask.at<Vec3b>(y-last+i,x)[0] = 255;
+		      mask.at<Vec3b>(y-last+i,x)[1] = 255;
+		      mask.at<Vec3b>(y-last+i,x)[2] = 255; 
+		    }
+		  last = 0;
+		}
+	      else
+		{
+		  last++;
+		}
+	    }
 	  
+	  else if(last > thresh)
+	    last = 0;
+
+	  y++;
 	}
     }
-};
+}
+
+void paolMat::difference(Ptr<paolMat> img)
+{
+  for( int y = 0; y < img->src.rows; y++)
+    for(int x = 0; x < img->src.cols; x++)
+      {
+	  mask.at<Vec3b>(y,x)[0] = abs( src.at<Vec3b>(y,x)[0] - img->src.at<Vec3b>(y,x)[0]);
+	  mask.at<Vec3b>(y,x)[1] = abs( src.at<Vec3b>(y,x)[1] - img->src.at<Vec3b>(y,x)[1]);
+	  mask.at<Vec3b>(y,x)[2] = abs( src.at<Vec3b>(y,x)[2] - img->src.at<Vec3b>(y,x)[2]);
+      }
+}
+
+void paolMat::maskDifference(Ptr<paolMat> img)
+{
+  for( int y = 0; y < img->src.rows; y++)
+    for(int x = 0; x < img->src.cols; x++)
+      {
+	  mask.at<Vec3b>(y,x)[0] = abs( mask.at<Vec3b>(y,x)[0] - img->mask.at<Vec3b>(y,x)[0]);
+	  mask.at<Vec3b>(y,x)[1] = abs( mask.at<Vec3b>(y,x)[1] - img->mask.at<Vec3b>(y,x)[1]);
+	  mask.at<Vec3b>(y,x)[2] = abs( mask.at<Vec3b>(y,x)[2] - img->mask.at<Vec3b>(y,x)[2]);
+      }
+}
+
+void paolMat::intensityMask(int thresh)
+{
+  int last;
+  int pTotal;
+
+  for( int y = 0; y < src.rows-1; y++)
+    {
+      last = 0;
+      for(int x = 0; x < src.cols-1; x++)
+	{
+	  pTotal = 0;
+	  //Set the mask to black
+	  	  
+	  mask.at<Vec3b>(y,x)[0] = 
+	    (
+	     abs(src.at<Vec3b>(y,x)[0] - src.at<Vec3b>(y,x)[1]) +
+	     abs(src.at<Vec3b>(y,x)[0] - src.at<Vec3b>(y,x)[2]) );
+	  mask.at<Vec3b>(y,x)[1] = 
+	    (
+	     abs(src.at<Vec3b>(y,x)[1] - src.at<Vec3b>(y,x)[0]) +
+	     abs(src.at<Vec3b>(y,x)[1] - src.at<Vec3b>(y,x)[2]) );
+	  mask.at<Vec3b>(y,x)[2] = 
+	    (
+	     abs(src.at<Vec3b>(y,x)[2] - src.at<Vec3b>(y,x)[0]) +
+	     abs(src.at<Vec3b>(y,x)[2] - src.at<Vec3b>(y,x)[1]) );
+
+	  pTotal = ( mask.at<Vec3b>(y,x)[0] +
+		     mask.at<Vec3b>(y,x)[1] +
+		     mask.at<Vec3b>(y,x)[2] ); 
+	  if( pTotal < thresh )
+	    {
+	      mask.at<Vec3b>(y,x)[0] = 0;
+	      mask.at<Vec3b>(y,x)[0] = 0;
+	      mask.at<Vec3b>(y,x)[0] = 0;
+	    }
+	  if( pTotal < thresh*2)
+	    mask.at<Vec3b>(y,x)[0] = 255;
+	  if( pTotal < thresh*3)
+	    mask.at<Vec3b>(y,x)[1] = 150;
+	  if( pTotal < thresh*4)
+	    mask.at<Vec3b>(y,x)[1] = 255;
+	  if( pTotal < thresh*5)
+	    mask.at<Vec3b>(y,x)[2] = 150;
+	  if( pTotal < thresh*6)
+	    mask.at<Vec3b>(y,x)[2] = 255;
+	}
+    }
+}
+
+void paolMat::maskToWhite(int thresh)
+{
+  Ptr<paolMat> temp;
+  temp = new paolMat(this);
+  int red;
+  int white;
+  int yellow;
+  for(int y = 4; y < src.rows-5; y++)
+    for(int x = 4; x < src.cols-5; x++)
+      {
+	red = 0;
+	white = 0;
+	yellow = 0;
+	for(int yy = y-5; yy < y +5; yy++)
+	  for(int xx = x-5; xx < x+5; xx++)
+	    {
+	      if(mask.at<Vec3b>(yy,xx)[2] == 255)
+		red++;
+	      if( (mask.at<Vec3b>(yy,xx)[1] == 255) &&
+		  (mask.at<Vec3b>(yy,xx)[2] == 255) )
+		yellow++;
+	      if( (mask.at<Vec3b>(yy,xx)[1] == 255) &&
+		  (mask.at<Vec3b>(yy,xx)[2] == 255) &&
+		  (mask.at<Vec3b>(yy,xx)[3] == 255) )
+		white++;
+	    }
+	if(white > 255)
+	  white = 255;
+	temp->mask.at<Vec3b>(y,x)[0] = white;
+	if(yellow > 255)
+	  yellow = 255;
+	temp->mask.at<Vec3b>(y,x)[1] = yellow;
+	if(red > 255)
+	  red = 255;
+	temp->mask.at<Vec3b>(y,x)[2] = red;
+      }
+  for(int y = 0; y < 5; y++)
+    for(int x = 0; x <src.cols; x++)
+      {
+	temp->mask.at<Vec3b>(y,x)[0] = 255;
+	temp->mask.at<Vec3b>(y,x)[1] = 255;
+	temp->mask.at<Vec3b>(y,x)[2] = 255;
+      }
+  for(int y = src.rows-5; y < src.rows; y++)
+    for(int x = 0; x <src.cols; x++)
+      {
+	temp->mask.at<Vec3b>(y,x)[0] = 255;
+	temp->mask.at<Vec3b>(y,x)[1] = 255;
+	temp->mask.at<Vec3b>(y,x)[2] = 255;
+      }
+  for(int x = 0; x < 5; x++)
+    for(int y = 0; y <src.rows; y++)
+      {
+	temp->mask.at<Vec3b>(y,x)[0] = 255;
+	temp->mask.at<Vec3b>(y,x)[1] = 255;
+	temp->mask.at<Vec3b>(y,x)[2] = 255;
+      }
+  for(int x = src.cols-5; x < src.cols; x++)
+    for(int y = 0; y <src.rows; y++)
+      {
+	temp->mask.at<Vec3b>(y,x)[0] = 255;
+	temp->mask.at<Vec3b>(y,x)[1] = 255;
+	temp->mask.at<Vec3b>(y,x)[2] = 255;
+      }
+  
+  int r,g;
+  for(int x = 0; x < src.cols; x++)
+    for(int y = 0; y < src.rows; y++)
+      {
+	/*
+	if( (abs(temp->mask.at<Vec3b>(y,x)[0] - temp->mask.at<Vec3b>(y,x)[1]) +
+	     abs(temp->mask.at<Vec3b>(y,x)[0] - temp->mask.at<Vec3b>(y,x)[2]) )
+	    < 40)
+	  {
+	    mask.at<Vec3b>(y,x)[0] = 255;
+	    mask.at<Vec3b>(y,x)[1] = 255;
+	    mask.at<Vec3b>(y,x)[2] = 255;
+	  }
+	else
+	  {
+	*/
+	    mask.at<Vec3b>(y,x)[0] = 2*temp->mask.at<Vec3b>(y,x)[0];
+	    mask.at<Vec3b>(y,x)[1] = 2*temp->mask.at<Vec3b>(y,x)[1];
+	    mask.at<Vec3b>(y,x)[2] = 2*temp->mask.at<Vec3b>(y,x)[2];
+	    //}
+      }
+}
+
+void paolMat::average()
+{
+  int pixels;
+  pixels = src.rows * src.cols;
+  for(int x = 0; x < src.cols; x++)
+    for(int y = 0; y < src.rows; y++)
+      {
+	b += src.at<Vec3b>(y,x)[0];
+	g += src.at<Vec3b>(y,x)[1];
+	r += src.at<Vec3b>(y,x)[2];
+      }
+  b/=pixels;
+  g/=pixels;
+  r/=pixels;
+  std::cout<<"Image average b: "<<b<<" g: "<<g<<" r: "<<r<<std::endl;
+}

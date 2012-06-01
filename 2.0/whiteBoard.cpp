@@ -32,6 +32,8 @@ void WhiteBoardProcess::run(int skip)
   Ptr<paolMat> oldCleanImg;
   Ptr<paolMat> oldOrigImg;
   Ptr<paolMat> oldTemp;
+  Ptr<paolMat> blurred;
+  Ptr<paolMat> lastImg;
   std::vector< Ptr<paolMat> > frames;
   img = pop();
   if(img != NULL){
@@ -41,20 +43,42 @@ void WhiteBoardProcess::run(int skip)
     //oldCleanImg->src = Mat(img->src.size(), img->src.type(), Scalar(255,255,255));
     bgImg = oldCleanImg->returnCreateBackgroundImg(25);
     oldCleanImg->improveInputImg(bgImg);
+    blurred = new paolMat(img);
+    img->intensityMask(40);
+    lastImg = new paolMat(img);
   };
   while(img != NULL)
     {
       std::cout<<"WhiteBoardProc:: frame "<<img->count<<" had "<<img->difs<<" differences "<<std::endl;
       //std::cout<<"WhiteBoardProcess::run loop head"<<std::endl;
-      if(img->difs > 2000)
+      if(true) //this should be img->diffs > 20000, but debugging yo
 	{
-	  blur(img->src,img->src,Size(2,2),Point(-1,-1),BORDER_DEFAULT);
-	  img->drift();
-	  img->name = "Drift";
+	  //img->average();
+	  img->driftWAverage();
+	  img->name = "driftAverage";
 	  img->writeMask();
-	  img->sweepMask();
-	  img->name = "Sweep";
-	  img->writeMask();
+	  //img->intensityMask(20);
+	  //img->name = "intensity";
+	  //img->writeMask();
+	  
+	  //img->maskToWhite(20);
+	  //img->name = "maskToWhite";
+	  //img->writeMask();
+	  
+	  //blurred->copyNoSrc(img);
+	  //GaussianBlur(img->src,blurred->src,Size(0,0),5,5,BORDER_DEFAULT);
+	  
+	  //blurred->name = "blurred";
+	  //blurred->write();
+	  //img->difference(blurred);
+	  //img->name = "DiffOfBlur";
+	  //img->writeMask();
+	  //img->drift();
+	  //img->name = "Drift";
+	  //img->writeMask();
+	  //img->sweepMask();
+	  //img->name = "Sweep";
+	  //img->writeMask();
 	  //img->decimateMaskByHistogram(100,100);
 	  //img->name = "HistoDecimated";
 	  //img->writeMask();
