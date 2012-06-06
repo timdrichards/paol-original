@@ -28,88 +28,98 @@ using namespace cv;
 void WhiteBoardProcess::run(int skip)
 {
   Ptr<paolMat> img;
-  Ptr<paolMat> bgImg;
-  Ptr<paolMat> oldCleanImg;
-  Ptr<paolMat> oldOrigImg;
-  Ptr<paolMat> oldTemp;
-  Ptr<paolMat> blurred;
-  Ptr<paolMat> lastImg;
-  std::vector< Ptr<paolMat> > frames;
   img = pop();
-  if(img != NULL){
-    oldCleanImg = new paolMat(img);
-    oldTemp = new paolMat(img);
-    oldOrigImg = new paolMat(img);
-    //oldCleanImg->src = Mat(img->src.size(), img->src.type(), Scalar(255,255,255));
-    bgImg = oldCleanImg->returnCreateBackgroundImg(25);
-    oldCleanImg->improveInputImg(bgImg);
-    blurred = new paolMat(img);
-    img->intensityMask(40);
-    lastImg = new paolMat(img);
-  };
+  Ptr<paolMat> alt;
+  alt = new paolMat(img);
+  Ptr<paolMat> background;
+  background = new paolMat(img);
+  background->name = "background";
+  background->src = Scalar(255,255,255);
+
+  img->blur(1);
+  img->name = "blurred";
+  img->write();
+  
+  img->pDrift();
+  img->name = "pDrift";
+  img->writeMask();
+
+  Ptr<paolMat> drift;
+  drift = new paolMat(img);
+  
+  img->grow(30,3);
+  img->name = "grow";
+  img->writeMask();
+  
+  img->shrink(30,3);
+  img->name = "shrink";
+  img->writeMask();
+  
+  Ptr<paolMat> old;
+  old = new paolMat(img);
+  old->name = "old";
+  Ptr<paolMat> oldDrift;
+  oldDrift = new paolMat(drift);
   while(img != NULL)
     {
       std::cout<<"WhiteBoardProc:: frame "<<img->count<<" had "<<img->difs<<" differences "<<std::endl;
-      //std::cout<<"WhiteBoardProcess::run loop head"<<std::endl;
       if(true) //this should be img->diffs > 20000, but debugging yo
 	{
-	  //img->average();
-	  img->driftWAverage();
-	  img->name = "driftAverage";
+
+	  old->copy(img);
+	  oldDrift->copy(drift);
+
+	  img->blur(1);
+	  img->name = "blurred";
+	  img->write();
+	  
+	  img->pDrift();
+	  img->name = "pDrift";
 	  img->writeMask();
-	  //img->intensityMask(20);
-	  //img->name = "intensity";
-	  //img->writeMask();
+
+	  drift->copy(img);
+
+	  img->grow(30,3);
+	  img->name = "grow";
+	  img->writeMask();
+
+	  img->shrink(30,3);
+	  img->name = "shrink";
+	  img->writeMask();
 	  
-	  //img->maskToWhite(20);
-	  //img->name = "maskToWhite";
-	  //img->writeMask();
+	  img->threshedDifference(drift,oldDrift,old);
+	  img->name = "threshedDifference";
+	  img->writeMask();
+
 	  
-	  //blurred->copyNoSrc(img);
-	  //GaussianBlur(img->src,blurred->src,Size(0,0),5,5,BORDER_DEFAULT);
+	  alt->decimateMask(254);
+	  alt->decimateMask(254);
+	  alt->name = "alt-decimatedMask";
+	  alt->writeMask();
+	  alt->sweepDown();
+	  alt->name = "alt-sweepDown";
+	  alt->writeMask();
+	  //alt->blackSrcByMask();
+	  //alt->write();
 	  
-	  //blurred->name = "blurred";
-	  //blurred->write();
-	  //img->difference(blurred);
-	  //img->name = "DiffOfBlur";
-	  //img->writeMask();
-	  //img->drift();
-	  //img->name = "Drift";
-	  //img->writeMask();
-	  //img->sweepMask();
-	  //img->name = "Sweep";
-	  //img->writeMask();
-	  //img->decimateMaskByHistogram(100,100);
-	  //img->name = "HistoDecimated";
-	  //img->writeMask();
-	  /*
-	  if(img->difs > 30)
-	    {
-	      std::cout<<"WhiteBoardProc:: Enough diffs to make a slide"<<std::endl;
-	      oldOrigImg->copy(oldTemp);
-	      oldCleanImg->copy(img);
-	      img->createContrast();
-#ifdef _debug_
-	      //img->write();
-#endif
-	      img->sharpen();
-#ifdef _debug_
-	      //img->write();
-#endif
-	      img->name="WBSlide";
-	      push(img);
-	      std::cout<<"WhiteBoardProc:: Pushed wb slide"<<std::endl;
-	    };
-	  */
-	};
+	  img->blackMaskByMask(alt);
+
+
+	  background->copyNoSrc(img);
+	  background->getCombine(img);
+	  background->name = "background";
+	  background->write();
+
+	  
+	}
       
-      //for(int i = 0; i < skip; i++)
       std::cout<<"WhiteBoardProc: about to pop"<<std::endl;
       img = pop();
+      alt->copy(img);
       std::cout<<"WhiteBoardProc: popped"<<std::endl;
-    };
+    }
   stop();
-};
+}
 
 
 
@@ -138,3 +148,49 @@ void WhiteBoardProcess::run(int skip)
 	  std::cout<<"WhiteBoardProc:: about to differenceLect(oldCleanImg, 50,10)"<<std::endl;
 	   img->differenceLect(oldCleanImg, 50, 10);
 */
+
+
+//img->intensityMask(20);
+	  //img->name = "intensity";
+	  //img->writeMask();
+	  
+	  //img->maskToWhite(20);
+	  //img->name = "maskToWhite";
+	  //img->writeMask();
+	  
+	  //blurred->copyNoSrc(img);
+	  //GaussianBlur(img->src,blurred->src,Size(0,0),5,5,BORDER_DEFAULT);
+	  
+	  //blurred->name = "blurred";
+	  //blurred->write();
+	  //img->difference(blurred);
+	  //img->name = "DiffOfBlur";
+	  //img->writeMask();
+	  //img->drift();
+	  //img->name = "Drift";
+	  //img->writeMask();
+	  //img->sweepMask();
+	  //img->name = "Sweep";
+	  //img->writeMask();
+	  //img->decimateMaskByHistogram(100,100);
+	  //img->name = "HistoDecimated";
+	  //img->writeMask();
+	  /*
+	    if(img->difs > 30)
+	    {
+	    std::cout<<"WhiteBoardProc:: Enough diffs to make a slide"<<std::endl;
+	    oldOrigImg->copy(oldTemp);
+	    oldCleanImg->copy(img);
+	    img->createContrast();
+	    #ifdef _debug_
+	    //img->write();
+	    #endif
+	    img->sharpen();
+	    #ifdef _debug_
+	    //img->write();
+	    #endif
+	    img->name="WBSlide";
+	    push(img);
+	    std::cout<<"WhiteBoardProc:: Pushed wb slide"<<std::endl;
+	    }
+	  */

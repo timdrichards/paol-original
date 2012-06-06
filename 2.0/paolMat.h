@@ -55,6 +55,10 @@ class paolMat
   void differenceLect(Ptr<paolMat> inImg, int thresh, int size);
   void localizeSpeaker();
   void decimateMask();
+  void decimateMask(int thresh);
+  //Grow mask by adding values to bordering pixels
+  void growMask();
+  void shrinkMask();
   void connected();
   //Must be the same size as differenceLect
   void connected(int size);
@@ -63,14 +67,39 @@ class paolMat
   vector<int> vertMaskHistogram();
   vector<int> horMaskHistogram();
   void decimateMaskByHistogram(int hThresh, int vThresh);
+  //drift is y+1, x+1
   void drift();
   void driftWAverage();
   void sweepMask();
+  void sweepDown();
   //Scan left to right, top to botton toggling mask everytime the src color changes
   void intensityMask(int thresh);
   //Scan a rectangle around a pixel and change it to white,black, or red.
   void maskToWhite(int thresh);
   void average();
+  void blackSrcByMask();
+  //blur size is pixels adjacent i.e. 1 would be a 3x3 square centered on each pixel
+  void blur(int size);
+  //pDrift is y+-1 x+-1
+  void pDrift();
+  //Grow by blue thresh and by size
+  void grow(int blueThresh, int size);
+  //Shrink by blue thresh and size
+  void shrink(int blueThresh, int size);
+  //threshedDifference, only where both masks blue > 30
+  void threshedDifference(Ptr<paolMat> drift, Ptr<paolMat> oldDrift, Ptr<paolMat> old);
+  void getCombine(Ptr<paolMat> img);
+  void blackMaskByMask(Ptr<paolMat> img);
+
+  //I need to port:
+  /*
+
+    getCombine2
+
+
+   */
+
+
 };
 
 

@@ -47,12 +47,12 @@ Module::Module(Buffer* in, Buffer* out, int arraySize)
 
   keepRunning = true;
 
-};
+}
 
 Module::~Module()
 {
 
-};
+}
 
 Ptr<paolMat> Module::pop()
 {
@@ -67,7 +67,7 @@ Ptr<paolMat> Module::pop()
     }
   else
     return NULL;
-};
+}
 
 int Module::push(Ptr<paolMat> m)
 {
@@ -78,7 +78,7 @@ int Module::push(Ptr<paolMat> m)
     return 1;
   
   return 0;
-};
+}
 
 void Module::stop()
 {
@@ -86,13 +86,13 @@ void Module::stop()
   keepRunning = false;
   if(producer)
     output->stop();
-};
+}
 
 bool Module::running()
 {
   boost::mutex::scoped_lock lock(modLock);
   return keepRunning;
-};
+}
 
 void Module::nullRun()
 {
@@ -104,7 +104,7 @@ void Module::nullRun()
 	{
 	  push(img);
 	  img = pop();
-	};
+	}
       stop();
     }
   else if(consumer)
@@ -118,7 +118,7 @@ void Module::nullRun()
 #endif
 	  //delete img;
 	  img = pop();
-	};
+	}
     }
   else
     {
@@ -126,8 +126,8 @@ void Module::nullRun()
       img = NULL;
       push(img);
       stop();
-    };
-};
+    }
+}
 
 void ReadMod::ReadFromPattern(char* dir, char* firstImg)
 {
@@ -167,18 +167,18 @@ void ReadMod::ReadFromPattern(char* dir, char* firstImg)
 		  sprintf(fullName,"%sframe%06d-%10d.ppm",dir,tempCount,tempSeconds);
 		  img->read(fullName,name,tempCount,tempSeconds);
 		  tempSeconds++;
-		};
+		}
 	      tempCount++;
-	    };
+	    }
 	  seconds=tempSeconds-1;
 	  count=tempCount-1;
-	};
+	}
       sprintf(name,"frame");
       sprintf(fullName,"%sframe%06d-%10d.ppm",dir,count,seconds);
-    };
+    }
   stop();
   //delete img;
-};
+}
 
 void ReadMod::ReadFromPatternFlip(char* dir, char* firstImg)
 {
@@ -232,18 +232,18 @@ void ReadMod::ReadFromPatternFlip(char* dir, char* firstImg)
 		  sprintf(fullName,"%sframe%06d-%10d.ppm",dir,tempCount,tempSeconds);
 		  img->read(fullName,name,tempCount,tempSeconds);
 		  tempSeconds++;
-		};
+		}
 	      tempCount++;
-	    };
+	    }
 	  seconds=tempSeconds-1;
 	  count=tempCount-1;
-	};
+	}
       sprintf(name,"frame");
       sprintf(fullName,"%sframe%06d-%10d.ppm",dir,count,seconds);
-    };
+    }
   stop();
   //delete img;
-};
+}
 
 void ReadMod::ReadFromPatternFlipExt(char* dir, char* firstImg, char* pattern)
 {
@@ -300,18 +300,18 @@ void ReadMod::ReadFromPatternFlipExt(char* dir, char* firstImg, char* pattern)
 		  sprintf(fullName,"%swboardwboard%06d-%10d.%s",dir,tempCount,tempSeconds,ext);
 		  img->read(fullName,name,tempCount,tempSeconds);
 		  tempSeconds++;
-		};
+		}
 	      tempCount++;
-	    };
+	    }
 	  seconds=tempSeconds-1;
 	  count=tempCount-1;
-	};
+	}
       sprintf(name,"frame");
       sprintf(fullName,"%swboardwboard%06d-%10d.%s",dir,count,seconds,ext);
-    };
+    }
   stop();
   //delete img;
-};
+}
 
 void ReadMod::ReadFromPatternFlipTiff(char* dir, char* firstImg)
 {
@@ -365,18 +365,18 @@ void ReadMod::ReadFromPatternFlipTiff(char* dir, char* firstImg)
 		  sprintf(fullName,"%sframe%06d-%10d.tiff",dir,tempCount,tempSeconds);
 		  img->read(fullName,name,tempCount,tempSeconds);
 		  tempSeconds++;
-		};
+		}
 	      tempCount++;
-	    };
+	    }
 	  seconds=tempSeconds-1;
 	  count=tempCount-1;
-	};
+	}
       sprintf(name,"frame");
       sprintf(fullName,"%sframe%06d-%10d.tiff",dir,count,seconds);
-    };
+    }
   stop();
   //delete img;
-};
+}
 
 void WriteMod::WriteMats()
 {
@@ -387,8 +387,8 @@ void WriteMod::WriteMats()
       img->write();
       //delete img;
       img = pop();
-    };
-};
+    }
+}
 
 void WriteMod::WriteMats(std::string outDir)
 {
@@ -400,8 +400,8 @@ void WriteMod::WriteMats(std::string outDir)
       img->write(outDir);
       //delete img;
       img = pop();
-    };
-};
+    }
+}
 
 void WriteMod::WriteMatsByCount(std::string outDir)
 {
@@ -445,7 +445,7 @@ void WriteMod::WriteMatsByCount(std::string outDir)
       
 	  second++;
 	  cFPS = 0;
-	};
+	}
       
     }
 }
@@ -489,16 +489,16 @@ void WriteMod::WriteVideo(char* lable)
 	  lastImgCount = img->count;
 	  img = pop();
 	  
-	};
-    };
-};
+	}
+    }
+}
 
 void WriteMod::WriteVideo()
 {
   WriteVideo("unkown");
-};
+}
 
 void WriteMod::WriteCompVideo()
 {
   WriteVideo("Computer");
-};
+}
