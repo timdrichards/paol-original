@@ -87,10 +87,11 @@ class paolMat
   //Shrink by blue thresh and size
   void shrink(int blueThresh, int size);
   //threshedDifference, only where both masks blue > 30
-  void threshedDifference(Ptr<paolMat> drift, Ptr<paolMat> oldDrift, Ptr<paolMat> old);
+  void threshedDifference(Ptr<paolMat> old);
   void getCombine(Ptr<paolMat> img);
   void blackMaskByMask(Ptr<paolMat> img);
-
+  void updateBackground(Ptr<paolMat> alt, Ptr<paolMat> img);
+  void cleanBackground(Ptr<paolMat> img);
   //I need to port:
   /*
 

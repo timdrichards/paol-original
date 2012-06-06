@@ -1856,14 +1856,9 @@ void paolMat::shrink(int blueThresh, int size)
 }
 
 //threshedDifference, only where both masks blue > 30
-void paolMat::threshedDifference(Ptr<paolMat> drift, Ptr<paolMat> oldDrift, Ptr<paolMat> old)
+void paolMat::threshedDifference(Ptr<paolMat> old)
 {
   int r,g,b, ave, difference;
-  
-  //RESUME HERE
-  Ptr<paolMat> temp;
-  temp = new paolMat(this);
-  temp->mask = Scalar(0,0,0);
 
   for(int y = 0; y < src.rows; y++)
     for(int x = 0; x < src.cols; x++)
@@ -1875,54 +1870,28 @@ void paolMat::threshedDifference(Ptr<paolMat> drift, Ptr<paolMat> oldDrift, Ptr<
 	  
 	  if(b+g+r > 40)
 	    {
-	      temp->mask.at<Vec3b>(y,x)[0] = 0;
-	      temp->mask.at<Vec3b>(y,x)[1] = 0;
-	      temp->mask.at<Vec3b>(y,x)[2] = 0;	      
+	      mask.at<Vec3b>(y,x)[1] = 255;
+	      mask.at<Vec3b>(y,x)[2] = 0;	      
 	    }
 	  else
 	    {
-	      b = src.at<Vec3b>(y,x)[0];
-	      g = src.at<Vec3b>(y,x)[1];
-	      r = src.at<Vec3b>(y,x)[2];
-	      ave = (b+g+r) / 3;
-	      difference = abs(r-ave)+abs(g-ave)+abs(b-ave);
-	      if(difference > 20)
-		{
-		  temp->mask.at<Vec3b>(y,x)[0] = 0;
-		  temp->mask.at<Vec3b>(y,x)[1] = 255;
-		  temp->mask.at<Vec3b>(y,x)[2] = 0;
-		}
-	      else
-		{
-		  temp->mask.at<Vec3b>(y,x)[0] = 0;
-		  temp->mask.at<Vec3b>(y,x)[1] = 0;
-		  temp->mask.at<Vec3b>(y,x)[2] = 255;
-		}
+	      mask.at<Vec3b>(y,x)[1] = 0;
+	      mask.at<Vec3b>(y,x)[2] = 255;
 	    }
-	  
-	}
-      else if(drift->mask.at<Vec3b>(y,x)[0] > 30 || oldDrift->mask.at<Vec3b>(y,x)[0] > 30)
-	{
-	  temp->mask.at<Vec3b>(y,x)[0] = 0;
-	  temp->mask.at<Vec3b>(y,x)[1] = 0;
-	  temp->mask.at<Vec3b>(y,x)[2] = 0;
+	    	  
 	}
       else
 	{
-	  temp->mask.at<Vec3b>(y,x)[0] = 0;
-	  temp->mask.at<Vec3b>(y,x)[1] = 0;
-	  temp->mask.at<Vec3b>(y,x)[2] = 0;
+	  mask.at<Vec3b>(y,x)[1] = 0;
+	  mask.at<Vec3b>(y,x)[2] = 0;
 	}
-  mask = temp->mask.clone();
 }
 
 void paolMat::getCombine(Ptr<paolMat> img)
 {
   for(int y = 0; y < mask.rows; y++)
     for(int x = 0; x < mask.cols; x++)
-      if( img->mask.at<Vec3b>(y,x)[0] != 0 ||
-	  img->mask.at<Vec3b>(y,x)[1] != 0 ||
-	  img->mask.at<Vec3b>(y,x)[2] != 0 )
+      if(img->mask.at<Vec3b>(y,x)[0] != 0 )
 	src.at<Vec3b>(y,x) = img->src.at<Vec3b>(y,x);
 }
 
@@ -1934,8 +1903,134 @@ void paolMat::blackMaskByMask(Ptr<paolMat> img)
 	  img->mask.at<Vec3b>(y,x)[1] +
 	  img->mask.at<Vec3b>(y,x)[2] != 0 )
 	{
+	  mask.at<Vec3b>(y,x)[2] = 0;
+	}
+}
+
+void paolMat::updateBackground(Ptr<paolMat> alt, Ptr<paolMat> img)
+{
+  for(int y = 0; y < mask.rows; y++)
+    for(int x = 0; x < mask.cols; x++)
+      if( 
+	 alt->mask.at<Vec3b>(y,x)[0] +
+	 alt->mask.at<Vec3b>(y,x)[1] +
+	 alt->mask.at<Vec3b>(y,x)[2] == 0 )
+	{
+	  if(img->mask.at<Vec3b>(y,x)[2] != 0)
+	    src.at<Vec3b>(y,x) = img->src.at<Vec3b>(y,x);
+	  else if(img->mask.at<Vec3b>(y,x)[1] +
+		  img->mask.at<Vec3b>(y,x)[2] == 0)
+	    {
+	      src.at<Vec3b>(y,x)[0] = 255;
+	      src.at<Vec3b>(y,x)[1] = 255;
+	      src.at<Vec3b>(y,x)[2] = 255;
+	    }
 	  mask.at<Vec3b>(y,x)[0] = 0;
 	  mask.at<Vec3b>(y,x)[1] = 0;
 	  mask.at<Vec3b>(y,x)[2] = 0;
 	}
+      else
+	{
+	  mask.at<Vec3b>(y,x)[0] = 255;
+	}
+  
+}
+
+void paolMat::cleanBackground(Ptr<paolMat> img)
+{
+  Ptr<paolMat> result;
+  result = new paolMat(img);
+  result->src = Scalar(255,255,255);
+  result->mask = Scalar(0,0,0);
+
+  int start,sim,dif,r,g,b,temp,tempOld,wr,wg,wb,rOff,gOff,bOff,oRange,range,rOut,gOut,bOut;
+
+  for(int y = 0; y < src.rows; y++)
+    for(int x = 0; x < src.cols; x++)
+      if( src.at<Vec3b>(y,x)[0] !=255 ||
+	  src.at<Vec3b>(y,x)[1] !=255 ||
+	  src.at<Vec3b>(y,x)[2] !=255 )
+	{
+	  start = x;
+	  sim = 1000;
+	  dif = 0;
+	  for(;x < width && ( src.at<Vec3b>(y,x)[0] !=255 ||
+			      src.at<Vec3b>(y,x)[1] !=255 ||
+			      src.at<Vec3b>(y,x)[2] !=255 ); x++)
+	    {
+	      end = x;
+	      r = img->src.at<Vec3b>(y,x)[2];
+	      g = img->src.at<Vec3b>(y,x)[1];
+	      b = img->src.at<Vec3b>(y,x)[0];
+	      temp = 255 * 3 -(r+g+b);
+	      temp /= 3;
+	      if(temp < sim)
+		sim = temp;
+	      if(temp > dif)
+		dif = temp;
+	    }
+	  tempOld = ( img->src.at<Vec3b>(y,start)[0] +
+		      img->src.at<Vec3b>(y,start)[1] +
+		      img->src.at<Vec3b>(y,start)[2] );
+	  temp = ( img->src.at<Vec3b>(y,end)[0] +
+		   img->src.at<Vec3b>(y,end)[1] +
+		   img->src.at<Vec3b>(y,end)[2] );
+	  
+	  if(temp > tempOld)
+	    {
+	      wr = img->src.at<Vec3b>(y,start)[2];
+	      wg = img->src.at<Vec3b>(y,start)[1];
+	      wb = img->src.at<Vec3b>(y,start)[0];	      
+	    }
+	  else
+	    {
+	      wr = img->src.at<Vec3b>(y,end)[2];
+	      wg = img->src.at<Vec3b>(y,end)[1];
+	      wb = img->src.at<Vec3b>(y,end)[0];	      
+	    }
+	  rOff = 255 - wr;
+	  gOff = 255 - wg;
+	  bOff = 255 - wb;
+
+	  temp = 255 * 3 - (wr+wg+wb);
+	  temp /=3;
+
+	  oRange = abs(temp-dif);
+	  range = oRange+temp;
+
+	  for(int xx = start; xx <= end; xx++)
+	    {
+	      if(oRange == 0)
+		{
+		  rOut = 0;
+		  gOut = 0;
+		  bOut = 0;
+		}
+	      else
+		{
+		  rOut = ( (255 - img->src.at<Vec3b>(y,xx)[2]) - rOff) * range/oRange;
+		  gOut = ( (255 - img->src.at<Vec3b>(y,xx)[1]) - gOff) * range/oRange;
+		  bOut = ( (255 - img->src.at<Vec3b>(y,xx)[0]) - bOff) * range/oRange;
+
+		  if(rOut > 255)
+		    rOut = 255;
+		  else if(rOut < 0)
+		    rOut = 0;
+
+		  if(gOut > 255)
+		    gOut = 255;
+		  else if(gOut < 0)
+		    gOut = 0;
+
+		  if(bOut > 255)
+		    bOut = 255;
+		  else if(bOut < 0)
+		    bOut = 0;		
+		}
+	      result->src.at<Vec3b>(y,xx)[0] = 255 - bOut;
+	      result->src.at<Vec3b>(y,xx)[1] = 255 - gOut;
+	      result->src.at<Vec3b>(y,xx)[2] = 255 - rOut;
+	    }
+	}
+  //RESUME HERE
 }

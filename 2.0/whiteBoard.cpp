@@ -29,8 +29,7 @@ void WhiteBoardProcess::run(int skip)
 {
   Ptr<paolMat> img;
   img = pop();
-  Ptr<paolMat> alt;
-  alt = new paolMat(img);
+  
   Ptr<paolMat> background;
   background = new paolMat(img);
   background->name = "background";
@@ -40,82 +39,73 @@ void WhiteBoardProcess::run(int skip)
   img->name = "blurred";
   img->write();
   
+  Ptr<paolMat> alt;
+  alt = new paolMat(img);
+  alt->copy(img);
+
   img->pDrift();
   img->name = "pDrift";
   img->writeMask();
 
-  Ptr<paolMat> drift;
-  drift = new paolMat(img);
-  
   img->grow(30,3);
   img->name = "grow";
   img->writeMask();
   
-  img->shrink(30,3);
-  img->name = "shrink";
-  img->writeMask();
+  //img->shrink(30,3);
+  //img->name = "shrink";
+  //img->writeMask();
   
   Ptr<paolMat> old;
   old = new paolMat(img);
   old->name = "old";
-  Ptr<paolMat> oldDrift;
-  oldDrift = new paolMat(drift);
   while(img != NULL)
     {
       std::cout<<"WhiteBoardProc:: frame "<<img->count<<" had "<<img->difs<<" differences "<<std::endl;
       if(true) //this should be img->diffs > 20000, but debugging yo
 	{
 
-	  old->copy(img);
-	  oldDrift->copy(drift);
+	  alt->copy(img);
+	  alt->differenceLect(old,150,1);
 
+	  	  
 	  img->blur(1);
-	  img->name = "blurred";
-	  img->write();
 	  
 	  img->pDrift();
-	  img->name = "pDrift";
-	  img->writeMask();
-
-	  drift->copy(img);
-
+	  
 	  img->grow(30,3);
-	  img->name = "grow";
-	  img->writeMask();
-
-	  img->shrink(30,3);
-	  img->name = "shrink";
-	  img->writeMask();
 	  
-	  img->threshedDifference(drift,oldDrift,old);
-	  img->name = "threshedDifference";
+	  //img->shrink(30,3);
+	  	  
+	  old->name = "debug/old";
+	  old->writeMask();
+	  img->name = "debug/img";
+	  img->writeMask();
+	  img->threshedDifference(old);
+	  img->name = "debug/threshedDifference";
 	  img->writeMask();
 
 	  
 	  alt->decimateMask(254);
 	  alt->decimateMask(254);
-	  alt->name = "alt-decimatedMask";
 	  alt->writeMask();
 	  alt->sweepDown();
-	  alt->name = "alt-sweepDown";
 	  alt->writeMask();
-	  //alt->blackSrcByMask();
-	  //alt->write();
 	  
-	  img->blackMaskByMask(alt);
-
 
 	  background->copyNoSrc(img);
-	  background->getCombine(img);
-	  background->name = "background";
+	  background->updateBackground(alt,img);
+	  background->name = "background-ruff";
 	  background->write();
+	  background->writeMask();
+	  background->cleanBackground(img);
+	  background->name = "background-clean";
+	  background->write();
+	  old->copy(img);
 
-	  
 	}
       
       std::cout<<"WhiteBoardProc: about to pop"<<std::endl;
       img = pop();
-      alt->copy(img);
       std::cout<<"WhiteBoardProc: popped"<<std::endl;
     }
   stop();

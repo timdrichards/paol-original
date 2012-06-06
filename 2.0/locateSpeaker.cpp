@@ -21,7 +21,7 @@
 #include "genericProcess.h"
 #include "locateSpeaker.h"
 
-#define _debug_
+//#define _debug_
 
 using namespace cv;
 
@@ -34,44 +34,45 @@ void LocateSpeaker::run()
 
   lastImg = pop();
   
-  if(lastImg != NULL){
-    img = pop();
-    cleanImg = new paolMat(img);
-        
-    while(img != NULL)
-      {
-	cleanImg->copy(img);
-	//bgImg = img->returnCreateBackgroundImg(25);
-	img->differenceLect(lastImg,150,1);
-	img->name="differenceLect";
-	img->writeMask();
-	//img->improveInputImg(bgImg);
-	
-	
-	//img->connected(10);
+  if(lastImg != NULL)
+    {
+      img = pop();
+      cleanImg = new paolMat(img);
+      
+      while(img != NULL)
+	{
+	  cleanImg->copy(img);
+	  //bgImg = img->returnCreateBackgroundImg(25);
+	  img->differenceLect(lastImg,150,1);
+	  img->name="differenceLect";
+	  img->writeMask();
+	  //img->improveInputImg(bgImg);
+	  
+	  
+	  //img->connected(10);
 #ifdef _debug_
-	//img->name="connectedDiffSpeaker";
-	//img->writeMask();
+	  //img->name="connectedDiffSpeaker";
+	  //img->writeMask();
 #endif
-	img->localizeSpeaker();
+	  //img->localizeSpeaker();
 #ifdef _debug_
-	//img->name="localizeSpeaker";
-	//img->writeMask();
-	img->name = "Speaker";
-	img->write();
+	  //img->name="localizeSpeaker";
+	  //img->writeMask();
+	  img->name = "Speaker";
+	  img->write();
 #endif
-
-	img->camera = img->prof;
-	img->cropFrame(640,480);
-
-	cleanImg->copyNoSrc(img);
-	push(cleanImg);
-	
-	lastImg = img;
-	std::cout<<"LocateSpeaker:: Frame :"<<img->count<<std::endl;
-	img = pop();
-      };
-  };
+	  
+	  //img->camera = img->prof;
+	  //img->cropFrame(640,480);
+	  
+	  cleanImg->copyNoSrc(img);
+	  push(cleanImg);
+	  
+	  lastImg = img;
+	  std::cout<<"LocateSpeaker:: Frame :"<<img->count<<std::endl;
+	  img = pop();
+	}
+    }
   stop();
-};
+}
 
