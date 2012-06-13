@@ -1939,11 +1939,11 @@ void paolMat::updateBackground(Ptr<paolMat> alt, Ptr<paolMat> img)
 void paolMat::cleanBackground(Ptr<paolMat> img)
 {
   Ptr<paolMat> result;
-  result = new paolMat(img);
-  result->src = Scalar(255,255,255);
+  result = new paolMat(this);
+  //result->src = Scalar(255,255,255);
   result->mask = Scalar(0,0,0);
 
-  int start,sim,dif,r,g,b,temp,tempOld,wr,wg,wb,rOff,gOff,bOff,oRange,range,rOut,gOut,bOut;
+  int start,end,sim,dif,r,g,b,temp,temp2,tempOld,wr,wg,wb,rOff,gOff,bOff,oRange,range,rOut,gOut,bOut;
 
   for(int y = 0; y < src.rows; y++)
     for(int x = 0; x < src.cols; x++)
@@ -1954,7 +1954,7 @@ void paolMat::cleanBackground(Ptr<paolMat> img)
 	  start = x;
 	  sim = 1000;
 	  dif = 0;
-	  for(;x < width && ( src.at<Vec3b>(y,x)[0] !=255 ||
+	  for(;x < src.cols && ( src.at<Vec3b>(y,x)[0] !=255 ||
 			      src.at<Vec3b>(y,x)[1] !=255 ||
 			      src.at<Vec3b>(y,x)[2] !=255 ); x++)
 	    {
@@ -2027,10 +2027,84 @@ void paolMat::cleanBackground(Ptr<paolMat> img)
 		  else if(bOut < 0)
 		    bOut = 0;		
 		}
+	      result->mask.at<Vec3b>(y,xx)[1] = 255;
 	      result->src.at<Vec3b>(y,xx)[0] = 255 - bOut;
 	      result->src.at<Vec3b>(y,xx)[1] = 255 - gOut;
 	      result->src.at<Vec3b>(y,xx)[2] = 255 - rOut;
 	    }
 	}
-  //RESUME HERE
+  for(int x = 0; x < src.cols; x++)
+    for(int y = 0; y < src.rows; y++)
+      {
+	if( (src.at<Vec3b>(y,x)[0] != 255) ||
+	    (src.at<Vec3b>(y,x)[1] != 255) ||
+	    (src.at<Vec3b>(y,x)[2] != 255) )
+	  {
+	    start = y;
+	    sim = 1000;
+	    dif = 0;
+	    for(;y < src.rows && ( (src.at<Vec3b>(y,x)[0] != 255) ||
+				 (src.at<Vec3b>(y,x)[1] != 255) ||
+				 (src.at<Vec3b>(y,x)[2] != 255) ); y++)
+	      {
+		end = y;
+		r = img->src.at<Vec3b>(y,x)[2];
+		g = img->src.at<Vec3b>(y,x)[1];
+		b = img->src.at<Vec3b>(y,x)[0];
+		temp = 255*3 - (r+g+b);
+		temp/=3;
+		oRange = abs(temp-dif);
+		range=oRange+temp;
+
+		for(int yy = start; yy <= end; yy++)
+		  {
+		    if(oRange==0)
+		      {
+			rOut=0;
+			gOut=0;
+			bOut=0;
+		      }
+		    else
+		      {
+			rOut=( (255-img->src.at<Vec3b>(yy,x)[2]) - rOff)*range/oRange;
+			gOut=( (255-img->src.at<Vec3b>(yy,x)[1]) - gOff)*range/oRange;
+			bOut=( (255-img->src.at<Vec3b>(yy,x)[0]) - bOff)*range/oRange;
+			
+			if(rOut>255)
+			  rOut=255;
+			else if(rOut<0)
+			  rOut=0;
+			if(gOut>255)
+			  gOut=255;
+			else if(gOut<0)
+			  gOut=0;
+			if(bOut>255)
+			  bOut=255;
+			else if(bOut<0)
+			  bOut=0;
+		      }
+		    temp2 = 255*3 - (rOut+gOut+bOut);
+		    if(temp2 > (result->src.at<Vec3b>(yy,x)[0] +
+			       result->src.at<Vec3b>(yy,x)[1] +
+			       result->src.at<Vec3b>(yy,x)[2] ))
+		      {
+			result->mask.at<Vec3b>(yy,x)[0] = 255;
+			if( rOut+gOut+bOut == 0)
+			  result->mask.at<Vec3b>(yy,x)[2] = 255;
+			else
+			  {
+			    result->src.at<Vec3b>(yy,x)[2] = 255 - rOut;
+			    result->src.at<Vec3b>(yy,x)[1] = 255 - gOut;
+			    result->src.at<Vec3b>(yy,x)[0] = 255 - bOut;
+			  }
+		      }
+		  }
+	      }
+	    
+	  }
+      }
+  result->name = "cleaned";
+  result->writeMask();
+  src = result->src.clone();
+  result->write();
 }
