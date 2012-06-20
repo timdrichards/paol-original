@@ -59,7 +59,7 @@ PaolThreads2: $(OBJS) libPaolThreads2.a
 	$(CC) $(CFLAGS) -o PaolThreads2 $(OBJS) $(LIBS)
 
 clean:
-	/bin/rm -f core *.o $(OBJS) $(LIB_OBJS) libPaolThreads2.a
+	/bin/rm -f core *.o $(OBJS) $(LIB_OBJS) libPaolThreads2.a outMedia/*.png outMedia/debug/*.png
 
 distclean: clean
 	/bin/rm -f Makefile config.h config.status config.cache config.log \
