@@ -35,6 +35,10 @@ void WhiteBoardFoot::run()
   Ptr<paolMat> oldImg;
   oldImg = new paolMat;
   oldImg = temp->crop(400,1400,3600,1356);
+
+  Ptr<paolMat> tempOld;
+  tempOld = new paolMat();
+  tempOld = temp->crop(400,1400,3600,1356);
   
   Ptr<paolMat> img;
   img = new paolMat();
@@ -43,18 +47,25 @@ void WhiteBoardFoot::run()
   
   while(img != NULL)
     {      
-      oldImg->differenceDarken(img);
-      
-      
+      tempOld->differenceDarken(img);
+      tempOld->name = "Foot-WDEH";
+      tempOld->writeMask();
+      tempOld->maskGrowRed(20);
+      tempOld->name = "Foot-redGrow";
+      tempOld->writeMask();
+      tempOld->countDiffsMasked(oldImg);
+      std::cout<<"Foot:: "<<tempOld->difs<<" difs"<<std::endl;
       //if we are making a slide
-      if(true)
+      if(tempOld->difs > 1000)
 	{
-	  img->copyNoSrc(oldImg);
+	  img->copyNoSrc(temp);
+	  oldImg->copy(tempOld);
 	  oldImg->name = "foot-differenceDarken";
 	  oldImg->write();
 	}
       temp = pop();
       img = temp->crop(400,1400,3600,1356);
+      tempOld = temp->crop(400,1400,3600,1356);
     }
       
   stop();

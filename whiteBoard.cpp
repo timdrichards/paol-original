@@ -74,7 +74,7 @@ void WhiteBoardProcess::run(int skip)
 	  img->name = "debug/img";
 	  //img->writeMask();
 	  img->threshedDifference(old);
-	  img->name = "debug/threshedDifference";
+	  img->name = "threshedDifference";
 	  //img->writeMask();
 
 	  
@@ -93,7 +93,9 @@ void WhiteBoardProcess::run(int skip)
 	  background->cleanBackground(img);
 	  background->name = "background-clean";
 	  //background->write();
+	  //background->writeMask();
 	  old->copy(img);
+	  background->mask = img->mask.clone();
 	  push(background);
 
 	}

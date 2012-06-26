@@ -1284,7 +1284,7 @@ Ptr<paolMat> paolMat::crop(int x, int y, int width, int height){
   outFrame = new paolMat(this);
   
   outFrame->src = Mat(src, Rect(x, y, width, height));
-  outFrame->mask = Mat(src, Rect(x, y, width, height));
+  outFrame->mask = Mat(mask, Rect(x, y, width, height));
   outFrame->name = "Cropped";
 
   return outFrame;
@@ -2042,7 +2042,6 @@ void paolMat::cleanBackground(Ptr<paolMat> img)
 		  else if(bOut < 0)
 		    bOut = 0;		
 		}
-	      result->mask.at<Vec3b>(y,xx)[1] = 255;
 	      result->src.at<Vec3b>(y,xx)[0] = 255 - bOut;
 	      result->src.at<Vec3b>(y,xx)[1] = 255 - gOut;
 	      result->src.at<Vec3b>(y,xx)[2] = 255 - rOut;
@@ -2127,7 +2126,8 @@ void paolMat::cleanBackground(Ptr<paolMat> img)
 void paolMat::differenceDarken(Ptr<paolMat> img)
 {
   int temp1, temp2;
-    
+  int tempDifs;
+  tempDifs = 0;
   for(int x = 0; x < src.cols; x++)
     for(int y = 0; y < src.rows; y++)
       {
@@ -2143,7 +2143,51 @@ void paolMat::differenceDarken(Ptr<paolMat> img)
 	    src.at<Vec3b>(y,x)[0] = img->src.at<Vec3b>(y,x)[0];
 	    src.at<Vec3b>(y,x)[1] = img->src.at<Vec3b>(y,x)[1];
 	    src.at<Vec3b>(y,x)[2] = img->src.at<Vec3b>(y,x)[2];
+	    tempDifs++;
 	  }
 	
       }
+  difs = tempDifs;
+}
+
+void paolMat::maskGrowRed(int size)
+{
+  Ptr<paolMat> temp;
+  temp = new paolMat(this);
+  temp->mask = Scalar(0,0,0);
+  for(int x = size; x < mask.cols - size; x++)
+    for(int y = size; y < mask.rows -size; y++)
+      {
+	int foo;
+	foo = 0;
+	foo += (mask.at<Vec3b>(y,x)[0] +
+	       mask.at<Vec3b>(y,x)[1] +
+	       mask.at<Vec3b>(y,x)[2] );
+	if( foo >= 255)
+	  {
+	    temp->mask.at<Vec3b>(y,x)[1] = 255;
+	    for(int xx = x -size; xx < x+size; xx++)
+	      for(int yy = y -size; yy < y+size; yy++)
+		{
+		  temp->mask.at<Vec3b>(yy,xx)[2] = 255;
+		}
+	  }
+      }
+  mask = temp->mask.clone();
+}
+
+void paolMat::countDiffsMasked(Ptr<paolMat> img)
+{
+  int count;
+  count = 0;
+  for(int x = 0; x < mask.cols; x++)
+    for(int y = 0; y < mask.rows; y++)
+      {
+	if(mask.at<Vec3b>(y,x)[2] != 255)
+	  if( ( abs(src.at<Vec3b>(y,x)[0] - img->src.at<Vec3b>(y,x)[0]) +
+		abs(src.at<Vec3b>(y,x)[1] - img->src.at<Vec3b>(y,x)[1]) +
+		abs(src.at<Vec3b>(y,x)[2] - img->src.at<Vec3b>(y,x)[2]) ) > 5)
+	    count++;
+      }
+  difs = count;
 }

@@ -94,7 +94,8 @@ class paolMat
   void updateBackground(Ptr<paolMat> alt, Ptr<paolMat> img);
   void cleanBackground(Ptr<paolMat> img);
   void differenceDarken(Ptr<paolMat> img);
-  
+  void maskGrowRed(int size);
+  void countDiffsMasked(Ptr<paolMat> img);
   
 
 
