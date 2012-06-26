@@ -2104,7 +2104,7 @@ void paolMat::cleanBackground(Ptr<paolMat> img)
 	  }
       }
   result->name = "cleaned";
-  result->writeMask();
+  //result->writeMask();
   src = result->src.clone();
-  result->write();
+  //result->write();
 }

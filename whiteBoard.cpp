@@ -8,7 +8,6 @@
 #include <iostream>
 #include <iterator>
 #include <queue>
-//#include <algorithm>
 #include <cstdio>
 
 //Open CV
@@ -37,7 +36,7 @@ void WhiteBoardProcess::run(int skip)
 
   img->blur(1);
   img->name = "blurred";
-  img->write();
+  //img->write();
   
   Ptr<paolMat> alt;
   alt = new paolMat(img);
@@ -45,14 +44,10 @@ void WhiteBoardProcess::run(int skip)
 
   img->pDrift();
   img->name = "pDrift";
-  img->writeMask();
+  //img->writeMask();
 
   img->grow(30,3);
   img->name = "grow";
-  img->writeMask();
-  
-  //img->shrink(30,3);
-  //img->name = "shrink";
   //img->writeMask();
   
   Ptr<paolMat> old;
@@ -74,33 +69,32 @@ void WhiteBoardProcess::run(int skip)
 	  
 	  img->grow(30,3);
 	  
-	  //img->shrink(30,3);
-	  	  
 	  old->name = "debug/old";
-	  old->writeMask();
+	  //old->writeMask();
 	  img->name = "debug/img";
-	  img->writeMask();
+	  //img->writeMask();
 	  img->threshedDifference(old);
 	  img->name = "debug/threshedDifference";
-	  img->writeMask();
+	  //img->writeMask();
 
 	  
 	  alt->decimateMask(254);
 	  alt->decimateMask(254);
-	  alt->writeMask();
+	  //alt->writeMask();
 	  alt->sweepDown();
-	  alt->writeMask();
+	  //alt->writeMask();
 	  
 
 	  background->copyNoSrc(img);
 	  background->updateBackground(alt,img);
 	  background->name = "background-ruff";
-	  background->write();
-	  background->writeMask();
+	  //background->write();
+	  //background->writeMask();
 	  background->cleanBackground(img);
 	  background->name = "background-clean";
-	  background->write();
+	  //background->write();
 	  old->copy(img);
+	  push(background);
 
 	}
       
@@ -110,77 +104,3 @@ void WhiteBoardProcess::run(int skip)
     }
   stop();
 }
-
-
-
-/*
-
-	  
-	  //img->connected();
-	  //img->lectArea();
-	  std::cout<<"WhiteBoardProc:: about to remove prof"<<std::endl;
-	  img->removeProf(oldOrigImg);
-	  oldTemp->copy(img);
-#ifdef _debug_
-	  //img->decimateMask();
-	  
-	  //img->writeMask();
-	  //img->write();
-#endif
-	  std::cout<<"WhiteBoardProc:: about to create backgroundImg"<<std::endl;
-	  bgImg = img->returnCreateBackgroundImg(25);
-	  std::cout<<"WhiteBoardProc:: about to improveInputImg"<<std::endl;
-	  img->improveInputImg(bgImg);
-#ifdef _debug_
-	  //bgImg->write();
-	  //img->write();
-#endif
-	  std::cout<<"WhiteBoardProc:: about to differenceLect(oldCleanImg, 50,10)"<<std::endl;
-	   img->differenceLect(oldCleanImg, 50, 10);
-*/
-
-
-//img->intensityMask(20);
-	  //img->name = "intensity";
-	  //img->writeMask();
-	  
-	  //img->maskToWhite(20);
-	  //img->name = "maskToWhite";
-	  //img->writeMask();
-	  
-	  //blurred->copyNoSrc(img);
-	  //GaussianBlur(img->src,blurred->src,Size(0,0),5,5,BORDER_DEFAULT);
-	  
-	  //blurred->name = "blurred";
-	  //blurred->write();
-	  //img->difference(blurred);
-	  //img->name = "DiffOfBlur";
-	  //img->writeMask();
-	  //img->drift();
-	  //img->name = "Drift";
-	  //img->writeMask();
-	  //img->sweepMask();
-	  //img->name = "Sweep";
-	  //img->writeMask();
-	  //img->decimateMaskByHistogram(100,100);
-	  //img->name = "HistoDecimated";
-	  //img->writeMask();
-	  /*
-	    if(img->difs > 30)
-	    {
-	    std::cout<<"WhiteBoardProc:: Enough diffs to make a slide"<<std::endl;
-	    oldOrigImg->copy(oldTemp);
-	    oldCleanImg->copy(img);
-	    img->createContrast();
-	    #ifdef _debug_
-	    //img->write();
-	    #endif
-	    img->sharpen();
-	    #ifdef _debug_
-	    //img->write();
-	    #endif
-	    img->name="WBSlide";
-	    push(img);
-	    std::cout<<"WhiteBoardProc:: Pushed wb slide"<<std::endl;
-	    }
-	  */

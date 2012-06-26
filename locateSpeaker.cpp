@@ -45,7 +45,7 @@ void LocateSpeaker::run()
 	  //bgImg = img->returnCreateBackgroundImg(25);
 	  img->differenceLect(lastImg,150,1);
 	  img->name="differenceLect";
-	  img->writeMask();
+	  //img->writeMask();
 	  //img->improveInputImg(bgImg);
 	  
 	  
@@ -59,7 +59,7 @@ void LocateSpeaker::run()
 	  //img->name="localizeSpeaker";
 	  //img->writeMask();
 	  img->name = "Speaker";
-	  img->write();
+	  //img->write();
 #endif
 	  
 	  //img->camera = img->prof;
