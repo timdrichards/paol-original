@@ -27,9 +27,14 @@ using namespace cv;
 
 void WhiteBoardFoot::run()
 {
-  Ptr<paolMat> oldImg;
-  oldImg = pop();
+  Ptr<paolMat> temp;
+  temp = new paolMat();
+  temp = pop();
   
+
+  Ptr<paolMat> oldImg;
+  oldImg = new paolMat;
+  oldImg = temp->crop(400,1400,3600,1356);
   
   Ptr<paolMat> img;
   img = new paolMat();
@@ -37,21 +42,19 @@ void WhiteBoardFoot::run()
   img->name = "newImg";
   
   while(img != NULL)
-    {
-      oldImg->copy(img);
-      img = pop();
-      img->difference(oldImg);
-      img->name = "foot-diffs";
-      img->writeMask();
-      img->edges();
-      oldImg->edges();
-      img->name = "foot-edges";
-      img->writeMask();
-      img->maskDifference(oldImg);
-      img->name = "foot-edgesDifferences";
-      img->writeMask();
-      img->name = "foot-final";
-      //push(img);
+    {      
+      oldImg->differenceDarken(img);
+      
+      
+      //if we are making a slide
+      if(true)
+	{
+	  img->copyNoSrc(oldImg);
+	  oldImg->name = "foot-differenceDarken";
+	  oldImg->write();
+	}
+      temp = pop();
+      img = temp->crop(400,1400,3600,1356);
     }
       
   stop();

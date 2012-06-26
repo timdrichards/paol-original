@@ -74,23 +74,17 @@ int main(int argc, char** argv)
   ///////////////////////////////////////
   // Launch WB mods in revers order /////
   
-  //boost::thread presVideoFramesWriterThread(boost::bind(&WriteMod::WriteMatsByCount, &presVideoFramesWriter, outDir));
-  boost::thread wbSlidesWriterThread(boost::bind(&WriteMod::WriteMats, &wbSlidesWriter, outDir));
-  boost::thread wbSlidesThread(boost::bind(&WhiteBoardFoot::run, &wbSlides));
-  boost::thread wbprocThread(boost::bind(&WhiteBoardProcess::run, &wbproc, 1));
-  // boost::thread lectFrameCreatorThread(&LectVideoFrameCreate::run, &lectFrameCreator);
-  boost::thread locateSpeakerThread(&LocateSpeaker::run, &locateSpeaker);
-  boost::thread wbReadThread(&ReadMod::ReadFromPatternFlipExt, &readFromDisk, WBdir,WBfirst,WBpattern);
+  boost::thread_group wbThreads;
 
-
-  wbReadThread.join();
-  locateSpeakerThread.join();
-  //lectFrameCreatorThread.join();
-  wbprocThread.join();
-  wbSlidesThread.join();
-  wbSlidesWriterThread.join();
-  // presVideoFramesWriterThread.join();
-
+  //wbThreads.create_thread(boost::bind(&WriteMod::WriteMatsByCount, &presVideoFramesWriter, outDir));
+  wbThreads.create_thread(boost::bind(&WriteMod::WriteMats, &wbSlidesWriter, outDir));
+  wbThreads.create_thread(boost::bind(&WhiteBoardFoot::run, &wbSlides));
+  wbThreads.create_thread(boost::bind(&WhiteBoardProcess::run, &wbproc, 1));
+  wbThreads.create_thread(boost::bind(&LocateSpeaker::run, &locateSpeaker));
+  wbThreads.create_thread(boost::bind(&ReadMod::ReadFromPatternFlipExt, &readFromDisk, WBdir,WBfirst,WBpattern));
+  
+  wbThreads.join_all();
+  
   std::cout<<"Main: about to begin deleting WB buffers"<<std::endl;
   delete wbSlidesBuffer;
   delete wbBuffer;

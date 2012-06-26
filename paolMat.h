@@ -63,6 +63,7 @@ class paolMat
   //Must be the same size as differenceLect
   void connected(int size);
   void lectArea();
+  Ptr<paolMat> crop(int x, int y, int width, int height);
   Ptr<paolMat> cropFrame(int width, int height);
   vector<int> vertMaskHistogram();
   vector<int> horMaskHistogram();
@@ -92,13 +93,9 @@ class paolMat
   void blackMaskByMask(Ptr<paolMat> img);
   void updateBackground(Ptr<paolMat> alt, Ptr<paolMat> img);
   void cleanBackground(Ptr<paolMat> img);
-  //I need to port:
-  /*
-
-    getCombine2
-
-
-   */
+  void differenceDarken(Ptr<paolMat> img);
+  
+  
 
 
 };

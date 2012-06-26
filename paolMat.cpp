@@ -1277,6 +1277,21 @@ Ptr<paolMat> paolMat::cropFrame(int width, int height){
   //now use upper and lower right to crop the frame
 }
 
+
+
+Ptr<paolMat> paolMat::crop(int x, int y, int width, int height){
+  Ptr<paolMat> outFrame;
+  outFrame = new paolMat(this);
+  
+  outFrame->src = Mat(src, Rect(x, y, width, height));
+  outFrame->mask = Mat(src, Rect(x, y, width, height));
+  outFrame->name = "Cropped";
+
+  return outFrame;
+
+}
+
+
 vector<int> paolMat::vertMaskHistogram()
 {
   vector<int> hist;
@@ -2107,4 +2122,28 @@ void paolMat::cleanBackground(Ptr<paolMat> img)
   //result->writeMask();
   src = result->src.clone();
   //result->write();
+}
+
+void paolMat::differenceDarken(Ptr<paolMat> img)
+{
+  int temp1, temp2;
+    
+  for(int x = 0; x < src.cols; x++)
+    for(int y = 0; y < src.rows; y++)
+      {
+	temp1 = ( (255 - src.at<Vec3b>(y,x)[0]) +
+		  (255 - src.at<Vec3b>(y,x)[1]) +
+		  (255 - src.at<Vec3b>(y,x)[2]) );
+
+	temp2 = ( (255 - img->src.at<Vec3b>(y,x)[0]) +
+		  (255 - img->src.at<Vec3b>(y,x)[1]) +
+		  (255 - img->src.at<Vec3b>(y,x)[2]) );
+	if(temp2 > temp1)
+	  {
+	    src.at<Vec3b>(y,x)[0] = img->src.at<Vec3b>(y,x)[0];
+	    src.at<Vec3b>(y,x)[1] = img->src.at<Vec3b>(y,x)[1];
+	    src.at<Vec3b>(y,x)[2] = img->src.at<Vec3b>(y,x)[2];
+	  }
+	
+      }
 }
