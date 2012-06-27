@@ -103,7 +103,7 @@ void paolMat::copy(Ptr<paolMat> m)
 void paolMat::copyNoSrc(Ptr<paolMat> m)
 {
   
-  mask = m->mask.clone();
+  //mask = m->mask.clone();
   count = m->count;
   time = m->time;
   name = m->name;
@@ -1926,29 +1926,36 @@ void paolMat::updateBackground(Ptr<paolMat> alt, Ptr<paolMat> img)
 {
   for(int y = 0; y < mask.rows; y++)
     for(int x = 0; x < mask.cols; x++)
-      if( 
-	 alt->mask.at<Vec3b>(y,x)[0] +
-	 alt->mask.at<Vec3b>(y,x)[1] +
-	 alt->mask.at<Vec3b>(y,x)[2] == 0 )
-	{
-	  if(img->mask.at<Vec3b>(y,x)[2] != 0)
-	    src.at<Vec3b>(y,x) = img->src.at<Vec3b>(y,x);
-	  else if(img->mask.at<Vec3b>(y,x)[1] +
-		  img->mask.at<Vec3b>(y,x)[2] == 0)
-	    {
-	      src.at<Vec3b>(y,x)[0] = 255;
-	      src.at<Vec3b>(y,x)[1] = 255;
-	      src.at<Vec3b>(y,x)[2] = 255;
-	    }
-	  mask.at<Vec3b>(y,x)[0] = 0;
-	  mask.at<Vec3b>(y,x)[1] = 0;
-	  mask.at<Vec3b>(y,x)[2] = 0;
-	}
-      else
-	{
-	  mask.at<Vec3b>(y,x)[0] = 255;
-	}
-  
+      {
+	//Update src
+	if( 
+	   alt->mask.at<Vec3b>(y,x)[0] +
+	   alt->mask.at<Vec3b>(y,x)[1] +
+	   alt->mask.at<Vec3b>(y,x)[2] == 0 )
+	  {
+	    if(img->mask.at<Vec3b>(y,x)[2] != 0)
+	      src.at<Vec3b>(y,x) = img->src.at<Vec3b>(y,x);
+	    else if(img->mask.at<Vec3b>(y,x)[1] +
+		    img->mask.at<Vec3b>(y,x)[2] == 0)
+	      {
+		src.at<Vec3b>(y,x)[0] = 255;
+		src.at<Vec3b>(y,x)[1] = 255;
+		src.at<Vec3b>(y,x)[2] = 255;
+	      }
+	  }
+	
+	//Update mask
+	if(
+	   alt->mask.at<Vec3b>(y,x)[0] +
+	   alt->mask.at<Vec3b>(y,x)[1] +
+	   alt->mask.at<Vec3b>(y,x)[2] == 0 )
+	  {
+	    mask.at<Vec3b>(y,x)[0] = img->mask.at<Vec3b>(y,x)[0];
+	    mask.at<Vec3b>(y,x)[1] = img->mask.at<Vec3b>(y,x)[1];
+	    mask.at<Vec3b>(y,x)[2] = img->mask.at<Vec3b>(y,x)[2];
+	  }
+	
+      }
 }
 
 void paolMat::cleanBackground(Ptr<paolMat> img)
@@ -2180,14 +2187,25 @@ void paolMat::countDiffsMasked(Ptr<paolMat> img)
 {
   int count;
   count = 0;
+  Ptr<paolMat> temp;
+  temp = new paolMat(this);
+  temp->mask = Scalar(0,0,0);
   for(int x = 0; x < mask.cols; x++)
     for(int y = 0; y < mask.rows; y++)
       {
 	if(mask.at<Vec3b>(y,x)[2] != 255)
 	  if( ( abs(src.at<Vec3b>(y,x)[0] - img->src.at<Vec3b>(y,x)[0]) +
 		abs(src.at<Vec3b>(y,x)[1] - img->src.at<Vec3b>(y,x)[1]) +
-		abs(src.at<Vec3b>(y,x)[2] - img->src.at<Vec3b>(y,x)[2]) ) > 5)
-	    count++;
+		abs(src.at<Vec3b>(y,x)[2] - img->src.at<Vec3b>(y,x)[2]) ) > 0)
+	    {
+	      count++;
+	      temp->mask.at<Vec3b>(y,x)[2] = 255;
+	    }
       }
+  char foo[1024];
+  sprintf(foo,"countedDifs-%d-",count);
+  temp->name = foo;
+  temp->writeMask();
   difs = count;
+  
 }

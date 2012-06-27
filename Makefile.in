@@ -24,13 +24,13 @@ libdir = $(prefix)/lib
 infodir = $(prefix)/info
 
 # Sources
-SOURCES=main.cpp computerMain.cpp whiteBoard.cpp WebCamCapture.cpp usbCam.cpp paolMat.cpp module.cpp locateSpeaker.cpp lectVideoFrameCreate.cpp genericProcess.cpp computerProcess.cpp computerDistribute.cpp buffer.cpp ac.cpp 
+SOURCES=main.cpp wbMain.cpp computerMain.cpp whiteBoard.cpp whiteBoardFoot.cpp WebCamCapture.cpp usbCam.cpp paolMat.cpp module.cpp locateSpeaker.cpp lectVideoFrameCreate.cpp genericProcess.cpp computerProcess.cpp computerDistribute.cpp buffer.cpp ac.cpp 
 #gigE.cpp epiphanCapture.cpp
 DOCS=
 MISC=configure mkinstalldirs install-sh
-OBJS=main.o computerMain.o whiteBoard.o WebCamCapture.o usbCam.o paolMat.o module.o locateSpeaker.o lectVideoFrameCreate.o genericProcess.o computerProcess.o computerDistribute.o buffer.o ac.o
+OBJS=main.o wbMain.o computerMain.o whiteBoard.o whiteBoardFoot.o WebCamCapture.o usbCam.o paolMat.o module.o locateSpeaker.o lectVideoFrameCreate.o genericProcess.o computerProcess.o computerDistribute.o buffer.o ac.o
 #gigE.o epiphanCapture.o 
-LIB_OBJS= computerMain.o whiteBoard.o WebCamCapture.o usbCam.o paolMat.o module.o locateSpeaker.o lectVideoFrameCreate.o genericProcess.o computerProcess.o computerDistribute.o buffer.o ac.o
+LIB_OBJS= wbMain.o computerMain.o whiteBoard.o whiteBoardFoot.o WebCamCapture.o usbCam.o paolMat.o module.o locateSpeaker.o lectVideoFrameCreate.o genericProcess.o computerProcess.o computerDistribute.o buffer.o ac.o
 #gigE.o epiphanCapture.o
 
 # Targets

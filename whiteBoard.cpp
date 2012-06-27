@@ -69,9 +69,9 @@ void WhiteBoardProcess::run(int skip)
 	  
 	  img->grow(30,3);
 	  
-	  old->name = "debug/old";
+	  old->name = "old";
 	  //old->writeMask();
-	  img->name = "debug/img";
+	  img->name = "img";
 	  //img->writeMask();
 	  img->threshedDifference(old);
 	  img->name = "threshedDifference";
@@ -80,29 +80,30 @@ void WhiteBoardProcess::run(int skip)
 	  
 	  alt->decimateMask(254);
 	  alt->decimateMask(254);
+	  alt->name = "alt-double-decimate";
 	  //alt->writeMask();
 	  alt->sweepDown();
+	  alt->name = "alt-sweptDown";
 	  //alt->writeMask();
 	  
 
 	  background->copyNoSrc(img);
 	  background->updateBackground(alt,img);
-	  background->name = "background-ruff";
-	  //background->write();
+	  background->name = "background-updated";
 	  //background->writeMask();
 	  background->cleanBackground(img);
 	  background->name = "background-clean";
 	  //background->write();
 	  //background->writeMask();
 	  old->copy(img);
-	  background->mask = img->mask.clone();
+	  //background->mask = img->mask.clone();
 	  push(background);
 
 	}
       
-      std::cout<<"WhiteBoardProc: about to pop"<<std::endl;
+      //std::cout<<"WhiteBoardProc: about to pop"<<std::endl;
       img = pop();
-      std::cout<<"WhiteBoardProc: popped"<<std::endl;
+      //std::cout<<"WhiteBoardProc: popped"<<std::endl;
     }
   stop();
 }

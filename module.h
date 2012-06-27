@@ -35,6 +35,7 @@ class ReadMod : public Module
   //For reading in upside down images
   void ReadFromPatternFlip(char* dir, char* firstImg);
   void ReadFromPatternFlipExt(char* dir, char* firstImg, char* pattern);
+  void ReadFromPatternFlipExtCrop(char* dir, char* firstImg, int x, int y, int width, int height);
   void ReadFromPatternFlipTiff(char* dir, char* firstImg);
   
 };

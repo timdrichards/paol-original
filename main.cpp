@@ -31,18 +31,20 @@
 #include "usbCam.h"
 #include "sample-capture.h"
 #include "computerMain.h"
+#include "wbMain.h"
 
 using namespace cv;
 
 void computerPipeline(char* outDir, char* dir, char* first);
+void wbPipeline(char* outDif, char* dir, char* first);
 
 
 int main(int argc, char** argv)
 {
   
   boost::thread_group pipelines;
-  pipelines.create_thread(boost::bind(computerPipeline, argv[1],argv[2],argv[3]) );
-
+  //pipelines.create_thread(boost::bind(computerPipeline, argv[1],argv[2],argv[3]) );
+  pipelines.create_thread(boost::bind(wbPipeline, argv[1], argv[2], argv[3]));
   pipelines.join_all();
   
   return 0;

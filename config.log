@@ -307,7 +307,7 @@ configure:3940: result: yes
 configure:3960: checking for sqrt
 configure:3960: gcc -o conftest -g -O2   conftest.c  >&5
 conftest.c:47: warning: conflicting types for built-in function 'sqrt'
-/tmp/ccmhIOvO.o: In function `main':
+/tmp/cccTDnQl.o: In function `main':
 /home/diw08/code/paol-threads/conftest.c:58: undefined reference to `sqrt'
 collect2: ld returned 1 exit status
 configure:3960: $? = 1

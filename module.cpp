@@ -367,6 +367,78 @@ void ReadMod::ReadFromPatternFlipExt(char* dir, char* firstImg, char* pattern)
   //delete img;
 }
 
+void ReadMod::ReadFromPatternFlipExtCrop(char* dir, char* firstImg, int x, int y, int width, int height)
+{
+  int count, seconds, lastLoaded, tempCount, tempSeconds;
+  char name[256];
+  char fullName[256];
+  char ext[5];
+  
+  boost::posix_time::millisec sleepTime(1);
+
+  sscanf(firstImg,"wboardwboard%06d-%10d.%s",&count,&seconds,&ext);
+  lastLoaded = seconds;
+
+  sprintf(name,"frame");
+  sprintf(fullName,"%swboardwboard%06d-%10d.%s",dir,count,seconds,ext);
+  Ptr<paolMat> img;
+  img = new paolMat();
+  Ptr<paolMat> temp;
+  temp = new paolMat();
+  while((seconds-lastLoaded)<20)
+    {
+      //boost::this_thread::sleep(sleepTime);
+      img->read(fullName,name,count,seconds);
+      if(img->src.data)
+	{
+	  
+
+	  Mat rot_mat(2, 3, CV_32FC1);
+	  Mat src, warp_rotate_dst;
+	  src = img->src;
+	  Point center = Point(src.cols/2, src.rows/2);
+	  double angle = 180.0;
+	  double scale = 1.0;
+
+	  rot_mat = getRotationMatrix2D(center, angle, scale);
+	  warpAffine(src, warp_rotate_dst, rot_mat, src.size());
+	  
+	  img->src = warp_rotate_dst;
+	  temp->copy(img);
+	  img = temp->crop(x,y,width,height);
+	  push(img);
+	  lastLoaded=seconds;
+	  count++;
+	}
+      else
+	{
+	  tempCount=count;
+	  
+	  while(!img->src.data && tempCount-count<25)
+	    {
+	      tempSeconds=seconds;
+	      while(!img->src.data && tempSeconds-seconds<25)
+		{
+		  //cout<<"Read: did not find image: wboardwboard "<<tempCount<<"-"<<tempSeconds<<endl;
+		  //tempSeconds++;
+		  sprintf(name,"frame");
+		  sprintf(fullName,"%swboardwboard%06d-%10d.%s",dir,tempCount,tempSeconds,ext);
+		  img->read(fullName,name,tempCount,tempSeconds);
+		  tempSeconds++;
+		}
+	      tempCount++;
+	    }
+	  seconds=tempSeconds-1;
+	  count=tempCount-1;
+	}
+      sprintf(name,"frame");
+      sprintf(fullName,"%swboardwboard%06d-%10d.%s",dir,count,seconds,ext);
+    }
+  stop();
+  //delete img;
+}
+
+
 void ReadMod::ReadFromPatternFlipTiff(char* dir, char* firstImg)
 {
   int count, seconds, lastLoaded, tempCount, tempSeconds;

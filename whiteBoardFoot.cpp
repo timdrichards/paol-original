@@ -27,45 +27,34 @@ using namespace cv;
 
 void WhiteBoardFoot::run()
 {
-  Ptr<paolMat> temp;
-  temp = new paolMat();
-  temp = pop();
-  
+  Ptr<paolMat> stable;
+  stable = new paolMat();
+  stable = pop();
 
-  Ptr<paolMat> oldImg;
-  oldImg = new paolMat;
-  oldImg = temp->crop(400,1400,3600,1356);
+  Ptr<paolMat> current;
+  current = new paolMat(stable);
 
-  Ptr<paolMat> tempOld;
-  tempOld = new paolMat();
-  tempOld = temp->crop(400,1400,3600,1356);
+  stable->maskGrowRed(20);
   
-  Ptr<paolMat> img;
-  img = new paolMat();
-  img->copy(oldImg);
-  img->name = "newImg";
-  
-  while(img != NULL)
-    {      
-      tempOld->differenceDarken(img);
-      tempOld->name = "Foot-WDEH";
-      tempOld->writeMask();
-      tempOld->maskGrowRed(20);
-      tempOld->name = "Foot-redGrow";
-      tempOld->writeMask();
-      tempOld->countDiffsMasked(oldImg);
-      std::cout<<"Foot:: "<<tempOld->difs<<" difs"<<std::endl;
-      //if we are making a slide
-      if(tempOld->difs > 1000)
+  while(current != NULL)
+    {   
+
+      stable->countDiffsMasked(current);
+      std::cout<<"Foot:: stable:"<<current->count<<" had "<<stable->difs<<" difs"<<std::endl;
+      if(stable->difs > 2000)
 	{
-	  img->copyNoSrc(temp);
-	  oldImg->copy(tempOld);
-	  oldImg->name = "foot-differenceDarken";
-	  oldImg->write();
+	  stable->name = "slide";
+	  push(stable);
+	  stable->copy(current);
+	  stable->maskGrowRed(20);
+	  stable->name = "grown";
+	  stable->writeMask();
 	}
-      temp = pop();
-      img = temp->crop(400,1400,3600,1356);
-      tempOld = temp->crop(400,1400,3600,1356);
+      else
+	{
+	  stable->differenceDarken(current);
+	}
+      current = pop();
     }
       
   stop();
