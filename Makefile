@@ -58,7 +58,10 @@ libPaolThreads2.a: $(OBJS)
 PaolThreads2: $(OBJS) libPaolThreads2.a
 	$(CC) $(CFLAGS) -o PaolThreads2 $(OBJS) $(LIBS)
 
-clean:
+cleanout:
+	/bin/rm -f outMedia/*.png outMedia/debug/*.png
+
+clean:	cleanout
 	/bin/rm -f core *.o $(OBJS) $(LIB_OBJS) libPaolThreads2.a
 
 distclean: clean

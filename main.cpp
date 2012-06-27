@@ -34,7 +34,7 @@
 
 using namespace cv;
 
-void computerPipeline(std::string outDir, std::string dir, std::string first);
+void computerPipeline(char* outDir, char* dir, char* first);
 
 
 int main(int argc, char** argv)

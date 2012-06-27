@@ -179,6 +179,60 @@ void ReadMod::ReadFromPattern(char* dir, char* firstImg)
   stop();
   //delete img;
 }
+void ReadMod::ReadFromPatternComp(char* dir, char* firstImg)
+{
+  int count, seconds, lastLoaded, tempCount, tempSeconds;
+  char name[256];
+  char fullName[256];
+  char ext[5];
+  
+  boost::posix_time::millisec sleepTime(1);
+
+  sscanf(firstImg,"screenscreen%06d-%10d.%s",&count,&seconds,&ext);
+  lastLoaded = seconds;
+
+  sprintf(name,"frame");
+  sprintf(fullName,"%sscreenscreen%06d-%10d.%s",dir,count,seconds,ext);
+  Ptr<paolMat> img;
+  img = new paolMat();
+  while((seconds-lastLoaded)<20)
+    {
+      //boost::this_thread::sleep(sleepTime);
+      img->read(fullName,name,count,seconds);
+      if(img->src.data)
+	{
+	  push(img);
+	  lastLoaded=seconds;
+	  count++;
+	}
+      else
+	{
+	  tempCount=count;
+	  
+	  while(!img->src.data && tempCount-count<25)
+	    {
+	      tempSeconds=seconds;
+	      while(!img->src.data && tempSeconds-seconds<25)
+		{
+		  //cout<<"Read: did not find image: screenscreen "<<tempCount<<"-"<<tempSeconds<<endl;
+		  //tempSeconds++;
+		  sprintf(name,"frame");
+		  sprintf(fullName,"%sscreenscreen%06d-%10d.%s",dir,tempCount,tempSeconds,ext);
+		  img->read(fullName,name,tempCount,tempSeconds);
+		  tempSeconds++;
+		}
+	      tempCount++;
+	    }
+	  seconds=tempSeconds-1;
+	  count=tempCount-1;
+	}
+      sprintf(name,"frame");
+      sprintf(fullName,"%sscreenscreen%06d-%10d.%s",dir,count,seconds,ext);
+    }
+  stop();
+  //delete img;
+}
+
 
 void ReadMod::ReadFromPatternFlip(char* dir, char* firstImg)
 {

@@ -4,6 +4,6 @@
 
 using namespace cv;
 
-void computerPipeLine(std::string outDir, std::string dir, std::string first);
+void computerPipeLine(char* outDir, char* dir, char* first);
 
 #endif

@@ -57,6 +57,7 @@ void ComputerProcess::run()
 #endif
       if(percentDifference>=thresholdDiff)
 	{
+	  previous->name = "slide";
 	  push(previous);//send to write
 	}; 
       previous->copy(current);
@@ -64,6 +65,9 @@ void ComputerProcess::run()
     };
   //save last image
   if(previous != NULL)
-    push(previous);
+    {
+      previous->name = "slide";
+      push(previous);
+    }
   stop();
 };

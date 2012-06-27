@@ -22,19 +22,20 @@
 #include "computerDistribute.h"
 #include "computerProcess.h"
 
-void computerPipeline(std::string outDir, std::string dir, std::string first)
+void computerPipeline(char* outDir, char* dir, char* first)
 {
+
+  char out[1024];
+  char Cdir[1024];
+  char firstSlide[1024];
+  
+  std::strcpy(out, outDir);
+  std::strcpy(Cdir, dir);
+  std::strcpy(firstSlide, first);
+
   std::cout<<outDir<<" "<<dir<<" "<<first<<std::endl;
-
-}
-
-void foo(){
-
-#ifdef _compCap_
-  ///////////////////////////////
-  /// Computer Cap/Proc Buffers /
-  Buffer* epiphanBuffer;
-  epiphanBuffer = new Buffer;
+  Buffer* readBuffer;
+  readBuffer = new Buffer;
   Buffer* tempWriterBuffer;
   tempWriterBuffer = new Buffer;
   Buffer* compSlidesProcBuffer;
@@ -44,93 +45,27 @@ void foo(){
   Buffer* compSlidesWriterBuffer;
   compSlidesWriterBuffer = new Buffer;
 
-  /////////////////////////////////////
-  // Computer Cap/Proc Modules
   WriteMod compMovieWriter(compMovieWriterBuffer);
   WriteMod compTempWriter(tempWriterBuffer);
   WriteMod compSlidesWriter(compSlidesWriterBuffer);
   ComputerProcess compSlidesProc(compSlidesProcBuffer, compSlidesWriterBuffer);
-  ComputerDistribute compDistribute(epiphanBuffer, compSlidesProcBuffer, compMovieWriterBuffer, tempWriterBuffer);
-#ifdef _usbCompCap_
-  EpiphanCapture compGrabber(epiphanBuffer);
-#endif
-#ifdef _ethCompCap_
-  EpiphanCapture compGrabber(epiphanBuffer);
-#endif
-#endif
+  ComputerDistribute compDistribute(readBuffer, compSlidesProcBuffer, compMovieWriterBuffer, tempWriterBuffer);
+  ReadMod compReader(readBuffer);
 
-#ifdef _usbCam_
-  Buffer* usbCamCapBuffer;
-  usbCamCapBuffer = new Buffer;
+  boost::thread_group compPipeline;
 
-  //WriteMod usbCamFrameWriter(usbCamCapBuffer);
-  UsbCam usbCam(usbCamCapBuffer);
-#endif
+  compPipeline.create_thread(boost::bind(&WriteMod::WriteMats, &compMovieWriter, out));
+  compPipeline.create_thread(boost::bind(&WriteMod::WriteMats, &compTempWriter, out));
+  compPipeline.create_thread(boost::bind(&WriteMod::WriteMats, &compSlidesWriter, out));
+  compPipeline.create_thread(boost::bind(&ComputerProcess::run, &compSlidesProc));
+  compPipeline.create_thread(boost::bind(&ComputerDistribute::run, &compDistribute));
+  compPipeline.create_thread(boost::bind(&ReadMod::ReadFromPatternComp, &compReader, Cdir, firstSlide));
 
-#ifdef _gigE2Disk_
-  Buffer* gigE2DiskBuffer;
-  gigE2DiskBuffer = new Buffer;
+  compPipeline.join_all();
   
-  WriteMod gigE2DiskWriter(gigE2DiskBuffer);
-  GigE gigE2DiskCam(gigE2DiskBuffer, 0);
-#endif
-  
-
-#ifdef _compCap_
-  ///////////////////////////////////////
-  // Launch Comp mods in reverse order
-  boost::thread compMovieWriterThread(&WriteMod::WriteCompVideo, &compMovieWriter);
-  boost::thread compTempWriterThread(&WriteMod::WriteMats, &compTempWriter);
-  boost::thread compSlidesWriterThread(&WriteMod::WriteMats, &compSlidesWriter);
-  boost::thread compSlidesProcThread(&ComputerProcess::run, &compSlidesProc);
-  boost::thread compDistributeThread(&ComputerDistribute::run, &compDistribute);
-  #ifdef _usbCompCap_
-  boost::thread compGrabberThread(&EpiphanCapture::run, &compGrabber);
-  #endif
-  #ifdef _ethCompCap_
-  boost::thread compGrabberThread(&EpiphanCapture::runEthCap, &compGrabber);
-  #endif
-#endif
-
-#ifdef _usbCam_
-  //boost::thread usbCamFrameWriterThread(&WriteMod::WriteMats, &usbCamFrameWriter);
-  boost::thread usbCamThread(&UsbCam::run, &usbCam);
-#endif
-
-#ifdef _gigE2Disk_
-  std::cout<<"Main: Launching gigE2Disk"<<std::endl;
-  //boost::thread gigE2DiskWriterThread(&WriteMod::WriteMats, &gigE2DiskWriter);
-  boost::thread gigE2DiskCamThread(&GigE::run, &gigE2DiskCam);
-#endif
-
-
-#ifdef _compCap_
-  compGrabberThread.join();
-  compDistributeThread.join();
-  compSlidesProcThread.join();
-  compSlidesWriterThread.join();
-  compTempWriterThread.join();
-  compMovieWriterThread.join();
-
-  delete epiphanBuffer;
+  delete readBuffer;
   delete tempWriterBuffer;
   delete compSlidesProcBuffer;
   delete compMovieWriterBuffer;
   delete compSlidesWriterBuffer;
-#endif
-
-#ifdef _usbCam_
-  usbCamThread.join();
-  //usbCamFrameWriterThread.join();
-
-  delete usbCamCapBuffer;
-#endif
-
-#ifdef _gigE2Disk
-  gigE2DiskWriterThread.join();
-  gigE2DiskCamThread.join();
-
-  delete gigE2DiskBuffer;
-#endif
- 
 }

@@ -31,6 +31,7 @@ class ReadMod : public Module
   ReadMod(Buffer* out) : Module(NULL, out, 150){};
   //~ReadMod();
   void ReadFromPattern(char* dir, char* firstImg);
+  void ReadFromPatternComp(char* dir, char* firstImg);
   //For reading in upside down images
   void ReadFromPatternFlip(char* dir, char* firstImg);
   void ReadFromPatternFlipExt(char* dir, char* firstImg, char* pattern);
