@@ -30,28 +30,20 @@
 #include "WebCamCapture.h"
 #include "usbCam.h"
 #include "sample-capture.h"
-
+#include "computerMain.h"
 
 using namespace cv;
 
-void computerPipeline()
-{
+void computerPipeline(std::string outDir, std::string dir, std::string first);
 
-
-}
 
 int main(int argc, char** argv)
 {
   
-  char outDir[1024];
-  std::strcpy(outDir, argv[1]);
-  
-  char Cdir[1024];
-  std::strcpy(Cdir, argv[2]);
-  
-  char Cfirst[1024];
-  std::strcpy(Cfirst, argv[3]);
-  
+  boost::thread_group pipelines;
+  pipelines.create_thread(boost::bind(computerPipeline, argv[1],argv[2],argv[3]) );
+
+  pipelines.join_all();
   
   return 0;
 }

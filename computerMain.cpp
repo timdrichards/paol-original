@@ -1,12 +1,34 @@
-//#define _compCap_
-//#define _usbCompCap_
-//#define _usbCam_
-//#define _live_
-//#define _gigE2Disk_
-//define _ethCompCap_
+// Including Boost
+#include <boost/lambda/lambda.hpp>
+#include <boost/thread.hpp>
+#include <boost/date_time.hpp>
+#include <boost/interprocess/containers/vector.hpp>
 
+//Including C++ Libs
+#include <iostream>
+#include <iterator>
+#include <queue>
+#include <cstdio>
 
+//Open CV
+#include "opencv/cv.h"
+#include "opencv/highgui.h"
+#include "opencv/cvaux.h"
+//Our Libs
+#include "paolMat.h"
+#include "buffer.h"
+#include "module.h"
+#include "genericProcess.h"
+#include "computerDistribute.h"
+#include "computerProcess.h"
 
+void computerPipeline(std::string outDir, std::string dir, std::string first)
+{
+  std::cout<<outDir<<" "<<dir<<" "<<first<<std::endl;
+
+}
+
+void foo(){
 
 #ifdef _compCap_
   ///////////////////////////////
@@ -111,3 +133,4 @@
   delete gigE2DiskBuffer;
 #endif
  
+}
