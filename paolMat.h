@@ -96,7 +96,7 @@ class paolMat
   void differenceDarken(Ptr<paolMat> img);
   void maskGrowRed(int size);
   void countDiffsMasked(Ptr<paolMat> img);
-  
+  void finalWBUpdate(Ptr<paolMat> current);
 
 
 };

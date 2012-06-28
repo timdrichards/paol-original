@@ -2209,3 +2209,39 @@ void paolMat::countDiffsMasked(Ptr<paolMat> img)
   difs = count;
   
 }
+
+void paolMat::finalWBUpdate(Ptr<paolMat> current)
+{
+  int temp1, temp2;
+  for(int x = 0; x < mask.cols; x++)
+    for(int y = 0; y < mask.rows; y++)
+      {
+	if( (mask.at<Vec3b>(y,x)[2] == 255) &&
+	    (current->mask.at<Vec3b>(y,x)[2] == 255))
+	  {
+	    temp1 = ( (255 - src.at<Vec3b>(y,x)[0]) +
+		      (255 - src.at<Vec3b>(y,x)[1]) +
+		      (255 - src.at<Vec3b>(y,x)[2]) );
+	    
+	    temp2 = ( (255 - current->src.at<Vec3b>(y,x)[0]) +
+		      (255 - current->src.at<Vec3b>(y,x)[1]) +
+		      (255 - current->src.at<Vec3b>(y,x)[2]) );
+	    if(temp2 > temp1)
+	      {
+		src.at<Vec3b>(y,x)[0] = current->src.at<Vec3b>(y,x)[0];
+		src.at<Vec3b>(y,x)[1] = current->src.at<Vec3b>(y,x)[1];
+		src.at<Vec3b>(y,x)[2] = current->src.at<Vec3b>(y,x)[2];
+	      }
+	    
+	  }
+	else
+	  {
+	    src.at<Vec3b>(y,x)[0] = current->src.at<Vec3b>(y,x)[0];
+	    src.at<Vec3b>(y,x)[1] = current->src.at<Vec3b>(y,x)[1];
+	    src.at<Vec3b>(y,x)[2] = current->src.at<Vec3b>(y,x)[2];
+	  }
+	
+      }
+  mask = current->mask.clone();
+  copyNoSrc(current);
+}

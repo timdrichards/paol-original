@@ -45,7 +45,8 @@ void WhiteBoardFoot::run()
 	{
 	  stable->name = "slide";
 	  push(stable);
-	  stable->copy(current);
+	  //stable->copy(current);
+	  stable->finalWBUpdate(current);
 	  stable->maskGrowRed(20);
 	  stable->name = "grown";
 	  stable->writeMask();
