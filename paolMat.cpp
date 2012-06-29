@@ -170,7 +170,7 @@ void paolMat::writeByCount(std::string outDir)
       char temp[256];
       std::string longName = outDir;
       longName.append(name);
-      sprintf(temp,"_%06d.ppm",count);
+      sprintf(temp,"_%06d.png",count);
       longName.append(temp);
       cv::imwrite(longName, src);
       std::cout<<longName<<std::endl;

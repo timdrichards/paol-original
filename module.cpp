@@ -3,6 +3,7 @@
 #include <boost/thread.hpp>
 #include <boost/date_time.hpp>
 #include <boost/interprocess/containers/vector.hpp>
+#include <boost/filesystem.hpp>
 
 //Including C++ Libs
 #include <iostream>
@@ -529,6 +530,54 @@ void WriteMod::WriteMats(std::string outDir)
     }
 }
 
+void WriteMod::WriteSlides(std::string outDir, std::string name)
+{
+  std::ofstream log;
+  std::ofstream difs;
+  
+  char logLoc[1024];
+  char difsLoc[1024];
+  
+  std::strcat(logLoc,outDir.c_str());
+  std::strcat(difsLoc,outDir.c_str());
+  
+  std::strcat(logLoc,"slides.txt");
+  std::strcat(difsLoc,"difs.txt");
+  
+  log.open(logLoc, ios::out | ios::trunc);
+  difs.open(difsLoc, ios::out | ios::trunc);
+  
+  log.close();
+  difs.close();
+
+  Ptr<paolMat> img;
+  img = pop();
+  int count;
+  count = 0;
+
+  
+  while(img!=NULL)
+    {
+      img->name = name;
+      img->count = count;
+      log.open(logLoc, ios::out | ios::app);
+      difs.open(difsLoc, ios::out | ios::app);
+      
+      char temp[256];
+      std::string longName = name;
+      sprintf(temp,"_%06d.png",count);
+      longName.append(temp);
+      
+      log << longName << " | \n";
+      difs << longName << " | "<< img->difs << "\n";
+      img->writeByCount(outDir);
+      count++;
+
+      log.close();
+      difs.close();
+    }
+}
+
 void WriteMod::WriteMatsByCount(std::string outDir)
 {
   Ptr<paolMat> img;
@@ -624,7 +673,78 @@ void WriteMod::WriteVideo()
   WriteVideo("unkown");
 }
 
-void WriteMod::WriteCompVideo()
+void WriteMod::WriteCompVideo(std::string outDir)
 {
-  WriteVideo("Computer");
+  std::ofstream log;
+  char logLoc[1024];
+  std::strcat(logLoc,outDir.c_str());
+  std::strcat(logLoc,"screenVideo.txt");
+  log.open(logLoc, ios::out | ios::trunc);
+  log.close();
+  Ptr<paolMat> img;
+  Ptr<paolMat> black;
+  img = pop();
+  int lastSecond;
+  int count = -1;
+  int second;
+  //## Target FPS ////////////////////////////////////
+  int tFPS = 15;
+  //## Current FPS (reset every second) ///////////////
+  int cFPS = 0;
+  img->count = count;
+  second = img->time;
+  lastSecond = 0;
+  black->copy(img);
+  black->src = Scalar(0,0,0);
+  while(img!=NULL)
+    {
+      //If more then 10 seconds have gone by
+      if(second > lastSecond +10)
+	{
+	  log.open(logLoc, ios::out | ios::app);
+	  log << "Blank " <<lastSecond;
+	  for(lastSecond;lastSecond < second; lastSecond++)
+	    for(int a = 0; a < tFPS; a++)
+	      {
+		count++;
+		black->count = count;
+		black->writeByCount(outDir);
+	      }
+	  lastSecond = second;
+	  img->count = count;
+	  log << " | "<< lastSecond << "\n";
+	  log.close();
+	}
+      if( (second == img->time) && (cFPS >= tFPS) )
+	std::cout<<"WriteMod:: Dropping frame, to many this second"<<std::endl;
+      else if( (second == img->time) && (cFPS < tFPS) )
+	{
+	  count++;
+	  std::cout<<"WriteMod:: about to write: "<<outDir<<std::endl;
+	  img->count = count;
+	  img->writeByCount(outDir);
+	  img = pop();
+	  	  
+	  cFPS++;
+	}
+      else if(second < img->time)
+	{
+	  while(cFPS < tFPS)
+	    {
+	      std::cout<<"WriteMod:: CFPS < 15 second < time"<<std::endl;
+	      count++;
+	      img->count = count;
+	      std::cout<<"WriteMod:: about to write (duplicate): "<<outDir<<std::endl;
+	      img->writeByCount(outDir);
+	      cFPS++;
+	    }
+	  std::cout<<"WriteMod:: tFPS achieved moving to next second"<<std::endl;
+      
+	  second++;
+	  lastSecond++;
+	  cFPS = 0;
+	}
+      
+    }
+  log.close();
 }
