@@ -15,7 +15,7 @@ RANLIB = ranlib
 CC = gcc
 CFLAGS =  -Wno-write-strings -g -O2
 LDFLAGS = -Wno-write-strings 
-LIBS = `pkg-config opencv --cflags --libs` -I/opt/local/include -L/opt/local/lib -lboost_thread-mt 
+LIBS = `pkg-config opencv --cflags --libs` -I/opt/local/include -L/opt/local/lib -lboost_thread-mt -lboost_program_options 
 #INSTALL = /usr/bin/install -c
 prefix = /usr/local
 exec_prefix = ${prefix}
@@ -59,7 +59,7 @@ PaolThreads2: $(OBJS) libPaolThreads2.a
 	$(CC) $(CFLAGS) -o PaolThreads2 $(OBJS) $(LIBS)
 
 cleanout:
-	/bin/rm -f outMedia/*.png outMedia/debug/*.png
+	/bin/rm -f outMedia/*.png outMedia/*/*.png
 
 clean:	cleanout
 	/bin/rm -f core *.o $(OBJS) $(LIB_OBJS) libPaolThreads2.a

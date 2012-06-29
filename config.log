@@ -14,7 +14,7 @@ hostname = bigred
 uname -m = x86_64
 uname -r = 2.6.32-41-generic
 uname -s = Linux
-uname -v = #90-Ubuntu SMP Tue May 22 11:29:51 UTC 2012
+uname -v = #91-Ubuntu SMP Wed Jun 13 11:43:55 UTC 2012
 
 /usr/bin/uname -p = unknown
 /bin/uname -X     = unknown
@@ -307,7 +307,7 @@ configure:3940: result: yes
 configure:3960: checking for sqrt
 configure:3960: gcc -o conftest -g -O2   conftest.c  >&5
 conftest.c:47: warning: conflicting types for built-in function 'sqrt'
-/tmp/cccTDnQl.o: In function `main':
+/tmp/cc12fIZL.o: In function `main':
 /home/diw08/code/paol-threads/conftest.c:58: undefined reference to `sqrt'
 collect2: ld returned 1 exit status
 configure:3960: $? = 1

@@ -28,6 +28,7 @@ void wbPipeline(char* outDir, char* dir, char* first)
 {
   char out[1024];
   std::strcpy(out, outDir);
+  std::strcat(out, "whiteboard/");
   char WBdir[1024];
   std::strcpy(WBdir, dir);
   char WBfirst[1024];

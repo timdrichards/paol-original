@@ -2205,7 +2205,7 @@ void paolMat::countDiffsMasked(Ptr<paolMat> img)
   char foo[1024];
   sprintf(foo,"countedDifs-%d-",count);
   temp->name = foo;
-  temp->writeMask();
+  //temp->writeMask();
   difs = count;
   
 }

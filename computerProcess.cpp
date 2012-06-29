@@ -20,7 +20,7 @@
 #include "module.h"
 #include "computerProcess.h"
 
-#define _debug_
+//#define _debug_
 #define bottomMask 115
 #define thresholdDiff .0005
 #define repeat 3//number of consecutive stamble images necessary to consider stable

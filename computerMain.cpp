@@ -26,10 +26,14 @@ void computerPipeline(char* outDir, char* dir, char* first)
 {
 
   char out[1024];
+  char vout[1024];
   char Cdir[1024];
   char firstSlide[1024];
   
   std::strcpy(out, outDir);
+  std::strcpy(vout, outDir);
+  std::strcat(out, "screen/");
+  std::strcat(vout, "computerVideoFrames/");
   std::strcpy(Cdir, dir);
   std::strcpy(firstSlide, first);
 
@@ -46,7 +50,7 @@ void computerPipeline(char* outDir, char* dir, char* first)
   compSlidesWriterBuffer = new Buffer;
 
   WriteMod compMovieWriter(compMovieWriterBuffer);
-  WriteMod compTempWriter(tempWriterBuffer);
+  Module compTemp(tempWriterBuffer, NULL, 15);
   WriteMod compSlidesWriter(compSlidesWriterBuffer);
   ComputerProcess compSlidesProc(compSlidesProcBuffer, compSlidesWriterBuffer);
   ComputerDistribute compDistribute(readBuffer, compSlidesProcBuffer, compMovieWriterBuffer, tempWriterBuffer);
@@ -54,8 +58,8 @@ void computerPipeline(char* outDir, char* dir, char* first)
 
   boost::thread_group compPipeline;
 
-  compPipeline.create_thread(boost::bind(&WriteMod::WriteMats, &compMovieWriter, out));
-  compPipeline.create_thread(boost::bind(&WriteMod::WriteMats, &compTempWriter, out));
+  compPipeline.create_thread(boost::bind(&WriteMod::WriteMats, &compMovieWriter, vout));
+  compPipeline.create_thread(boost::bind(&Module::nullRun, &compTemp));
   compPipeline.create_thread(boost::bind(&WriteMod::WriteMats, &compSlidesWriter, out));
   compPipeline.create_thread(boost::bind(&ComputerProcess::run, &compSlidesProc));
   compPipeline.create_thread(boost::bind(&ComputerDistribute::run, &compDistribute));

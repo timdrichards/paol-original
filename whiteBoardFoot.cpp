@@ -49,7 +49,7 @@ void WhiteBoardFoot::run()
 	  stable->finalWBUpdate(current);
 	  stable->maskGrowRed(20);
 	  stable->name = "grown";
-	  stable->writeMask();
+	  //stable->writeMask();
 	}
       else
 	{
