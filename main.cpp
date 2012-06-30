@@ -10,6 +10,7 @@
 #include <iterator>
 #include <queue>
 #include <cstdio>
+#include <time.h>
 
 //Open CV
 #include "opencv/cv.h"
@@ -39,8 +40,8 @@ namespace po = boost::program_options;
 
 using namespace cv;
 
-void computerPipeline(char* outDir, char* dir, char* first);
-void wbPipeline(char* outDif, char* dir, char* first);
+void computerPipeline(char* outDir, char* dir, char* first, int start);
+void wbPipeline(char* outDif, char* dir, char* first, int start);
 
 using namespace std;
 
@@ -61,6 +62,7 @@ int main(int argc, char** argv)
       ("WBfirst", po::value<string>(), "Whiteboard first frame")
       ("Cdir", po::value<string>(), "Computer source directory")
       ("Cfirst", po::value<string>(), "Computer first frame")
+      ("info,I", po::value<string>(), "INFO file")
       ;
     po::variables_map vm;
     po::store(po::parse_command_line(argc, argv, desc), vm);
@@ -76,19 +78,96 @@ int main(int argc, char** argv)
     char Cfirst[1024];
     char WBfirst[1024];
     char WBdir[1024];
-    
+    int start;
+
     //Check that we have out and either a whiteboard or a screen
-    if( (vm.count("out") && 
+    if( ( (vm.count("out") && vm.count("info")) &&
 	  ( (vm.count("WBdir") && vm.count("WBfirst") ) ||
 	    (vm.count("Cdir") && vm.count("Cfirst") ) )
 	  )
 	)
       {
-	string dirString = vm["out"].as<string>();
-	strcpy(dir,dirString.c_str());
+	string startTime;
+	std::ifstream INFO;
+	
+	string infoString = vm["info"].as<string>();
+	char infoLoc[1024];
+	std::strcat(infoLoc, infoString.c_str());
+	
+	INFO.open(infoLoc, ios::in);
+	if(!INFO.is_open())
+	  {
+	    std::cout<<"Could not open info file\n";
+	    return 1;
+	  }
+	else
+	  {
+	    //Parse start time from info file
+	    
+
+	    bool found = false;
+	    while(INFO.good())
+	      {
+		std::getline(INFO,startTime);
+		char line[1024];
+		strcpy(line,startTime.c_str());
+		std::cout<<"INFO: "<<line<<std::endl;
+		int year,month,day,hour,minute,second;
+		if(std::sscanf(line,"start: %d,%d,%d,%d,%d,%d",&year,&month,&day,&hour,&minute,&second) > 0)
+		  {
+		    found = true;
+		    std::time_t rawtime;
+		    struct tm * timeinfo;
+		    std::time(&rawtime);
+		    timeinfo = std::localtime(&rawtime);
+		    timeinfo->tm_year = year -1900;
+		    timeinfo->tm_mon = month -1;
+		    timeinfo->tm_mday = day;
+		    timeinfo->tm_hour = hour;
+		    timeinfo->tm_min = minute;
+		    timeinfo->tm_sec = second;
+		    //check daylight savings
+		    if( (year == 2012 && 
+			 (month == 3 && day > 11) ||
+			 (month > 3 && 11 > month) ||
+			 (month == 11 && day < 4) ) ||
+			(year == 2013 &&
+			 (month == 3 && day > 10) ||
+			 (month > 3 && 11 > month) ||
+			 (month == 11 && day < 3) ))
+		      {
+			std::cout<<"Recording during daylight savings time eh?\n";
+			timeinfo->tm_isdst = 1;
+		      }else if(year == 2012 || year == 2013)
+		      {
+			std::cout<<"Not recorded during daylight savings time\n";
+			timeinfo->tm_isdst = 0;
+		      }else
+		      {
+			std::cout<<"Cannot check daylight savings time\n";
+			timeinfo->tm_isdst = -1;
+		      }
+		    start = (int)std::mktime(timeinfo);
+		    break;
+		  }
+	      }
+	    std::cout << "Start time "<<startTime<<std::endl;
+	    if(found)
+	      std::cout << " in POSIX thats "<<start<<std::endl;
+	    else
+	      {
+		std::cout << "couldn't find the time in the info file\n";
+		return 1;
+	      }
+	    
+	    
+	    
+	    string dirString = vm["out"].as<string>();
+	    strcpy(dir,dirString.c_str());
+	  }
       }else
       {
-	cout<< "Must specify AT MINIMUM --out AND a whiteboard OR computer source\n"
+	cout<< "Must specify AT MINIMUM --out AND --start AND a whiteboard OR computer source\n"
 	    <<" try --help"<<endl;
 	return 1;
       }
@@ -100,10 +179,10 @@ int main(int argc, char** argv)
 	return 1;
       }
     
-    //if either Cdir or Cfirst, check for both
-    if( vm.count("Cdir") ^ vm.count("Cfirst"))
+    //if either Cdir or Cfirst, check for both and --info
+    if(vm.count("Cdir") ^ vm.count("Cfirst") )
       {
-	cout <<"To process a screen BOTH --Cdir and --Cfirst must be specified"<<endl;
+	cout <<"To process a screen --Cdir AND --Cfirst must be specified"<<endl;
 	return 1;
       }
     
@@ -119,7 +198,7 @@ int main(int argc, char** argv)
 	cout << "Whiteboard source: " << vm["WBdir"].as<string>() 
 	     << " starting with: " << vm["WBfirst"].as<string>() <<endl;
 	pipelines.create_thread(boost::bind(wbPipeline,
-					    dir,WBdir,WBfirst));
+					    dir,WBdir,WBfirst,start));
 	cout << "Whiteboard pipeline launched!"<<endl;
       }
     
@@ -135,9 +214,10 @@ int main(int argc, char** argv)
 	cout << "Computer source: "<< vm["Cdir"].as<string>()
 	     << " starting with: "<<vm["Cfirst"].as<string>() <<endl;
 	pipelines.create_thread(boost::bind(computerPipeline,
-					    dir,Cdir,Cfirst));
+					    dir,Cdir,Cfirst, start));
 	cout << "Computer pipeline launched!"<<endl;
       }
+      
     pipelines.join_all();
   }
   catch(exception& e)
@@ -152,4 +232,4 @@ int main(int argc, char** argv)
     
   return 0;
 }
-
+  

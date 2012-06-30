@@ -22,6 +22,8 @@
 
 //#define _debug_
 
+namespace fs = boost::filesystem;
+
 using namespace cv;
 using namespace std;
 
@@ -530,8 +532,12 @@ void WriteMod::WriteMats(std::string outDir)
     }
 }
 
-void WriteMod::WriteSlides(std::string outDir, std::string name)
+void WriteMod::WriteSlides(std::string outDir, std::string name, int start)
 {
+
+  fs::remove_all(name);
+  fs::create_directory(name);
+
   std::ofstream log;
   std::ofstream difs;
   
@@ -568,13 +574,14 @@ void WriteMod::WriteSlides(std::string outDir, std::string name)
       sprintf(temp,"_%06d.png",count);
       longName.append(temp);
       
-      log << longName << " | \n";
-      difs << longName << " | "<< img->difs << "\n";
+      log << longName <<" | " << (img->time - start) << "\n";
+      difs << longName << " | " << (img->time - start) << " | " << img->difs << "\n";
       img->writeByCount(outDir);
       count++;
 
       log.close();
       difs.close();
+      img = pop();
     }
 }
 
@@ -673,7 +680,7 @@ void WriteMod::WriteVideo()
   WriteVideo("unkown");
 }
 
-void WriteMod::WriteCompVideo(std::string outDir)
+void WriteMod::WriteCompVideo(std::string outDir, int start)
 {
   std::ofstream log;
   char logLoc[1024];
@@ -683,6 +690,7 @@ void WriteMod::WriteCompVideo(std::string outDir)
   log.close();
   Ptr<paolMat> img;
   Ptr<paolMat> black;
+  black = new paolMat();
   img = pop();
   int lastSecond;
   int count = -1;
@@ -693,7 +701,7 @@ void WriteMod::WriteCompVideo(std::string outDir)
   int cFPS = 0;
   img->count = count;
   second = img->time;
-  lastSecond = 0;
+  lastSecond = start;
   black->copy(img);
   black->src = Scalar(0,0,0);
   while(img!=NULL)

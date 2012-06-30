@@ -32,7 +32,7 @@ ComputerDistribute::ComputerDistribute(Buffer* in, Buffer* compProcIn, Buffer* c
   compProc = compProcIn;
   compMovie = compMovieIn;
   tempDisplay = tempDisplayIn;
-};
+}
 
 void ComputerDistribute::run()
 {
@@ -44,7 +44,7 @@ void ComputerDistribute::run()
   previous = pop();
   if(previous != NULL){
     current = pop();
-  };
+  }
   countStable=0;
   
   while(current != NULL)
@@ -57,7 +57,7 @@ void ComputerDistribute::run()
 	} else
 	{
 	  percentDifference=1.0;
-	};
+	}
 #ifdef _debug_
       //percentDifference = 0.5;
       std::cout<<"Dif% :"<<percentDifference<<" countStable: "<<countStable<<" current->difs: "<<current->difs<<std::endl;
@@ -68,6 +68,7 @@ void ComputerDistribute::run()
 	    {
 #ifdef _debug_
 	      previous->name = "ForCompProc";
+	      std::cout<< "frame "<<previous->count <<" had % "<<percentDifference<<"\n";
 #endif
 	      compProc->push(previous);//send to computer process
 	    } else
@@ -76,7 +77,7 @@ void ComputerDistribute::run()
 	      current->name = "ForCompMovie";
 #endif
 	      compMovie->push(current);//send to movie creation
-	    };
+	    }
 	  countStable=0;
 	} else {
 	countStable++;
@@ -87,10 +88,10 @@ void ComputerDistribute::run()
 #endif
 	    tempDisplay->push(current);//send to real time display
 	  }
-      };
+      }
       previous->copy(current);
       current=pop();
-    };
+    }
   //save last image
 #ifdef _debug_
   previous->name = "ForCompProc";
@@ -104,4 +105,4 @@ void ComputerDistribute::run()
   compProc->stop();
   compMovie->stop();
   tempDisplay->stop();
-};
+}

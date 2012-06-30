@@ -38,7 +38,7 @@ void ComputerProcess::run()
   previous = pop();
   if(previous != NULL){
     current = pop();
-  };
+  }
   countStable=0;
   
   while(current != NULL)
@@ -50,7 +50,7 @@ void ComputerProcess::run()
 	} else
 	{
 	  percentDifference=1;
-	};
+	}
       
 #ifdef _debug_
       std::cout<<"compProc PercentDifference: "<<percentDifference<<" threshold: "<<thresholdDiff<<std::endl;
@@ -59,10 +59,10 @@ void ComputerProcess::run()
 	{
 	  previous->name = "slide";
 	  push(previous);//send to write
-	}; 
+	} 
       previous->copy(current);
       current=pop();
-    };
+    }
   //save last image
   if(previous != NULL)
     {
@@ -70,4 +70,4 @@ void ComputerProcess::run()
       push(previous);
     }
   stop();
-};
+}

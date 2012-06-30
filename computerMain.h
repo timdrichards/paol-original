@@ -4,6 +4,6 @@
 
 using namespace cv;
 
-void computerPipeLine(char* outDir, char* dir, char* first);
+void computerPipeLine(char* outDir, char* dir, char* first, int start);
 
 #endif

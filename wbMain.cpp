@@ -24,7 +24,7 @@
 #include "genericProcess.h"
 #include "locateSpeaker.h"
 
-void wbPipeline(char* outDir, char* dir, char* first)
+void wbPipeline(char* outDir, char* dir, char* first, int start)
 {
   char out[1024];
   std::strcpy(out, outDir);

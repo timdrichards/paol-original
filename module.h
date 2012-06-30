@@ -48,11 +48,11 @@ class WriteMod : public Module
     
   void WriteMats();
   void WriteMats(std::string outDir);
-  void WriteSlides(std::string outDir, std::string name);
+  void WriteSlides(std::string outDir, std::string name, int start);
   void WriteMatsByCount(std::string outDir);
   void WriteVideo();
   void WriteVideo(char* label);
-  void WriteCompVideo(std::string outDir);
+  void WriteCompVideo(std::string outDir, int start);
 
 };
 #endif
