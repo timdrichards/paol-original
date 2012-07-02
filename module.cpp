@@ -732,7 +732,8 @@ void WriteMod::WriteCompVideo(std::string outDir, int start)
 	  img->count = count;
 	  img->writeByCount(outDir);
 	  img = pop();
-	  	  
+	  if(img != NULL)
+	    second = img->time;
 	  cFPS++;
 	}
       else if(second < img->time)
