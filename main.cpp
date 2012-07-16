@@ -30,7 +30,7 @@
 #include "computerDistribute.h"
 #include "computerProcess.h"
 #include "WebCamCapture.h"
-#include "usbCam.h"
+//#include "usbCam.h"
 //#include "sample-capture.h"
 #include "computerMain.h"
 #include "wbMain.h"
