@@ -38,7 +38,7 @@ ReadMod readFromDisk(wbReadBuffer);
 boost::thread_group wbThreads;
 
 //wbThreads.create_thread(boost::bind(&WriteMod::WriteMatsByCount, &presVideoFramesWriter, outDir));
-wbThreads.create_thread(boost::bind(&WriteMod::WriteMats, &wbSlidesWriter, outDir));
+wbThreads.create_thread(boost::bind(&WriteMod::WriteSlides, &wbSlidesWriter, outDir, "whiteboard", start));
 wbThreads.create_thread(boost::bind(&WhiteBoardFoot::run, &wbSlides));
 wbThreads.create_thread(boost::bind(&WhiteBoardProcess::run, &wbproc, 1));
 wbThreads.create_thread(boost::bind(&LocateSpeaker::run, &locateSpeaker));
