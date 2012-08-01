@@ -57,8 +57,8 @@ void wbPipeline(char* outDir, char* dir, char* first, int start)
   ReadMod readFromDisk(wbReadBuffer);
   
   boost::thread_group wbThreads;
-
-  wbThreads.create_thread(boost::bind(&WriteMod::WriteMats, &wbSlidesWriter, out));
+  
+  wbThreads.create_thread(boost::bind(&WriteMod::WriteSlides, &wbSlidesWriter, out, "whiteboard", start));
   wbThreads.create_thread(boost::bind(&WhiteBoardFoot::run, &wbSlides));
   wbThreads.create_thread(boost::bind(&WhiteBoardProcess::run, &wbproc, 1));
   wbThreads.create_thread(boost::bind(&LocateSpeaker::run, &locateSpeaker));
