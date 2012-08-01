@@ -48,7 +48,7 @@ void WhiteBoardFoot::run()
 	  //stable->copy(current);
 	  stable->finalWBUpdate(current);
 	  stable->maskGrowRed(20);
-	  stable->name = "grown";
+	  stable->name = "FinalWBUpdategrown";
 	  //stable->writeMask();
 	}
       else

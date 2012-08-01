@@ -62,7 +62,7 @@ void wbPipeline(char* outDir, char* dir, char* first, int start)
   wbThreads.create_thread(boost::bind(&WhiteBoardFoot::run, &wbSlides));
   wbThreads.create_thread(boost::bind(&WhiteBoardProcess::run, &wbproc, 1));
   wbThreads.create_thread(boost::bind(&LocateSpeaker::run, &locateSpeaker));
-  wbThreads.create_thread(boost::bind(&ReadMod::ReadFromPatternFlipExtCrop, &readFromDisk, WBdir,WBfirst,400,1400,3600,1356));
+  wbThreads.create_thread(boost::bind(&ReadMod::ReadFromPatternFlipExtCrop, &readFromDisk, WBdir,WBfirst,400,1400,3600,1000));
   
   wbThreads.join_all();
   

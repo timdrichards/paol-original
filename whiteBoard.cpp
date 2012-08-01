@@ -74,33 +74,32 @@ void WhiteBoardProcess::run(int skip)
 	  img->name = "img";
 	  //img->writeMask();
 	  img->threshedDifference(old);
-	  img->name = "threshedDifference";
-	  //
-	  img->writeMask();
+	  //img->name = "threshedDifference";
+	  //img->writeMask();
 
 	  
 	  alt->decimateMask(254);
 	  alt->decimateMask(254);
 	  alt->name = "alt-double-decimate";
 	  //
-	  alt->writeMask();
+	  //alt->writeMask();
 	  alt->sweepDown();
 	  alt->name = "alt-sweptDown";
 	  //
-	  alt->writeMask();
+	  //alt->writeMask();
 	  
 
 	  background->copyNoSrc(img);
 	  background->updateBackground(alt,img);
 	  background->name = "background-updated";
 	  //
-	  background->writeMask();
+	  // background->writeMask();
 	  background->cleanBackground(img);
 	  background->name = "background-clean";
 	  //
-	  background->write();
+	  //background->write();
 	  //
-	  background->writeMask();
+	  //background->writeMask();
 	  old->copy(img);
 	  //background->mask = img->mask.clone();
 	  push(background);
