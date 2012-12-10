@@ -76,7 +76,10 @@ void ComputerDistribute::run()
 #ifdef _debug_
 	      current->name = "ForCompMovie";
 #endif
-	      compMovie->push(current);//send to movie creation
+	      //where one ERROR is since we are seeing black frames
+	      //temporarily commenting out the push to see if if stops it from breaking
+	      //-Paul 11/29/12
+	      //compMovie->push(current);//send to movie creation
 	    }
 	  countStable=0;
 	} else {

@@ -699,13 +699,19 @@ void WriteMod::WriteCompVideo(std::string outDir, int start)
   int tFPS = 15;
   //## Current FPS (reset every second) ///////////////
   int cFPS = 0;
-  img->count = count;
-  second = img->time;
-  lastSecond = start;
-  black->copy(img);
-  black->src = Scalar(0,0,0);
+  // img->count = count;
+  // second = img->time;
+  // lastSecond = start;
+  // black->copy(img);
+  // black->src = Scalar(0,0,0);
   while(img!=NULL)
     {
+      img->count = count;
+      second = img->time;
+      lastSecond = start;
+      black->copy(img);
+      black->src = Scalar(0,0,0);
+      
       //If more then 10 seconds have gone by
       if(second > lastSecond +10)
 	{
@@ -723,8 +729,13 @@ void WriteMod::WriteCompVideo(std::string outDir, int start)
 	  log << " | "<< lastSecond << "\n";
 	  log.close();
 	}
-      if( (second == img->time) && (cFPS >= tFPS) )
-	std::cout<<"WriteMod:: Dropping frame, to many this second"<<std::endl;
+      // FIXME!
+      if( (second == img->time) && (cFPS >= tFPS) ) {
+      	std::cout<<"WriteMod:: Dropping frame, to many this second"<<std::endl;
+      	std::cout<<"Image Name: "<<img->name<<endl;
+      	std::cout<<"Image Count: "<<img->count<<endl;
+      	exit(1);
+      }
       else if( (second == img->time) && (cFPS < tFPS) )
 	{
 	  count++;
