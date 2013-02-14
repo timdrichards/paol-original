@@ -1,0 +1,8 @@
+#!/bin/bash
+
+room=$1
+ERRORFILE='/home/paol/paol-scripts/rec/gphotoErrorTemplate'
+
+if [[ eval "gphoto2 --capture-image-and-download" == *Error* ]]; then
+    echo "Camera in $room needs restarting"
+fi

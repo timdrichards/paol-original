@@ -1,0 +1,8 @@
+#!/bin/bash
+
+CAMERA=$1
+AUDIO=$2
+DURATION=$3
+OUT=$4
+
+ffmpeg -loop_input -shortest -y -i /home/paol/paol-scripts/rec/novideo.jpeg -t $DURATION -f alsa -ac 1 -i $AUDIO -threads 1 -f video4linux2 -s 960x720 $OUT

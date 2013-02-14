@@ -1,0 +1,1 @@
+./canonTest.sh: line 5: For: command not found

@@ -1,0 +1,27 @@
+#!/bin/bash
+CONVERT=/home/paol/paol-scripts/rec/gphotoCanonConvert
+
+JPGDIR=${DIRECTORY}/${LABEL}-tiff
+COUNTER=${JPGDIR}/counter
+case $ACTION in
+init)
+  ;;
+start)
+  rm -f /tmp/wboard-${LABEL}.tiff
+  mkdir $JPGDIR
+  echo 1 > $COUNTER
+  ;;
+download)
+  NOW=`date +%s`
+  read FRAME < ${COUNTER}
+  echo $((FRAME+1)) > ${COUNTER}
+# convert is slow, so we rename the wboard file and do the convert in the background
+  mv /tmp/wboard-${LABEL}.tiff ${JPGDIR}/${NOW}.tiff
+  FILE=`printf "wboard%s%06d-%10d.png" ${LABEL} ${FRAME} ${NOW}`
+  ${CONVERT} ${JPGDIR}/${NOW}.tiff ${DIRECTORY}/${FILE} &
+  ;;
+stop)
+  rm -f /tmp/wboard-${LABEL}.tiff
+  rm $COUNTER
+  ;;
+esac

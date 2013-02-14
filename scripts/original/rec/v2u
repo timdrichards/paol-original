@@ -1,0 +1,18 @@
+#!/bin/bash
+JAVA=/usr/bin/java
+JAR=/home/paol/paol-scripts/rec/vga2usbCap.jar
+JNI=/home/paol/paol-scripts/rec
+DRIVER=/home/paol/prereqs/epiphan/driver/
+MAKE=/usr/bin/make
+
+DURATION=$1
+LABEL=$2
+DIRECTORY=$3
+
+pushd $DRIVER
+${MAKE} reload
+popd
+
+mkdir -p ${DIRECTORY}
+
+${JAVA} -Djava.library.path=${JNI} -jar ${JAR} ${DURATION} ${LABEL} ${DIRECTORY}

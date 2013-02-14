@@ -1,0 +1,19 @@
+#!/bin/bash
+HOOKSCRIPT=/home/paol/paol-scripts/rec/gphotoCanonHook
+GPHOTO2=/usr/local/bin/gphoto2
+
+if [ $# -ne 3 ]; then
+  echo "Usage: gphotoCanonCap2 [directory] [duration] [human readable camID]"
+  exit
+fi
+
+export DIRECTORY=$1
+DURATION=$2
+export LABEL=$3
+
+mkdir -p $DIRECTORY
+
+INTERVAL=5
+FRAMES=$((DURATION/INTERVAL))
+
+${GPHOTO2} --force-overwrite --filename /tmp/wboard-${LABEL}.tiff --hook-script $HOOKSCRIPT --interval $INTERVAL --frames $FRAMES --capture-image-and-download

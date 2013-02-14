@@ -1,0 +1,7 @@
+#!/bin/bash
+
+IN=$1
+OUT=$2
+
+convert $1 $2
+rm $1
