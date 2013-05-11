@@ -1,0 +1,10 @@
+#!/bin/bash
+
+CAMERA=$1
+AUDIO=$2
+DURATION=$3
+OUT=$4
+
+ffmpeg -f video4linux2 -i $CAMERA -f alsa -ac 2 -i $AUDIO -threads 1 -t $DURATION $OUT
+#ffmpeg -t $DURATION -f alsa -ac 1 -i $AUDIO -threads 1 -f video4linux2 -s 480x360 -i $CAMERA $OUT
+#-s 960x720
